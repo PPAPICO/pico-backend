@@ -9,7 +9,10 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/policymatch"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/predicate"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/user"
 )
@@ -69,9 +72,208 @@ func (_u *UserUpdate) SetNillablePassword(v *string) *UserUpdate {
 	return _u
 }
 
+// SetAge sets the "age" field.
+func (_u *UserUpdate) SetAge(v int) *UserUpdate {
+	_u.mutation.ResetAge()
+	_u.mutation.SetAge(v)
+	return _u
+}
+
+// SetNillableAge sets the "age" field if the given value is not nil.
+func (_u *UserUpdate) SetNillableAge(v *int) *UserUpdate {
+	if v != nil {
+		_u.SetAge(*v)
+	}
+	return _u
+}
+
+// AddAge adds value to the "age" field.
+func (_u *UserUpdate) AddAge(v int) *UserUpdate {
+	_u.mutation.AddAge(v)
+	return _u
+}
+
+// SetRegion sets the "region" field.
+func (_u *UserUpdate) SetRegion(v string) *UserUpdate {
+	_u.mutation.SetRegion(v)
+	return _u
+}
+
+// SetNillableRegion sets the "region" field if the given value is not nil.
+func (_u *UserUpdate) SetNillableRegion(v *string) *UserUpdate {
+	if v != nil {
+		_u.SetRegion(*v)
+	}
+	return _u
+}
+
+// SetGender sets the "gender" field.
+func (_u *UserUpdate) SetGender(v user.Gender) *UserUpdate {
+	_u.mutation.SetGender(v)
+	return _u
+}
+
+// SetNillableGender sets the "gender" field if the given value is not nil.
+func (_u *UserUpdate) SetNillableGender(v *user.Gender) *UserUpdate {
+	if v != nil {
+		_u.SetGender(*v)
+	}
+	return _u
+}
+
+// SetIsStudent sets the "is_student" field.
+func (_u *UserUpdate) SetIsStudent(v bool) *UserUpdate {
+	_u.mutation.SetIsStudent(v)
+	return _u
+}
+
+// SetNillableIsStudent sets the "is_student" field if the given value is not nil.
+func (_u *UserUpdate) SetNillableIsStudent(v *bool) *UserUpdate {
+	if v != nil {
+		_u.SetIsStudent(*v)
+	}
+	return _u
+}
+
+// SetIsYouth sets the "is_youth" field.
+func (_u *UserUpdate) SetIsYouth(v bool) *UserUpdate {
+	_u.mutation.SetIsYouth(v)
+	return _u
+}
+
+// SetNillableIsYouth sets the "is_youth" field if the given value is not nil.
+func (_u *UserUpdate) SetNillableIsYouth(v *bool) *UserUpdate {
+	if v != nil {
+		_u.SetIsYouth(*v)
+	}
+	return _u
+}
+
+// SetIsPregnant sets the "is_pregnant" field.
+func (_u *UserUpdate) SetIsPregnant(v bool) *UserUpdate {
+	_u.mutation.SetIsPregnant(v)
+	return _u
+}
+
+// SetNillableIsPregnant sets the "is_pregnant" field if the given value is not nil.
+func (_u *UserUpdate) SetNillableIsPregnant(v *bool) *UserUpdate {
+	if v != nil {
+		_u.SetIsPregnant(*v)
+	}
+	return _u
+}
+
+// ClearIsPregnant clears the value of the "is_pregnant" field.
+func (_u *UserUpdate) ClearIsPregnant() *UserUpdate {
+	_u.mutation.ClearIsPregnant()
+	return _u
+}
+
+// SetIsBusiness sets the "is_business" field.
+func (_u *UserUpdate) SetIsBusiness(v bool) *UserUpdate {
+	_u.mutation.SetIsBusiness(v)
+	return _u
+}
+
+// SetNillableIsBusiness sets the "is_business" field if the given value is not nil.
+func (_u *UserUpdate) SetNillableIsBusiness(v *bool) *UserUpdate {
+	if v != nil {
+		_u.SetIsBusiness(*v)
+	}
+	return _u
+}
+
+// ClearIsBusiness clears the value of the "is_business" field.
+func (_u *UserUpdate) ClearIsBusiness() *UserUpdate {
+	_u.mutation.ClearIsBusiness()
+	return _u
+}
+
+// SetInterests sets the "interests" field.
+func (_u *UserUpdate) SetInterests(v []string) *UserUpdate {
+	_u.mutation.SetInterests(v)
+	return _u
+}
+
+// AppendInterests appends value to the "interests" field.
+func (_u *UserUpdate) AppendInterests(v []string) *UserUpdate {
+	_u.mutation.AppendInterests(v)
+	return _u
+}
+
+// ClearInterests clears the value of the "interests" field.
+func (_u *UserUpdate) ClearInterests() *UserUpdate {
+	_u.mutation.ClearInterests()
+	return _u
+}
+
+// SetIsDisabled sets the "is_disabled" field.
+func (_u *UserUpdate) SetIsDisabled(v bool) *UserUpdate {
+	_u.mutation.SetIsDisabled(v)
+	return _u
+}
+
+// SetNillableIsDisabled sets the "is_disabled" field if the given value is not nil.
+func (_u *UserUpdate) SetNillableIsDisabled(v *bool) *UserUpdate {
+	if v != nil {
+		_u.SetIsDisabled(*v)
+	}
+	return _u
+}
+
+// SetNationality sets the "nationality" field.
+func (_u *UserUpdate) SetNationality(v user.Nationality) *UserUpdate {
+	_u.mutation.SetNationality(v)
+	return _u
+}
+
+// SetNillableNationality sets the "nationality" field if the given value is not nil.
+func (_u *UserUpdate) SetNillableNationality(v *user.Nationality) *UserUpdate {
+	if v != nil {
+		_u.SetNationality(*v)
+	}
+	return _u
+}
+
+// AddPolicyMatchIDs adds the "policy_matches" edge to the PolicyMatch entity by IDs.
+func (_u *UserUpdate) AddPolicyMatchIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.AddPolicyMatchIDs(ids...)
+	return _u
+}
+
+// AddPolicyMatches adds the "policy_matches" edges to the PolicyMatch entity.
+func (_u *UserUpdate) AddPolicyMatches(v ...*PolicyMatch) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddPolicyMatchIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (_u *UserUpdate) Mutation() *UserMutation {
 	return _u.mutation
+}
+
+// ClearPolicyMatches clears all "policy_matches" edges to the PolicyMatch entity.
+func (_u *UserUpdate) ClearPolicyMatches() *UserUpdate {
+	_u.mutation.ClearPolicyMatches()
+	return _u
+}
+
+// RemovePolicyMatchIDs removes the "policy_matches" edge to PolicyMatch entities by IDs.
+func (_u *UserUpdate) RemovePolicyMatchIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.RemovePolicyMatchIDs(ids...)
+	return _u
+}
+
+// RemovePolicyMatches removes "policy_matches" edges to PolicyMatch entities.
+func (_u *UserUpdate) RemovePolicyMatches(v ...*PolicyMatch) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemovePolicyMatchIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -118,6 +320,16 @@ func (_u *UserUpdate) check() error {
 			return &ValidationError{Name: "password", err: fmt.Errorf(`ent: validator failed for field "User.password": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.Gender(); ok {
+		if err := user.GenderValidator(v); err != nil {
+			return &ValidationError{Name: "gender", err: fmt.Errorf(`ent: validator failed for field "User.gender": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.Nationality(); ok {
+		if err := user.NationalityValidator(v); err != nil {
+			return &ValidationError{Name: "nationality", err: fmt.Errorf(`ent: validator failed for field "User.nationality": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -141,6 +353,98 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.Password(); ok {
 		_spec.SetField(user.FieldPassword, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Age(); ok {
+		_spec.SetField(user.FieldAge, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedAge(); ok {
+		_spec.AddField(user.FieldAge, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.Region(); ok {
+		_spec.SetField(user.FieldRegion, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Gender(); ok {
+		_spec.SetField(user.FieldGender, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.IsStudent(); ok {
+		_spec.SetField(user.FieldIsStudent, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.IsYouth(); ok {
+		_spec.SetField(user.FieldIsYouth, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.IsPregnant(); ok {
+		_spec.SetField(user.FieldIsPregnant, field.TypeBool, value)
+	}
+	if _u.mutation.IsPregnantCleared() {
+		_spec.ClearField(user.FieldIsPregnant, field.TypeBool)
+	}
+	if value, ok := _u.mutation.IsBusiness(); ok {
+		_spec.SetField(user.FieldIsBusiness, field.TypeBool, value)
+	}
+	if _u.mutation.IsBusinessCleared() {
+		_spec.ClearField(user.FieldIsBusiness, field.TypeBool)
+	}
+	if value, ok := _u.mutation.Interests(); ok {
+		_spec.SetField(user.FieldInterests, field.TypeJSON, value)
+	}
+	if value, ok := _u.mutation.AppendedInterests(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, user.FieldInterests, value)
+		})
+	}
+	if _u.mutation.InterestsCleared() {
+		_spec.ClearField(user.FieldInterests, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.IsDisabled(); ok {
+		_spec.SetField(user.FieldIsDisabled, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.Nationality(); ok {
+		_spec.SetField(user.FieldNationality, field.TypeEnum, value)
+	}
+	if _u.mutation.PolicyMatchesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.PolicyMatchesTable,
+			Columns: []string{user.PolicyMatchesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(policymatch.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedPolicyMatchesIDs(); len(nodes) > 0 && !_u.mutation.PolicyMatchesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.PolicyMatchesTable,
+			Columns: []string{user.PolicyMatchesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(policymatch.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.PolicyMatchesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.PolicyMatchesTable,
+			Columns: []string{user.PolicyMatchesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(policymatch.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -204,9 +508,208 @@ func (_u *UserUpdateOne) SetNillablePassword(v *string) *UserUpdateOne {
 	return _u
 }
 
+// SetAge sets the "age" field.
+func (_u *UserUpdateOne) SetAge(v int) *UserUpdateOne {
+	_u.mutation.ResetAge()
+	_u.mutation.SetAge(v)
+	return _u
+}
+
+// SetNillableAge sets the "age" field if the given value is not nil.
+func (_u *UserUpdateOne) SetNillableAge(v *int) *UserUpdateOne {
+	if v != nil {
+		_u.SetAge(*v)
+	}
+	return _u
+}
+
+// AddAge adds value to the "age" field.
+func (_u *UserUpdateOne) AddAge(v int) *UserUpdateOne {
+	_u.mutation.AddAge(v)
+	return _u
+}
+
+// SetRegion sets the "region" field.
+func (_u *UserUpdateOne) SetRegion(v string) *UserUpdateOne {
+	_u.mutation.SetRegion(v)
+	return _u
+}
+
+// SetNillableRegion sets the "region" field if the given value is not nil.
+func (_u *UserUpdateOne) SetNillableRegion(v *string) *UserUpdateOne {
+	if v != nil {
+		_u.SetRegion(*v)
+	}
+	return _u
+}
+
+// SetGender sets the "gender" field.
+func (_u *UserUpdateOne) SetGender(v user.Gender) *UserUpdateOne {
+	_u.mutation.SetGender(v)
+	return _u
+}
+
+// SetNillableGender sets the "gender" field if the given value is not nil.
+func (_u *UserUpdateOne) SetNillableGender(v *user.Gender) *UserUpdateOne {
+	if v != nil {
+		_u.SetGender(*v)
+	}
+	return _u
+}
+
+// SetIsStudent sets the "is_student" field.
+func (_u *UserUpdateOne) SetIsStudent(v bool) *UserUpdateOne {
+	_u.mutation.SetIsStudent(v)
+	return _u
+}
+
+// SetNillableIsStudent sets the "is_student" field if the given value is not nil.
+func (_u *UserUpdateOne) SetNillableIsStudent(v *bool) *UserUpdateOne {
+	if v != nil {
+		_u.SetIsStudent(*v)
+	}
+	return _u
+}
+
+// SetIsYouth sets the "is_youth" field.
+func (_u *UserUpdateOne) SetIsYouth(v bool) *UserUpdateOne {
+	_u.mutation.SetIsYouth(v)
+	return _u
+}
+
+// SetNillableIsYouth sets the "is_youth" field if the given value is not nil.
+func (_u *UserUpdateOne) SetNillableIsYouth(v *bool) *UserUpdateOne {
+	if v != nil {
+		_u.SetIsYouth(*v)
+	}
+	return _u
+}
+
+// SetIsPregnant sets the "is_pregnant" field.
+func (_u *UserUpdateOne) SetIsPregnant(v bool) *UserUpdateOne {
+	_u.mutation.SetIsPregnant(v)
+	return _u
+}
+
+// SetNillableIsPregnant sets the "is_pregnant" field if the given value is not nil.
+func (_u *UserUpdateOne) SetNillableIsPregnant(v *bool) *UserUpdateOne {
+	if v != nil {
+		_u.SetIsPregnant(*v)
+	}
+	return _u
+}
+
+// ClearIsPregnant clears the value of the "is_pregnant" field.
+func (_u *UserUpdateOne) ClearIsPregnant() *UserUpdateOne {
+	_u.mutation.ClearIsPregnant()
+	return _u
+}
+
+// SetIsBusiness sets the "is_business" field.
+func (_u *UserUpdateOne) SetIsBusiness(v bool) *UserUpdateOne {
+	_u.mutation.SetIsBusiness(v)
+	return _u
+}
+
+// SetNillableIsBusiness sets the "is_business" field if the given value is not nil.
+func (_u *UserUpdateOne) SetNillableIsBusiness(v *bool) *UserUpdateOne {
+	if v != nil {
+		_u.SetIsBusiness(*v)
+	}
+	return _u
+}
+
+// ClearIsBusiness clears the value of the "is_business" field.
+func (_u *UserUpdateOne) ClearIsBusiness() *UserUpdateOne {
+	_u.mutation.ClearIsBusiness()
+	return _u
+}
+
+// SetInterests sets the "interests" field.
+func (_u *UserUpdateOne) SetInterests(v []string) *UserUpdateOne {
+	_u.mutation.SetInterests(v)
+	return _u
+}
+
+// AppendInterests appends value to the "interests" field.
+func (_u *UserUpdateOne) AppendInterests(v []string) *UserUpdateOne {
+	_u.mutation.AppendInterests(v)
+	return _u
+}
+
+// ClearInterests clears the value of the "interests" field.
+func (_u *UserUpdateOne) ClearInterests() *UserUpdateOne {
+	_u.mutation.ClearInterests()
+	return _u
+}
+
+// SetIsDisabled sets the "is_disabled" field.
+func (_u *UserUpdateOne) SetIsDisabled(v bool) *UserUpdateOne {
+	_u.mutation.SetIsDisabled(v)
+	return _u
+}
+
+// SetNillableIsDisabled sets the "is_disabled" field if the given value is not nil.
+func (_u *UserUpdateOne) SetNillableIsDisabled(v *bool) *UserUpdateOne {
+	if v != nil {
+		_u.SetIsDisabled(*v)
+	}
+	return _u
+}
+
+// SetNationality sets the "nationality" field.
+func (_u *UserUpdateOne) SetNationality(v user.Nationality) *UserUpdateOne {
+	_u.mutation.SetNationality(v)
+	return _u
+}
+
+// SetNillableNationality sets the "nationality" field if the given value is not nil.
+func (_u *UserUpdateOne) SetNillableNationality(v *user.Nationality) *UserUpdateOne {
+	if v != nil {
+		_u.SetNationality(*v)
+	}
+	return _u
+}
+
+// AddPolicyMatchIDs adds the "policy_matches" edge to the PolicyMatch entity by IDs.
+func (_u *UserUpdateOne) AddPolicyMatchIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.AddPolicyMatchIDs(ids...)
+	return _u
+}
+
+// AddPolicyMatches adds the "policy_matches" edges to the PolicyMatch entity.
+func (_u *UserUpdateOne) AddPolicyMatches(v ...*PolicyMatch) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddPolicyMatchIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (_u *UserUpdateOne) Mutation() *UserMutation {
 	return _u.mutation
+}
+
+// ClearPolicyMatches clears all "policy_matches" edges to the PolicyMatch entity.
+func (_u *UserUpdateOne) ClearPolicyMatches() *UserUpdateOne {
+	_u.mutation.ClearPolicyMatches()
+	return _u
+}
+
+// RemovePolicyMatchIDs removes the "policy_matches" edge to PolicyMatch entities by IDs.
+func (_u *UserUpdateOne) RemovePolicyMatchIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.RemovePolicyMatchIDs(ids...)
+	return _u
+}
+
+// RemovePolicyMatches removes "policy_matches" edges to PolicyMatch entities.
+func (_u *UserUpdateOne) RemovePolicyMatches(v ...*PolicyMatch) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemovePolicyMatchIDs(ids...)
 }
 
 // Where appends a list predicates to the UserUpdate builder.
@@ -266,6 +769,16 @@ func (_u *UserUpdateOne) check() error {
 			return &ValidationError{Name: "password", err: fmt.Errorf(`ent: validator failed for field "User.password": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.Gender(); ok {
+		if err := user.GenderValidator(v); err != nil {
+			return &ValidationError{Name: "gender", err: fmt.Errorf(`ent: validator failed for field "User.gender": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.Nationality(); ok {
+		if err := user.NationalityValidator(v); err != nil {
+			return &ValidationError{Name: "nationality", err: fmt.Errorf(`ent: validator failed for field "User.nationality": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -306,6 +819,98 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 	}
 	if value, ok := _u.mutation.Password(); ok {
 		_spec.SetField(user.FieldPassword, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Age(); ok {
+		_spec.SetField(user.FieldAge, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedAge(); ok {
+		_spec.AddField(user.FieldAge, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.Region(); ok {
+		_spec.SetField(user.FieldRegion, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Gender(); ok {
+		_spec.SetField(user.FieldGender, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.IsStudent(); ok {
+		_spec.SetField(user.FieldIsStudent, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.IsYouth(); ok {
+		_spec.SetField(user.FieldIsYouth, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.IsPregnant(); ok {
+		_spec.SetField(user.FieldIsPregnant, field.TypeBool, value)
+	}
+	if _u.mutation.IsPregnantCleared() {
+		_spec.ClearField(user.FieldIsPregnant, field.TypeBool)
+	}
+	if value, ok := _u.mutation.IsBusiness(); ok {
+		_spec.SetField(user.FieldIsBusiness, field.TypeBool, value)
+	}
+	if _u.mutation.IsBusinessCleared() {
+		_spec.ClearField(user.FieldIsBusiness, field.TypeBool)
+	}
+	if value, ok := _u.mutation.Interests(); ok {
+		_spec.SetField(user.FieldInterests, field.TypeJSON, value)
+	}
+	if value, ok := _u.mutation.AppendedInterests(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, user.FieldInterests, value)
+		})
+	}
+	if _u.mutation.InterestsCleared() {
+		_spec.ClearField(user.FieldInterests, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.IsDisabled(); ok {
+		_spec.SetField(user.FieldIsDisabled, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.Nationality(); ok {
+		_spec.SetField(user.FieldNationality, field.TypeEnum, value)
+	}
+	if _u.mutation.PolicyMatchesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.PolicyMatchesTable,
+			Columns: []string{user.PolicyMatchesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(policymatch.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedPolicyMatchesIDs(); len(nodes) > 0 && !_u.mutation.PolicyMatchesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.PolicyMatchesTable,
+			Columns: []string{user.PolicyMatchesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(policymatch.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.PolicyMatchesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.PolicyMatchesTable,
+			Columns: []string{user.PolicyMatchesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(policymatch.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &User{config: _u.config}
 	_spec.Assign = _node.assignValues

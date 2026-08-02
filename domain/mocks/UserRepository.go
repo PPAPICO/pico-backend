@@ -17,7 +17,7 @@ type UserRepository struct {
 }
 
 // Create provides a mock function with given fields: c, user
-func (_m *UserRepository) Create(c context.Context, user *domain.User) (*domain.User, error) {
+func (_m *UserRepository) Save(c context.Context, user *domain.User) (*domain.User, error) {
 	ret := _m.Called(c, user)
 
 	if len(ret) == 0 {
@@ -47,7 +47,7 @@ func (_m *UserRepository) Create(c context.Context, user *domain.User) (*domain.
 }
 
 // Fetch provides a mock function with given fields: c
-func (_m *UserRepository) Fetch(c context.Context) ([]*domain.User, error) {
+func (_m *UserRepository) FindAll(c context.Context) ([]*domain.User, error) {
 	ret := _m.Called(c)
 
 	if len(ret) == 0 {
@@ -77,7 +77,7 @@ func (_m *UserRepository) Fetch(c context.Context) ([]*domain.User, error) {
 }
 
 // GetByEmail provides a mock function with given fields: c, email
-func (_m *UserRepository) GetByEmail(c context.Context, email string) (*domain.User, error) {
+func (_m *UserRepository) FindByEmail(c context.Context, email string) (*domain.User, error) {
 	ret := _m.Called(c, email)
 
 	if len(ret) == 0 {
@@ -107,7 +107,7 @@ func (_m *UserRepository) GetByEmail(c context.Context, email string) (*domain.U
 }
 
 // GetByID provides a mock function with given fields: c, id
-func (_m *UserRepository) GetByID(c context.Context, id *uuid.UUID) (*domain.User, error) {
+func (_m *UserRepository) FindByID(c context.Context, id *uuid.UUID) (*domain.User, error) {
 	ret := _m.Called(c, id)
 
 	if len(ret) == 0 {

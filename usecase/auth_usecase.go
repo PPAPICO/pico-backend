@@ -28,7 +28,7 @@ func (u *authUseCase) Register(c context.Context, name, email, password string) 
 	ctx, cancel := context.WithTimeout(c, u.contextTimeout)
 	defer cancel()
 
-	_, err := u.userRepository.GetByEmail(ctx, email)
+	_, err := u.userRepository.FindByEmail(ctx, email)
 	if err == nil {
 		return nil, domain.NewBadRequestError(err)
 	}
@@ -41,7 +41,7 @@ func (u *authUseCase) Register(c context.Context, name, email, password string) 
 		return nil, domain.NewBadRequestError(err)
 	}
 
-	user, err := u.userRepository.Create(ctx, &domain.User{
+	user, err := u.userRepository.Save(ctx, &domain.User{
 		Name:     name,
 		Email:    email,
 		Password: string(encrypted),
@@ -57,7 +57,7 @@ func (u *authUseCase) Login(c context.Context, email, password string) (*domain.
 	ctx, cancel := context.WithTimeout(c, u.contextTimeout)
 	defer cancel()
 
-	user, err := u.userRepository.GetByEmail(ctx, email)
+	user, err := u.userRepository.FindByEmail(ctx, email)
 	if err != nil {
 		return nil, domain.NewUnauthorizedError(err)
 	}
@@ -92,7 +92,7 @@ func (u *authUseCase) ExtractUserFromRefreshToken(c context.Context, requestToke
 		}
 	}
 
-	user, err := u.userRepository.GetByID(c, id)
+	user, err := u.userRepository.FindByID(c, id)
 	if err != nil {
 		return nil, domain.NewUnauthorizedError(err)
 	}

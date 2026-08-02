@@ -18,12 +18,54 @@ func NewUserRepository(client *ent.Client) domain.UserRepository {
 	}
 }
 
-func (r *userRepository) Create(c context.Context, user *domain.User) (*domain.User, error) {
-	u, err := r.client.User.Create().
-		SetName(user.Name).
-		SetEmail(user.Email).
-		SetPassword(user.Password).
-		Save(c)
+func (r *userRepository) Save(c context.Context, u *domain.User) (*domain.User, error) {
+	builder := r.client.User.Create().
+		SetName(u.Name).
+		SetEmail(u.Email).
+		SetPassword(u.Password).
+		SetAge(u.Age).
+		SetRegion(u.Region).
+		SetGender(user.Gender(u.Gender)).
+		SetIsStudent(u.IsStudent).
+		SetIsYouth(u.IsYouth).
+		SetInterests(interestsToStrings(u.Interests)).
+		SetIsDisabled(u.IsDisabled).
+		SetNationality(user.Nationality(u.Nationality))
+
+	if u.IsPregnant != nil {
+		builder.SetIsPregnant(*u.IsPregnant)
+	}
+
+	if u.IsBusiness != nil {
+		builder.SetIsBusiness(*u.IsBusiness)
+	}
+
+	userEnt, err := builder.Save(c)
+	if err != nil {
+		return nil, err
+	}
+
+	return toDomainUser(userEnt), nil
+}
+
+func (r *userRepository) FindAll(c context.Context) ([]*domain.User, error) {
+	users, err := r.client.User.Query().All(c)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]*domain.User, len(users))
+	for i, u := range users {
+		result[i] = toDomainUser(u)
+	}
+
+	return result, nil
+}
+
+func (r *userRepository) FindByEmail(c context.Context, email string) (*domain.User, error) {
+	u, err := r.client.User.Query().
+		Where(user.EmailEQ(email)).
+		Only(c)
 	if err != nil {
 		return nil, err
 	}
@@ -31,36 +73,11 @@ func (r *userRepository) Create(c context.Context, user *domain.User) (*domain.U
 	return toDomainUser(u), nil
 }
 
-func (r *userRepository) Fetch(c context.Context) ([]*domain.User, error) {
-	u, err := r.client.User.Query().All(c)
-	if err != nil {
-		return nil, err
-	}
-
-	users := make([]*domain.User, len(u))
-	for i, v := range u {
-		users[i] = toDomainUser(v)
-	}
-
-	return users, err
-}
-
-func (r *userRepository) GetByEmail(c context.Context, email string) (*domain.User, error) {
-	u, err := r.client.User.Query().Where(
-		user.EmailEQ(email),
-	).Only(c)
-	if err != nil {
-		return nil, err
-	}
-
-	return toDomainUser(u), err
-}
-
-func (r *userRepository) GetByID(c context.Context, id *domain.ID) (*domain.User, error) {
+func (r *userRepository) FindByID(c context.Context, id *domain.ID) (*domain.User, error) {
 	u, err := r.client.User.Get(c, *id)
 	if err != nil {
 		return nil, err
 	}
 
-	return toDomainUser(u), err
+	return toDomainUser(u), nil
 }

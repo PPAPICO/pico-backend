@@ -6,8 +6,11 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
-// Task is the predicate function for task builders.
-type Task func(*sql.Selector)
+// GovernmentPolicy is the predicate function for governmentpolicy builders.
+type GovernmentPolicy func(*sql.Selector)
+
+// PolicyMatch is the predicate function for policymatch builders.
+type PolicyMatch func(*sql.Selector)
 
 // User is the predicate function for user builders.
 type User func(*sql.Selector)

@@ -23,7 +23,7 @@ func (pu *profileUseCase) GetProfileByID(c context.Context, userID *domain.ID) (
 	ctx, cancel := context.WithTimeout(c, pu.contextTimeout)
 	defer cancel()
 
-	user, err := pu.userRepository.GetByID(ctx, userID)
+	user, err := pu.userRepository.FindByID(ctx, userID)
 	if err != nil {
 		return nil, err
 	}

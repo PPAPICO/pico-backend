@@ -3,9 +3,11 @@
 package user
 
 import (
+	"fmt"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
 )
 
@@ -20,10 +22,39 @@ const (
 	FieldEmail = "email"
 	// FieldPassword holds the string denoting the password field in the database.
 	FieldPassword = "password"
+	// FieldAge holds the string denoting the age field in the database.
+	FieldAge = "age"
+	// FieldRegion holds the string denoting the region field in the database.
+	FieldRegion = "region"
+	// FieldGender holds the string denoting the gender field in the database.
+	FieldGender = "gender"
+	// FieldIsStudent holds the string denoting the is_student field in the database.
+	FieldIsStudent = "is_student"
+	// FieldIsYouth holds the string denoting the is_youth field in the database.
+	FieldIsYouth = "is_youth"
+	// FieldIsPregnant holds the string denoting the is_pregnant field in the database.
+	FieldIsPregnant = "is_pregnant"
+	// FieldIsBusiness holds the string denoting the is_business field in the database.
+	FieldIsBusiness = "is_business"
+	// FieldInterests holds the string denoting the interests field in the database.
+	FieldInterests = "interests"
+	// FieldIsDisabled holds the string denoting the is_disabled field in the database.
+	FieldIsDisabled = "is_disabled"
+	// FieldNationality holds the string denoting the nationality field in the database.
+	FieldNationality = "nationality"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
+	// EdgePolicyMatches holds the string denoting the policy_matches edge name in mutations.
+	EdgePolicyMatches = "policy_matches"
 	// Table holds the table name of the user in the database.
 	Table = "users"
+	// PolicyMatchesTable is the table that holds the policy_matches relation/edge.
+	PolicyMatchesTable = "policy_matches"
+	// PolicyMatchesInverseTable is the table name for the PolicyMatch entity.
+	// It exists in this package in order to avoid circular dependency with the "policymatch" package.
+	PolicyMatchesInverseTable = "policy_matches"
+	// PolicyMatchesColumn is the table column denoting the policy_matches relation/edge.
+	PolicyMatchesColumn = "user_policy_matches"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -32,6 +63,16 @@ var Columns = []string{
 	FieldName,
 	FieldEmail,
 	FieldPassword,
+	FieldAge,
+	FieldRegion,
+	FieldGender,
+	FieldIsStudent,
+	FieldIsYouth,
+	FieldIsPregnant,
+	FieldIsBusiness,
+	FieldInterests,
+	FieldIsDisabled,
+	FieldNationality,
 	FieldCreatedAt,
 }
 
@@ -52,11 +93,64 @@ var (
 	EmailValidator func(string) error
 	// PasswordValidator is a validator for the "password" field. It is called by the builders before save.
 	PasswordValidator func(string) error
+	// DefaultIsStudent holds the default value on creation for the "is_student" field.
+	DefaultIsStudent bool
+	// DefaultIsYouth holds the default value on creation for the "is_youth" field.
+	DefaultIsYouth bool
+	// DefaultIsDisabled holds the default value on creation for the "is_disabled" field.
+	DefaultIsDisabled bool
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
 	DefaultCreatedAt func() time.Time
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )
+
+// Gender defines the type for the "gender" enum field.
+type Gender string
+
+// Gender values.
+const (
+	GenderMALE   Gender = "MALE"
+	GenderFEMALE Gender = "FEMALE"
+	GenderOTHER  Gender = "OTHER"
+)
+
+func (ge Gender) String() string {
+	return string(ge)
+}
+
+// GenderValidator is a validator for the "gender" field enum values. It is called by the builders before save.
+func GenderValidator(ge Gender) error {
+	switch ge {
+	case GenderMALE, GenderFEMALE, GenderOTHER:
+		return nil
+	default:
+		return fmt.Errorf("user: invalid enum value for gender field: %q", ge)
+	}
+}
+
+// Nationality defines the type for the "nationality" enum field.
+type Nationality string
+
+// Nationality values.
+const (
+	NationalityDOMESTIC Nationality = "DOMESTIC"
+	NationalityFOREIGN  Nationality = "FOREIGN"
+)
+
+func (n Nationality) String() string {
+	return string(n)
+}
+
+// NationalityValidator is a validator for the "nationality" field enum values. It is called by the builders before save.
+func NationalityValidator(n Nationality) error {
+	switch n {
+	case NationalityDOMESTIC, NationalityFOREIGN:
+		return nil
+	default:
+		return fmt.Errorf("user: invalid enum value for nationality field: %q", n)
+	}
+}
 
 // OrderOption defines the ordering options for the User queries.
 type OrderOption func(*sql.Selector)
@@ -81,7 +175,73 @@ func ByPassword(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPassword, opts...).ToFunc()
 }
 
+// ByAge orders the results by the age field.
+func ByAge(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAge, opts...).ToFunc()
+}
+
+// ByRegion orders the results by the region field.
+func ByRegion(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRegion, opts...).ToFunc()
+}
+
+// ByGender orders the results by the gender field.
+func ByGender(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldGender, opts...).ToFunc()
+}
+
+// ByIsStudent orders the results by the is_student field.
+func ByIsStudent(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIsStudent, opts...).ToFunc()
+}
+
+// ByIsYouth orders the results by the is_youth field.
+func ByIsYouth(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIsYouth, opts...).ToFunc()
+}
+
+// ByIsPregnant orders the results by the is_pregnant field.
+func ByIsPregnant(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIsPregnant, opts...).ToFunc()
+}
+
+// ByIsBusiness orders the results by the is_business field.
+func ByIsBusiness(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIsBusiness, opts...).ToFunc()
+}
+
+// ByIsDisabled orders the results by the is_disabled field.
+func ByIsDisabled(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIsDisabled, opts...).ToFunc()
+}
+
+// ByNationality orders the results by the nationality field.
+func ByNationality(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldNationality, opts...).ToFunc()
+}
+
 // ByCreatedAt orders the results by the created_at field.
 func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
+}
+
+// ByPolicyMatchesCount orders the results by policy_matches count.
+func ByPolicyMatchesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newPolicyMatchesStep(), opts...)
+	}
+}
+
+// ByPolicyMatches orders the results by policy_matches terms.
+func ByPolicyMatches(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newPolicyMatchesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+func newPolicyMatchesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(PolicyMatchesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, PolicyMatchesTable, PolicyMatchesColumn),
+	)
 }

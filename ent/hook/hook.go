@@ -9,16 +9,28 @@ import (
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent"
 )
 
-// The TaskFunc type is an adapter to allow the use of ordinary
-// function as Task mutator.
-type TaskFunc func(context.Context, *ent.TaskMutation) (ent.Value, error)
+// The GovernmentPolicyFunc type is an adapter to allow the use of ordinary
+// function as GovernmentPolicy mutator.
+type GovernmentPolicyFunc func(context.Context, *ent.GovernmentPolicyMutation) (ent.Value, error)
 
 // Mutate calls f(ctx, m).
-func (f TaskFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.TaskMutation); ok {
+func (f GovernmentPolicyFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.GovernmentPolicyMutation); ok {
 		return f(ctx, mv)
 	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TaskMutation", m)
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.GovernmentPolicyMutation", m)
+}
+
+// The PolicyMatchFunc type is an adapter to allow the use of ordinary
+// function as PolicyMatch mutator.
+type PolicyMatchFunc func(context.Context, *ent.PolicyMatchMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f PolicyMatchFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.PolicyMatchMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.PolicyMatchMutation", m)
 }
 
 // The UserFunc type is an adapter to allow the use of ordinary

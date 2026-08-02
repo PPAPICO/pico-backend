@@ -8,24 +8,48 @@ import (
 )
 
 var (
-	// TasksColumns holds the columns for the "tasks" table.
-	TasksColumns = []*schema.Column{
+	// GovernmentPoliciesColumns holds the columns for the "government_policies" table.
+	GovernmentPoliciesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
 		{Name: "title", Type: field.TypeString},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "task_owner", Type: field.TypeUUID},
+		{Name: "description", Type: field.TypeString, Size: 2147483647},
+		{Name: "region_code", Type: field.TypeInt},
+		{Name: "start_date", Type: field.TypeTime},
+		{Name: "end_date", Type: field.TypeTime},
+		{Name: "address", Type: field.TypeString},
+		{Name: "latitude", Type: field.TypeFloat64},
+		{Name: "longitude", Type: field.TypeFloat64},
 	}
-	// TasksTable holds the schema information for the "tasks" table.
-	TasksTable = &schema.Table{
-		Name:       "tasks",
-		Columns:    TasksColumns,
-		PrimaryKey: []*schema.Column{TasksColumns[0]},
+	// GovernmentPoliciesTable holds the schema information for the "government_policies" table.
+	GovernmentPoliciesTable = &schema.Table{
+		Name:       "government_policies",
+		Columns:    GovernmentPoliciesColumns,
+		PrimaryKey: []*schema.Column{GovernmentPoliciesColumns[0]},
+	}
+	// PolicyMatchesColumns holds the columns for the "policy_matches" table.
+	PolicyMatchesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "match", Type: field.TypeEnum, Enums: []string{"POSSIBLE", "UNCERTAIN", "IMPOSSIBLE"}},
+		{Name: "government_policy_matches", Type: field.TypeUUID},
+		{Name: "user_policy_matches", Type: field.TypeUUID},
+	}
+	// PolicyMatchesTable holds the schema information for the "policy_matches" table.
+	PolicyMatchesTable = &schema.Table{
+		Name:       "policy_matches",
+		Columns:    PolicyMatchesColumns,
+		PrimaryKey: []*schema.Column{PolicyMatchesColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "tasks_users_owner",
-				Columns:    []*schema.Column{TasksColumns[3]},
+				Symbol:     "policy_matches_government_policies_matches",
+				Columns:    []*schema.Column{PolicyMatchesColumns[2]},
+				RefColumns: []*schema.Column{GovernmentPoliciesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "policy_matches_users_policy_matches",
+				Columns:    []*schema.Column{PolicyMatchesColumns[3]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
-				OnDelete:   schema.Cascade,
+				OnDelete:   schema.NoAction,
 			},
 		},
 	}
@@ -35,6 +59,16 @@ var (
 		{Name: "name", Type: field.TypeString},
 		{Name: "email", Type: field.TypeString, Unique: true},
 		{Name: "password", Type: field.TypeString},
+		{Name: "age", Type: field.TypeInt},
+		{Name: "region", Type: field.TypeString},
+		{Name: "gender", Type: field.TypeEnum, Enums: []string{"MALE", "FEMALE", "OTHER"}},
+		{Name: "is_student", Type: field.TypeBool, Default: false},
+		{Name: "is_youth", Type: field.TypeBool, Default: false},
+		{Name: "is_pregnant", Type: field.TypeBool, Nullable: true},
+		{Name: "is_business", Type: field.TypeBool, Nullable: true},
+		{Name: "interests", Type: field.TypeJSON, Nullable: true},
+		{Name: "is_disabled", Type: field.TypeBool, Default: false},
+		{Name: "nationality", Type: field.TypeEnum, Enums: []string{"DOMESTIC", "FOREIGN"}},
 		{Name: "created_at", Type: field.TypeTime},
 	}
 	// UsersTable holds the schema information for the "users" table.
@@ -45,11 +79,13 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
-		TasksTable,
+		GovernmentPoliciesTable,
+		PolicyMatchesTable,
 		UsersTable,
 	}
 )
 
 func init() {
-	TasksTable.ForeignKeys[0].RefTable = UsersTable
+	PolicyMatchesTable.ForeignKeys[0].RefTable = GovernmentPoliciesTable
+	PolicyMatchesTable.ForeignKeys[1].RefTable = UsersTable
 }
