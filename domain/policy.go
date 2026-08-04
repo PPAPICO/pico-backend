@@ -27,23 +27,30 @@ type PolicyMatch struct {
 type Match int
 
 const (
-	Possible   Match = iota
-	Uncertain  Match = iota
-	Impossible Match = iota
+	POSSIBLE   Match = iota
+	UNCERTAIN  Match = iota
+	IMPOSSIBLE Match = iota
 )
 
 type PolicyRepository interface {
-	FindAll(ctx context.Context) ([]*Policy, error)
-	FindByID(ctx context.Context, id *ID) (*Policy, error)
-	FindAllByRegionCode(ctx context.Context, regionCode int) ([]*Policy, error)
-	FindAllByRegionCodeAndActive(ctx context.Context, regionCode int) ([]*Policy, error)
-	Save(ctx context.Context, policy *Policy) (*Policy, error)
-	Delete(ctx context.Context, id *ID) error
+	FindAll(c context.Context) ([]*Policy, error)
+	FindByID(c context.Context, id *ID) (*Policy, error)
+	FindAllByRegionCode(c context.Context, regionCode int) ([]*Policy, error)
+	FindAllByRegionCodeAndActive(c context.Context, regionCode int) ([]*Policy, error)
+	Create(c context.Context, policy *Policy) (*Policy, error)
+	Delete(c context.Context, id *ID) error
+}
+
+type PolicyMatchRepository interface {
+	FindAllByUserID(c context.Context, userID *ID) ([]*PolicyMatch, error)
+	FindAllByUserIDAndStatus(c context.Context, userID *ID, status Match) ([]*PolicyMatch, error)
+	Create(c context.Context, policyMatch *PolicyMatch) (*PolicyMatch, error)
+	Update(c context.Context, id *ID, status Match) (*PolicyMatch, error)
 }
 
 type PolicyUseCase interface {
-	GetByID(ctx context.Context, id *ID) (*Policy, error)
-	ListRegionCodeAndActive(ctx context.Context, regionCode int) ([]*Policy, error)
-	GetFromApi(ctx context.Context) ([]*Policy, error)
-	GetMatchesByUserID(ctx context.Context, userID *ID) ([]*Policy, error)
+	GetByID(c context.Context, id *ID) (*Policy, error)
+	ListRegionCodeAndActive(c context.Context, regionCode int) ([]*Policy, error)
+	GetFromApi(c context.Context) ([]*Policy, error)
+	GetMatchesByUserID(c context.Context, userID *ID) ([]*Policy, error)
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/user"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/internal/collections"
 )
 
 type userRepository struct {
@@ -18,7 +19,7 @@ func NewUserRepository(client *ent.Client) domain.UserRepository {
 	}
 }
 
-func (r *userRepository) Save(c context.Context, u *domain.User) (*domain.User, error) {
+func (r *userRepository) Create(c context.Context, u *domain.User) (*domain.User, error) {
 	builder := r.client.User.Create().
 		SetName(u.Name).
 		SetEmail(u.Email).
@@ -54,12 +55,7 @@ func (r *userRepository) FindAll(c context.Context) ([]*domain.User, error) {
 		return nil, err
 	}
 
-	result := make([]*domain.User, len(users))
-	for i, u := range users {
-		result[i] = toDomainUser(u)
-	}
-
-	return result, nil
+	return collections.Map(users, toDomainUser), nil
 }
 
 func (r *userRepository) FindByEmail(c context.Context, email string) (*domain.User, error) {

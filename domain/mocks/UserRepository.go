@@ -17,7 +17,7 @@ type UserRepository struct {
 }
 
 // Create provides a mock function with given fields: c, user
-func (_m *UserRepository) Save(c context.Context, user *domain.User) (*domain.User, error) {
+func (_m *UserRepository) Create(c context.Context, user *domain.User) (*domain.User, error) {
 	ret := _m.Called(c, user)
 
 	if len(ret) == 0 {

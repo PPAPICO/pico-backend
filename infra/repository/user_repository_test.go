@@ -20,7 +20,7 @@ func TestCreate(t *testing.T) {
 
 	isBusiness := true
 
-	u, err := repo.Save(context.Background(), &domain.User{
+	u, err := repo.Create(context.Background(), &domain.User{
 		Name:       "hanul",
 		Email:      "hanul@gmail.com",
 		Password:   "123456",

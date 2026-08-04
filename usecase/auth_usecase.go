@@ -41,7 +41,7 @@ func (u *authUseCase) Register(c context.Context, name, email, password string) 
 		return nil, domain.NewBadRequestError(err)
 	}
 
-	user, err := u.userRepository.Save(ctx, &domain.User{
+	user, err := u.userRepository.Create(ctx, &domain.User{
 		Name:     name,
 		Email:    email,
 		Password: string(encrypted),
