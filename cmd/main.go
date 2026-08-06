@@ -72,6 +72,7 @@ func main() {
 	profileUseCase := usecase.NewProfileUseCase(userRepository, timeout)
 	authUseCase := usecase.NewAuthUseCase(userRepository, timeout)
 	policyUseCase := usecase.NewPolicyUseCase(policyRepository, policyMatchRepository, timeout)
+	_ = policyUseCase
 
 	// router
 	route.NewLoginRouter(api.Group("/login"), authUseCase)

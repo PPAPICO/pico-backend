@@ -2,6 +2,7 @@ package domain
 
 import (
 	"context"
+	"encoding/xml"
 	"time"
 )
 
@@ -31,6 +32,206 @@ const (
 	UNCERTAIN  Match = iota
 	IMPOSSIBLE Match = iota
 )
+
+// 1. 온통청년 청년정책 API Structs
+type YouthPolicyXMLResponse struct {
+	XMLName    xml.Name          `xml:"empsInfo"`
+	TotalCnt   string            `xml:"totalCnt"`
+	PageIndex  string            `xml:"pageIndex"`
+	PolicyList []YouthPolicyItem `xml:"emp"`
+}
+
+type YouthPolicyJSONResponse struct {
+	EmpsInfo struct {
+		Emp []YouthPolicyItem `json:"emp"`
+	} `json:"empsInfo"`
+}
+
+type YouthPolicyItem struct {
+	BizID        string `xml:"bizId" json:"bizId"`
+	PolyBizSjnNm string `xml:"polyBizSjnNm" json:"polyBizSjnNm"`
+	PolyItcnCn   string `xml:"polyItcnCn" json:"polyItcnCn"`
+	PolyBizSecd  string `xml:"polyBizSecd" json:"polyBizSecd"`
+	RqstPrdCn    string `xml:"rqstPrdCn" json:"rqstPrdCn"`
+	CnsgNtiPrdCn string `xml:"cnsgNtiPrdCn" json:"cnsgNtiPrdCn"`
+	BizPrdCn     string `xml:"bizPrdCn" json:"bizPrdCn"`
+}
+
+// 2. 한국사회보장정보원 복지서비스정보 (중앙부처복지서비스 API Structs)
+type WelfareXMLResponse struct {
+	XMLName xml.Name    `xml:"response"`
+	Header  XMLHeader   `xml:"header"`
+	Body    WelfareBody `xml:"body"`
+}
+
+type WelfareJSONResponse struct {
+	Response struct {
+		Header XMLHeader `json:"header"`
+		Body   struct {
+			Items struct {
+				Item []WelfareItem `json:"item"`
+			} `json:"items"`
+		} `json:"body"`
+	} `json:"response"`
+}
+
+type XMLHeader struct {
+	ResultCode string `xml:"resultCode" json:"resultCode"`
+	ResultMsg  string `xml:"resultMsg" json:"resultMsg"`
+}
+
+type WelfareBody struct {
+	Items WelfareItems `xml:"items"`
+}
+
+type WelfareItems struct {
+	ItemList []WelfareItem `xml:"item"`
+}
+
+type WelfareItem struct {
+	ServID    string `xml:"servId" json:"servId"`
+	ServNm    string `xml:"servNm" json:"servNm"`
+	ServDgst  string `xml:"servDgst" json:"servDgst"`
+	JurMnofNm string `xml:"jurMnofNm" json:"jurMnofNm"`
+	AplyMtdCn string `xml:"aplyMtdCn" json:"aplyMtdCn"`
+}
+
+// 3. 행정안전부 봉사참여정보서비스 API Structs
+type VolunteerAreaResponse struct {
+	Header struct {
+		ResultCode string `xml:"resultCode" json:"resultCode"`
+		ResultMsg  string `xml:"resultMsg" json:"resultMsg"`
+	} `xml:"header" json:"header"`
+
+	Body struct {
+		Items struct {
+			Item []VolunteerAreaItem `xml:"item" json:"item"`
+		} `xml:"items" json:"items"`
+
+		PageNo     int `xml:"pageNo" json:"pageNo"`
+		NumOfRows  int `xml:"numOfRows" json:"numOfRows"`
+		TotalCount int `xml:"totalCount" json:"totalCount"`
+	} `xml:"body" json:"body"`
+}
+
+type VolunteerAreaItem struct {
+	GugunCd        string `xml:"gugunCd" json:"gugunCd"`
+	SidoCd         string `xml:"sidoCd" json:"sidoCd"`
+	ProgrmRegistNo string `xml:"progrmRegistNo" json:"progrmRegistNo"`
+	ProgrmSj       string `xml:"progrmSj" json:"progrmSj"`
+	ProgrmBgnde    string `xml:"progrmBgnde" json:"progrmBgnde"`
+	ProgrmEndde    string `xml:"progrmEndde" json:"progrmEndde"`
+	ProgrmSttusSe  string `xml:"progrmSttusSe" json:"progrmSttusSe"`
+	NanmmbyNm      string `xml:"nanmmbyNm" json:"nanmmbyNm"`
+}
+
+type VolunteerDetailResponse struct {
+	XMLName xml.Name `xml:"response"`
+
+	Header VolunteerHeader `xml:"header"`
+	Body   struct {
+		Items struct {
+			Item VolunteerDetailItem `xml:"item"`
+		} `xml:"items"`
+
+		PageNo     int `xml:"pageNo"`
+		NumOfRows  int `xml:"numOfRows"`
+		TotalCount int `xml:"totalCount"`
+	} `xml:"body"`
+}
+
+type VolunteerHeader struct {
+	ResultCode string `xml:"resultCode"`
+	ResultMsg  string `xml:"resultMsg"`
+}
+
+type VolunteerDetailItem struct {
+	ProgrmRegistNo string `xml:"progrmRegistNo"`
+	ProgrmSj       string `xml:"progrmSj"`
+	ProgrmCn       string `xml:"progrmCn"`
+
+	ProgrmSttusSe string `xml:"progrmSttusSe"`
+
+	ProgrmBgnde string `xml:"progrmBgnde"`
+	ProgrmEndde string `xml:"progrmEndde"`
+
+	ActBeginTm int `xml:"actBeginTm"`
+	ActEndTm   int `xml:"actEndTm"`
+
+	NoticeBgnde string `xml:"noticeBgnde"`
+	NoticeEndde string `xml:"noticeEndde"`
+
+	RcritNmpr int `xml:"rcritNmpr"`
+	AppTotal  int `xml:"appTotal"`
+
+	ActWkdy string `xml:"actWkdy"`
+
+	SrvcClCode string `xml:"srvcClCode"`
+
+	AdultPosblAt  string `xml:"adultPosblAt"`
+	YngbgsPosblAt string `xml:"yngbgsPosblAt"`
+	GrpPosblAt    string `xml:"grpPosblAt"`
+	PbsvntPosblAt string `xml:"pbsvntPosblAt"`
+	FamilyPosblAt string `xml:"familyPosblAt"`
+
+	MnnstNm   string `xml:"mnnstNm"`
+	NanmmbyNm string `xml:"nanmmbyNm"`
+
+	ActPlace      string `xml:"actPlace"`
+	NanmmbyNmAdmn string `xml:"nanmmbyNmAdmn"`
+	Telno         string `xml:"telno"`
+	Fxnum         string `xml:"fxnum"`
+	PostAdres     string `xml:"postAdres"`
+	Email         string `xml:"email"`
+
+	SidoCd  string `xml:"sidoCd"`
+	GugunCd string `xml:"gugunCd"`
+
+	AreaAddress1 string `xml:"areaAddress1"`
+	AreaAddress2 string `xml:"areaAddress2"`
+	AreaAddress3 string `xml:"areaAddress3"`
+
+	AreaLalo1 string `xml:"areaLalo1"` // latitude
+	AreaLalo2 string `xml:"areaLalo2"` // longitude
+	AreaLalo3 string `xml:"areaLalo3"`
+}
+
+// 4. 도/시 출산장려/양육비 지원현황 API Structs
+type MaternityXMLResponse struct {
+	XMLName xml.Name      `xml:"response"`
+	Header  XMLHeader     `xml:"header"`
+	Body    MaternityBody `xml:"body"`
+}
+
+type MaternityJSONResponse struct {
+	Response struct {
+		Header XMLHeader `json:"header"`
+		Body   struct {
+			Items struct {
+				Item []MaternityItem `json:"item"`
+			} `json:"items"`
+		} `json:"body"`
+	} `json:"response"`
+}
+
+type MaternityBody struct {
+	Items MaternityItems `xml:"items"`
+}
+
+type MaternityItems struct {
+	ItemList []MaternityItem `xml:"item"`
+}
+
+type MaternityItem struct {
+	Bznm     string `xml:"bznm" json:"bznm"`
+	ServNm   string `xml:"servNm" json:"servNm"`
+	DetlCn   string `xml:"detlCn" json:"detlCn"`
+	ServDgst string `xml:"servDgst" json:"servDgst"`
+	CtpvNm   string `xml:"ctpvNm" json:"ctpvNm"`
+	SggNm    string `xml:"sggNm" json:"sggNm"`
+	Bgnde    string `xml:"bgnde" json:"bgnde"`
+	Endde    string `xml:"endde" json:"endde"`
+}
 
 type PolicyRepository interface {
 	FindAll(c context.Context) ([]*Policy, error)
