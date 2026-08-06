@@ -18,14 +18,47 @@ func TestCreate(t *testing.T) {
 
 	repo := repository.NewUserRepository(client)
 
-	user, err := repo.Create(context.Background(), &domain.User{
-		Name:     "hanul",
-		Email:    "hanul@gmail.com",
-		Password: "123456",
+	isBusiness := true
+
+	u, err := repo.Create(context.Background(), &domain.User{
+		Name:       "hanul",
+		Email:      "hanul@gmail.com",
+		Password:   "123456",
+		Age:        20,
+		Region:     "서울특별시",
+		Gender:     domain.GenderMale,
+		IsStudent:  true,
+		IsYouth:    true,
+		IsPregnant: nil,
+		IsBusiness: &isBusiness,
+		Interests: []domain.Interest{
+			domain.InterestCulture,
+			domain.InterestEducation,
+		},
+		IsDisabled:  false,
+		Nationality: domain.NationalityDomestic,
 	})
 
 	assert.NoError(t, err)
+	assert.NotNil(t, u)
 
-	assert.NoError(t, err)
-	assert.Equal(t, "hanul", user.Name)
+	assert.Equal(t, "hanul", u.Name)
+	assert.Equal(t, "hanul@gmail.com", u.Email)
+	assert.Equal(t, 20, u.Age)
+	assert.Equal(t, "서울특별시", u.Region)
+	assert.Equal(t, domain.GenderMale, u.Gender)
+	assert.True(t, u.IsStudent)
+	assert.True(t, u.IsYouth)
+	assert.Nil(t, u.IsPregnant)
+	assert.NotNil(t, u.IsBusiness)
+	assert.True(t, *u.IsBusiness)
+	assert.Equal(t, []domain.Interest{
+		domain.InterestCulture,
+		domain.InterestEducation,
+	}, u.Interests)
+	assert.False(t, u.IsDisabled)
+	assert.Equal(t, domain.NationalityDomestic, u.Nationality)
+
+	assert.NotZero(t, u.ID)
+	assert.False(t, u.CreatedAt.IsZero())
 }

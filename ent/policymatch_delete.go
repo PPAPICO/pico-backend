@@ -8,30 +8,30 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/policymatch"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/predicate"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/task"
 )
 
-// TaskDelete is the builder for deleting a Task entity.
-type TaskDelete struct {
+// PolicyMatchDelete is the builder for deleting a PolicyMatch entity.
+type PolicyMatchDelete struct {
 	config
 	hooks    []Hook
-	mutation *TaskMutation
+	mutation *PolicyMatchMutation
 }
 
-// Where appends a list predicates to the TaskDelete builder.
-func (_d *TaskDelete) Where(ps ...predicate.Task) *TaskDelete {
+// Where appends a list predicates to the PolicyMatchDelete builder.
+func (_d *PolicyMatchDelete) Where(ps ...predicate.PolicyMatch) *PolicyMatchDelete {
 	_d.mutation.Where(ps...)
 	return _d
 }
 
 // Exec executes the deletion query and returns how many vertices were deleted.
-func (_d *TaskDelete) Exec(ctx context.Context) (int, error) {
+func (_d *PolicyMatchDelete) Exec(ctx context.Context) (int, error) {
 	return withHooks(ctx, _d.sqlExec, _d.mutation, _d.hooks)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (_d *TaskDelete) ExecX(ctx context.Context) int {
+func (_d *PolicyMatchDelete) ExecX(ctx context.Context) int {
 	n, err := _d.Exec(ctx)
 	if err != nil {
 		panic(err)
@@ -39,8 +39,8 @@ func (_d *TaskDelete) ExecX(ctx context.Context) int {
 	return n
 }
 
-func (_d *TaskDelete) sqlExec(ctx context.Context) (int, error) {
-	_spec := sqlgraph.NewDeleteSpec(task.Table, sqlgraph.NewFieldSpec(task.FieldID, field.TypeUUID))
+func (_d *PolicyMatchDelete) sqlExec(ctx context.Context) (int, error) {
+	_spec := sqlgraph.NewDeleteSpec(policymatch.Table, sqlgraph.NewFieldSpec(policymatch.FieldID, field.TypeUUID))
 	if ps := _d.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -56,32 +56,32 @@ func (_d *TaskDelete) sqlExec(ctx context.Context) (int, error) {
 	return affected, err
 }
 
-// TaskDeleteOne is the builder for deleting a single Task entity.
-type TaskDeleteOne struct {
-	_d *TaskDelete
+// PolicyMatchDeleteOne is the builder for deleting a single PolicyMatch entity.
+type PolicyMatchDeleteOne struct {
+	_d *PolicyMatchDelete
 }
 
-// Where appends a list predicates to the TaskDelete builder.
-func (_d *TaskDeleteOne) Where(ps ...predicate.Task) *TaskDeleteOne {
+// Where appends a list predicates to the PolicyMatchDelete builder.
+func (_d *PolicyMatchDeleteOne) Where(ps ...predicate.PolicyMatch) *PolicyMatchDeleteOne {
 	_d._d.mutation.Where(ps...)
 	return _d
 }
 
 // Exec executes the deletion query.
-func (_d *TaskDeleteOne) Exec(ctx context.Context) error {
+func (_d *PolicyMatchDeleteOne) Exec(ctx context.Context) error {
 	n, err := _d._d.Exec(ctx)
 	switch {
 	case err != nil:
 		return err
 	case n == 0:
-		return &NotFoundError{task.Label}
+		return &NotFoundError{policymatch.Label}
 	default:
 		return nil
 	}
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (_d *TaskDeleteOne) ExecX(ctx context.Context) {
+func (_d *PolicyMatchDeleteOne) ExecX(ctx context.Context) {
 	if err := _d.Exec(ctx); err != nil {
 		panic(err)
 	}

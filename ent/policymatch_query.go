@@ -12,58 +12,82 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/governmentpolicy"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/policymatch"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/predicate"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/task"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/user"
 )
 
-// TaskQuery is the builder for querying Task entities.
-type TaskQuery struct {
+// PolicyMatchQuery is the builder for querying PolicyMatch entities.
+type PolicyMatchQuery struct {
 	config
 	ctx        *QueryContext
-	order      []task.OrderOption
+	order      []policymatch.OrderOption
 	inters     []Interceptor
-	predicates []predicate.Task
-	withOwner  *UserQuery
+	predicates []predicate.PolicyMatch
+	withPolicy *GovernmentPolicyQuery
+	withUser   *UserQuery
 	withFKs    bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
 }
 
-// Where adds a new predicate for the TaskQuery builder.
-func (_q *TaskQuery) Where(ps ...predicate.Task) *TaskQuery {
+// Where adds a new predicate for the PolicyMatchQuery builder.
+func (_q *PolicyMatchQuery) Where(ps ...predicate.PolicyMatch) *PolicyMatchQuery {
 	_q.predicates = append(_q.predicates, ps...)
 	return _q
 }
 
 // Limit the number of records to be returned by this query.
-func (_q *TaskQuery) Limit(limit int) *TaskQuery {
+func (_q *PolicyMatchQuery) Limit(limit int) *PolicyMatchQuery {
 	_q.ctx.Limit = &limit
 	return _q
 }
 
 // Offset to start from.
-func (_q *TaskQuery) Offset(offset int) *TaskQuery {
+func (_q *PolicyMatchQuery) Offset(offset int) *PolicyMatchQuery {
 	_q.ctx.Offset = &offset
 	return _q
 }
 
 // Unique configures the query builder to filter duplicate records on query.
 // By default, unique is set to true, and can be disabled using this method.
-func (_q *TaskQuery) Unique(unique bool) *TaskQuery {
+func (_q *PolicyMatchQuery) Unique(unique bool) *PolicyMatchQuery {
 	_q.ctx.Unique = &unique
 	return _q
 }
 
 // Order specifies how the records should be ordered.
-func (_q *TaskQuery) Order(o ...task.OrderOption) *TaskQuery {
+func (_q *PolicyMatchQuery) Order(o ...policymatch.OrderOption) *PolicyMatchQuery {
 	_q.order = append(_q.order, o...)
 	return _q
 }
 
-// QueryOwner chains the current query on the "owner" edge.
-func (_q *TaskQuery) QueryOwner() *UserQuery {
+// QueryPolicy chains the current query on the "policy" edge.
+func (_q *PolicyMatchQuery) QueryPolicy() *GovernmentPolicyQuery {
+	query := (&GovernmentPolicyClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(policymatch.Table, policymatch.FieldID, selector),
+			sqlgraph.To(governmentpolicy.Table, governmentpolicy.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, policymatch.PolicyTable, policymatch.PolicyColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryUser chains the current query on the "user" edge.
+func (_q *PolicyMatchQuery) QueryUser() *UserQuery {
 	query := (&UserClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := _q.prepareQuery(ctx); err != nil {
@@ -74,9 +98,9 @@ func (_q *TaskQuery) QueryOwner() *UserQuery {
 			return nil, err
 		}
 		step := sqlgraph.NewStep(
-			sqlgraph.From(task.Table, task.FieldID, selector),
+			sqlgraph.From(policymatch.Table, policymatch.FieldID, selector),
 			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, task.OwnerTable, task.OwnerColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, policymatch.UserTable, policymatch.UserColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -84,21 +108,21 @@ func (_q *TaskQuery) QueryOwner() *UserQuery {
 	return query
 }
 
-// First returns the first Task entity from the query.
-// Returns a *NotFoundError when no Task was found.
-func (_q *TaskQuery) First(ctx context.Context) (*Task, error) {
+// First returns the first PolicyMatch entity from the query.
+// Returns a *NotFoundError when no PolicyMatch was found.
+func (_q *PolicyMatchQuery) First(ctx context.Context) (*PolicyMatch, error) {
 	nodes, err := _q.Limit(1).All(setContextOp(ctx, _q.ctx, ent.OpQueryFirst))
 	if err != nil {
 		return nil, err
 	}
 	if len(nodes) == 0 {
-		return nil, &NotFoundError{task.Label}
+		return nil, &NotFoundError{policymatch.Label}
 	}
 	return nodes[0], nil
 }
 
 // FirstX is like First, but panics if an error occurs.
-func (_q *TaskQuery) FirstX(ctx context.Context) *Task {
+func (_q *PolicyMatchQuery) FirstX(ctx context.Context) *PolicyMatch {
 	node, err := _q.First(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -106,22 +130,22 @@ func (_q *TaskQuery) FirstX(ctx context.Context) *Task {
 	return node
 }
 
-// FirstID returns the first Task ID from the query.
-// Returns a *NotFoundError when no Task ID was found.
-func (_q *TaskQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+// FirstID returns the first PolicyMatch ID from the query.
+// Returns a *NotFoundError when no PolicyMatch ID was found.
+func (_q *PolicyMatchQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
 	var ids []uuid.UUID
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
 	if len(ids) == 0 {
-		err = &NotFoundError{task.Label}
+		err = &NotFoundError{policymatch.Label}
 		return
 	}
 	return ids[0], nil
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *TaskQuery) FirstIDX(ctx context.Context) uuid.UUID {
+func (_q *PolicyMatchQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -129,10 +153,10 @@ func (_q *TaskQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	return id
 }
 
-// Only returns a single Task entity found by the query, ensuring it only returns one.
-// Returns a *NotSingularError when more than one Task entity is found.
-// Returns a *NotFoundError when no Task entities are found.
-func (_q *TaskQuery) Only(ctx context.Context) (*Task, error) {
+// Only returns a single PolicyMatch entity found by the query, ensuring it only returns one.
+// Returns a *NotSingularError when more than one PolicyMatch entity is found.
+// Returns a *NotFoundError when no PolicyMatch entities are found.
+func (_q *PolicyMatchQuery) Only(ctx context.Context) (*PolicyMatch, error) {
 	nodes, err := _q.Limit(2).All(setContextOp(ctx, _q.ctx, ent.OpQueryOnly))
 	if err != nil {
 		return nil, err
@@ -141,14 +165,14 @@ func (_q *TaskQuery) Only(ctx context.Context) (*Task, error) {
 	case 1:
 		return nodes[0], nil
 	case 0:
-		return nil, &NotFoundError{task.Label}
+		return nil, &NotFoundError{policymatch.Label}
 	default:
-		return nil, &NotSingularError{task.Label}
+		return nil, &NotSingularError{policymatch.Label}
 	}
 }
 
 // OnlyX is like Only, but panics if an error occurs.
-func (_q *TaskQuery) OnlyX(ctx context.Context) *Task {
+func (_q *PolicyMatchQuery) OnlyX(ctx context.Context) *PolicyMatch {
 	node, err := _q.Only(ctx)
 	if err != nil {
 		panic(err)
@@ -156,10 +180,10 @@ func (_q *TaskQuery) OnlyX(ctx context.Context) *Task {
 	return node
 }
 
-// OnlyID is like Only, but returns the only Task ID in the query.
-// Returns a *NotSingularError when more than one Task ID is found.
+// OnlyID is like Only, but returns the only PolicyMatch ID in the query.
+// Returns a *NotSingularError when more than one PolicyMatch ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *TaskQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+func (_q *PolicyMatchQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
 	var ids []uuid.UUID
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
@@ -168,15 +192,15 @@ func (_q *TaskQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
 	case 1:
 		id = ids[0]
 	case 0:
-		err = &NotFoundError{task.Label}
+		err = &NotFoundError{policymatch.Label}
 	default:
-		err = &NotSingularError{task.Label}
+		err = &NotSingularError{policymatch.Label}
 	}
 	return
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *TaskQuery) OnlyIDX(ctx context.Context) uuid.UUID {
+func (_q *PolicyMatchQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -184,18 +208,18 @@ func (_q *TaskQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	return id
 }
 
-// All executes the query and returns a list of Tasks.
-func (_q *TaskQuery) All(ctx context.Context) ([]*Task, error) {
+// All executes the query and returns a list of PolicyMatches.
+func (_q *PolicyMatchQuery) All(ctx context.Context) ([]*PolicyMatch, error) {
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryAll)
 	if err := _q.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
-	qr := querierAll[[]*Task, *TaskQuery]()
-	return withInterceptors[[]*Task](ctx, _q, qr, _q.inters)
+	qr := querierAll[[]*PolicyMatch, *PolicyMatchQuery]()
+	return withInterceptors[[]*PolicyMatch](ctx, _q, qr, _q.inters)
 }
 
 // AllX is like All, but panics if an error occurs.
-func (_q *TaskQuery) AllX(ctx context.Context) []*Task {
+func (_q *PolicyMatchQuery) AllX(ctx context.Context) []*PolicyMatch {
 	nodes, err := _q.All(ctx)
 	if err != nil {
 		panic(err)
@@ -203,20 +227,20 @@ func (_q *TaskQuery) AllX(ctx context.Context) []*Task {
 	return nodes
 }
 
-// IDs executes the query and returns a list of Task IDs.
-func (_q *TaskQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
+// IDs executes the query and returns a list of PolicyMatch IDs.
+func (_q *PolicyMatchQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryIDs)
-	if err = _q.Select(task.FieldID).Scan(ctx, &ids); err != nil {
+	if err = _q.Select(policymatch.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
 	return ids, nil
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *TaskQuery) IDsX(ctx context.Context) []uuid.UUID {
+func (_q *PolicyMatchQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -225,16 +249,16 @@ func (_q *TaskQuery) IDsX(ctx context.Context) []uuid.UUID {
 }
 
 // Count returns the count of the given query.
-func (_q *TaskQuery) Count(ctx context.Context) (int, error) {
+func (_q *PolicyMatchQuery) Count(ctx context.Context) (int, error) {
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryCount)
 	if err := _q.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
-	return withInterceptors[int](ctx, _q, querierCount[*TaskQuery](), _q.inters)
+	return withInterceptors[int](ctx, _q, querierCount[*PolicyMatchQuery](), _q.inters)
 }
 
 // CountX is like Count, but panics if an error occurs.
-func (_q *TaskQuery) CountX(ctx context.Context) int {
+func (_q *PolicyMatchQuery) CountX(ctx context.Context) int {
 	count, err := _q.Count(ctx)
 	if err != nil {
 		panic(err)
@@ -243,7 +267,7 @@ func (_q *TaskQuery) CountX(ctx context.Context) int {
 }
 
 // Exist returns true if the query has elements in the graph.
-func (_q *TaskQuery) Exist(ctx context.Context) (bool, error) {
+func (_q *PolicyMatchQuery) Exist(ctx context.Context) (bool, error) {
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryExist)
 	switch _, err := _q.FirstID(ctx); {
 	case IsNotFound(err):
@@ -256,7 +280,7 @@ func (_q *TaskQuery) Exist(ctx context.Context) (bool, error) {
 }
 
 // ExistX is like Exist, but panics if an error occurs.
-func (_q *TaskQuery) ExistX(ctx context.Context) bool {
+func (_q *PolicyMatchQuery) ExistX(ctx context.Context) bool {
 	exist, err := _q.Exist(ctx)
 	if err != nil {
 		panic(err)
@@ -264,33 +288,45 @@ func (_q *TaskQuery) ExistX(ctx context.Context) bool {
 	return exist
 }
 
-// Clone returns a duplicate of the TaskQuery builder, including all associated steps. It can be
+// Clone returns a duplicate of the PolicyMatchQuery builder, including all associated steps. It can be
 // used to prepare common query builders and use them differently after the clone is made.
-func (_q *TaskQuery) Clone() *TaskQuery {
+func (_q *PolicyMatchQuery) Clone() *PolicyMatchQuery {
 	if _q == nil {
 		return nil
 	}
-	return &TaskQuery{
+	return &PolicyMatchQuery{
 		config:     _q.config,
 		ctx:        _q.ctx.Clone(),
-		order:      append([]task.OrderOption{}, _q.order...),
+		order:      append([]policymatch.OrderOption{}, _q.order...),
 		inters:     append([]Interceptor{}, _q.inters...),
-		predicates: append([]predicate.Task{}, _q.predicates...),
-		withOwner:  _q.withOwner.Clone(),
+		predicates: append([]predicate.PolicyMatch{}, _q.predicates...),
+		withPolicy: _q.withPolicy.Clone(),
+		withUser:   _q.withUser.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
 	}
 }
 
-// WithOwner tells the query-builder to eager-load the nodes that are connected to
-// the "owner" edge. The optional arguments are used to configure the query builder of the edge.
-func (_q *TaskQuery) WithOwner(opts ...func(*UserQuery)) *TaskQuery {
+// WithPolicy tells the query-builder to eager-load the nodes that are connected to
+// the "policy" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *PolicyMatchQuery) WithPolicy(opts ...func(*GovernmentPolicyQuery)) *PolicyMatchQuery {
+	query := (&GovernmentPolicyClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withPolicy = query
+	return _q
+}
+
+// WithUser tells the query-builder to eager-load the nodes that are connected to
+// the "user" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *PolicyMatchQuery) WithUser(opts ...func(*UserQuery)) *PolicyMatchQuery {
 	query := (&UserClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	_q.withOwner = query
+	_q.withUser = query
 	return _q
 }
 
@@ -300,19 +336,19 @@ func (_q *TaskQuery) WithOwner(opts ...func(*UserQuery)) *TaskQuery {
 // Example:
 //
 //	var v []struct {
-//		Title string `json:"title,omitempty"`
+//		Match policymatch.Match `json:"match,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
-//	client.Task.Query().
-//		GroupBy(task.FieldTitle).
+//	client.PolicyMatch.Query().
+//		GroupBy(policymatch.FieldMatch).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
-func (_q *TaskQuery) GroupBy(field string, fields ...string) *TaskGroupBy {
+func (_q *PolicyMatchQuery) GroupBy(field string, fields ...string) *PolicyMatchGroupBy {
 	_q.ctx.Fields = append([]string{field}, fields...)
-	grbuild := &TaskGroupBy{build: _q}
+	grbuild := &PolicyMatchGroupBy{build: _q}
 	grbuild.flds = &_q.ctx.Fields
-	grbuild.label = task.Label
+	grbuild.label = policymatch.Label
 	grbuild.scan = grbuild.Scan
 	return grbuild
 }
@@ -323,26 +359,26 @@ func (_q *TaskQuery) GroupBy(field string, fields ...string) *TaskGroupBy {
 // Example:
 //
 //	var v []struct {
-//		Title string `json:"title,omitempty"`
+//		Match policymatch.Match `json:"match,omitempty"`
 //	}
 //
-//	client.Task.Query().
-//		Select(task.FieldTitle).
+//	client.PolicyMatch.Query().
+//		Select(policymatch.FieldMatch).
 //		Scan(ctx, &v)
-func (_q *TaskQuery) Select(fields ...string) *TaskSelect {
+func (_q *PolicyMatchQuery) Select(fields ...string) *PolicyMatchSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
-	sbuild := &TaskSelect{TaskQuery: _q}
-	sbuild.label = task.Label
+	sbuild := &PolicyMatchSelect{PolicyMatchQuery: _q}
+	sbuild.label = policymatch.Label
 	sbuild.flds, sbuild.scan = &_q.ctx.Fields, sbuild.Scan
 	return sbuild
 }
 
-// Aggregate returns a TaskSelect configured with the given aggregations.
-func (_q *TaskQuery) Aggregate(fns ...AggregateFunc) *TaskSelect {
+// Aggregate returns a PolicyMatchSelect configured with the given aggregations.
+func (_q *PolicyMatchQuery) Aggregate(fns ...AggregateFunc) *PolicyMatchSelect {
 	return _q.Select().Aggregate(fns...)
 }
 
-func (_q *TaskQuery) prepareQuery(ctx context.Context) error {
+func (_q *PolicyMatchQuery) prepareQuery(ctx context.Context) error {
 	for _, inter := range _q.inters {
 		if inter == nil {
 			return fmt.Errorf("ent: uninitialized interceptor (forgotten import ent/runtime?)")
@@ -354,7 +390,7 @@ func (_q *TaskQuery) prepareQuery(ctx context.Context) error {
 		}
 	}
 	for _, f := range _q.ctx.Fields {
-		if !task.ValidColumn(f) {
+		if !policymatch.ValidColumn(f) {
 			return &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 		}
 	}
@@ -368,26 +404,27 @@ func (_q *TaskQuery) prepareQuery(ctx context.Context) error {
 	return nil
 }
 
-func (_q *TaskQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Task, error) {
+func (_q *PolicyMatchQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*PolicyMatch, error) {
 	var (
-		nodes       = []*Task{}
+		nodes       = []*PolicyMatch{}
 		withFKs     = _q.withFKs
 		_spec       = _q.querySpec()
-		loadedTypes = [1]bool{
-			_q.withOwner != nil,
+		loadedTypes = [2]bool{
+			_q.withPolicy != nil,
+			_q.withUser != nil,
 		}
 	)
-	if _q.withOwner != nil {
+	if _q.withPolicy != nil || _q.withUser != nil {
 		withFKs = true
 	}
 	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, task.ForeignKeys...)
+		_spec.Node.Columns = append(_spec.Node.Columns, policymatch.ForeignKeys...)
 	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
-		return (*Task).scanValues(nil, columns)
+		return (*PolicyMatch).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
-		node := &Task{config: _q.config}
+		node := &PolicyMatch{config: _q.config}
 		nodes = append(nodes, node)
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
@@ -401,23 +438,61 @@ func (_q *TaskQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Task, e
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := _q.withOwner; query != nil {
-		if err := _q.loadOwner(ctx, query, nodes, nil,
-			func(n *Task, e *User) { n.Edges.Owner = e }); err != nil {
+	if query := _q.withPolicy; query != nil {
+		if err := _q.loadPolicy(ctx, query, nodes, nil,
+			func(n *PolicyMatch, e *GovernmentPolicy) { n.Edges.Policy = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withUser; query != nil {
+		if err := _q.loadUser(ctx, query, nodes, nil,
+			func(n *PolicyMatch, e *User) { n.Edges.User = e }); err != nil {
 			return nil, err
 		}
 	}
 	return nodes, nil
 }
 
-func (_q *TaskQuery) loadOwner(ctx context.Context, query *UserQuery, nodes []*Task, init func(*Task), assign func(*Task, *User)) error {
+func (_q *PolicyMatchQuery) loadPolicy(ctx context.Context, query *GovernmentPolicyQuery, nodes []*PolicyMatch, init func(*PolicyMatch), assign func(*PolicyMatch, *GovernmentPolicy)) error {
 	ids := make([]uuid.UUID, 0, len(nodes))
-	nodeids := make(map[uuid.UUID][]*Task)
+	nodeids := make(map[uuid.UUID][]*PolicyMatch)
 	for i := range nodes {
-		if nodes[i].task_owner == nil {
+		if nodes[i].government_policy_matches == nil {
 			continue
 		}
-		fk := *nodes[i].task_owner
+		fk := *nodes[i].government_policy_matches
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(governmentpolicy.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "government_policy_matches" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (_q *PolicyMatchQuery) loadUser(ctx context.Context, query *UserQuery, nodes []*PolicyMatch, init func(*PolicyMatch), assign func(*PolicyMatch, *User)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*PolicyMatch)
+	for i := range nodes {
+		if nodes[i].user_policy_matches == nil {
+			continue
+		}
+		fk := *nodes[i].user_policy_matches
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -434,7 +509,7 @@ func (_q *TaskQuery) loadOwner(ctx context.Context, query *UserQuery, nodes []*T
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "task_owner" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "user_policy_matches" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -443,7 +518,7 @@ func (_q *TaskQuery) loadOwner(ctx context.Context, query *UserQuery, nodes []*T
 	return nil
 }
 
-func (_q *TaskQuery) sqlCount(ctx context.Context) (int, error) {
+func (_q *PolicyMatchQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
 	_spec.Node.Columns = _q.ctx.Fields
 	if len(_q.ctx.Fields) > 0 {
@@ -452,8 +527,8 @@ func (_q *TaskQuery) sqlCount(ctx context.Context) (int, error) {
 	return sqlgraph.CountNodes(ctx, _q.driver, _spec)
 }
 
-func (_q *TaskQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(task.Table, task.Columns, sqlgraph.NewFieldSpec(task.FieldID, field.TypeUUID))
+func (_q *PolicyMatchQuery) querySpec() *sqlgraph.QuerySpec {
+	_spec := sqlgraph.NewQuerySpec(policymatch.Table, policymatch.Columns, sqlgraph.NewFieldSpec(policymatch.FieldID, field.TypeUUID))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
@@ -462,9 +537,9 @@ func (_q *TaskQuery) querySpec() *sqlgraph.QuerySpec {
 	}
 	if fields := _q.ctx.Fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
-		_spec.Node.Columns = append(_spec.Node.Columns, task.FieldID)
+		_spec.Node.Columns = append(_spec.Node.Columns, policymatch.FieldID)
 		for i := range fields {
-			if fields[i] != task.FieldID {
+			if fields[i] != policymatch.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
 		}
@@ -492,12 +567,12 @@ func (_q *TaskQuery) querySpec() *sqlgraph.QuerySpec {
 	return _spec
 }
 
-func (_q *TaskQuery) sqlQuery(ctx context.Context) *sql.Selector {
+func (_q *PolicyMatchQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	builder := sql.Dialect(_q.driver.Dialect())
-	t1 := builder.Table(task.Table)
+	t1 := builder.Table(policymatch.Table)
 	columns := _q.ctx.Fields
 	if len(columns) == 0 {
-		columns = task.Columns
+		columns = policymatch.Columns
 	}
 	selector := builder.Select(t1.Columns(columns...)...).From(t1)
 	if _q.sql != nil {
@@ -524,28 +599,28 @@ func (_q *TaskQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	return selector
 }
 
-// TaskGroupBy is the group-by builder for Task entities.
-type TaskGroupBy struct {
+// PolicyMatchGroupBy is the group-by builder for PolicyMatch entities.
+type PolicyMatchGroupBy struct {
 	selector
-	build *TaskQuery
+	build *PolicyMatchQuery
 }
 
 // Aggregate adds the given aggregation functions to the group-by query.
-func (_g *TaskGroupBy) Aggregate(fns ...AggregateFunc) *TaskGroupBy {
+func (_g *PolicyMatchGroupBy) Aggregate(fns ...AggregateFunc) *PolicyMatchGroupBy {
 	_g.fns = append(_g.fns, fns...)
 	return _g
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (_g *TaskGroupBy) Scan(ctx context.Context, v any) error {
+func (_g *PolicyMatchGroupBy) Scan(ctx context.Context, v any) error {
 	ctx = setContextOp(ctx, _g.build.ctx, ent.OpQueryGroupBy)
 	if err := _g.build.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*TaskQuery, *TaskGroupBy](ctx, _g.build, _g, _g.build.inters, v)
+	return scanWithInterceptors[*PolicyMatchQuery, *PolicyMatchGroupBy](ctx, _g.build, _g, _g.build.inters, v)
 }
 
-func (_g *TaskGroupBy) sqlScan(ctx context.Context, root *TaskQuery, v any) error {
+func (_g *PolicyMatchGroupBy) sqlScan(ctx context.Context, root *PolicyMatchQuery, v any) error {
 	selector := root.sqlQuery(ctx).Select()
 	aggregation := make([]string, 0, len(_g.fns))
 	for _, fn := range _g.fns {
@@ -572,28 +647,28 @@ func (_g *TaskGroupBy) sqlScan(ctx context.Context, root *TaskQuery, v any) erro
 	return sql.ScanSlice(rows, v)
 }
 
-// TaskSelect is the builder for selecting fields of Task entities.
-type TaskSelect struct {
-	*TaskQuery
+// PolicyMatchSelect is the builder for selecting fields of PolicyMatch entities.
+type PolicyMatchSelect struct {
+	*PolicyMatchQuery
 	selector
 }
 
 // Aggregate adds the given aggregation functions to the selector query.
-func (_s *TaskSelect) Aggregate(fns ...AggregateFunc) *TaskSelect {
+func (_s *PolicyMatchSelect) Aggregate(fns ...AggregateFunc) *PolicyMatchSelect {
 	_s.fns = append(_s.fns, fns...)
 	return _s
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (_s *TaskSelect) Scan(ctx context.Context, v any) error {
+func (_s *PolicyMatchSelect) Scan(ctx context.Context, v any) error {
 	ctx = setContextOp(ctx, _s.ctx, ent.OpQuerySelect)
 	if err := _s.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*TaskQuery, *TaskSelect](ctx, _s.TaskQuery, _s, _s.inters, v)
+	return scanWithInterceptors[*PolicyMatchQuery, *PolicyMatchSelect](ctx, _s.PolicyMatchQuery, _s, _s.inters, v)
 }
 
-func (_s *TaskSelect) sqlScan(ctx context.Context, root *TaskQuery, v any) error {
+func (_s *PolicyMatchSelect) sqlScan(ctx context.Context, root *PolicyMatchQuery, v any) error {
 	selector := root.sqlQuery(ctx)
 	aggregation := make([]string, 0, len(_s.fns))
 	for _, fn := range _s.fns {

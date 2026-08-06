@@ -6,8 +6,9 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/governmentpolicy"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/policymatch"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/schema"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/task"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/user"
 )
 
@@ -15,20 +16,22 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
-	taskFields := schema.Task{}.Fields()
-	_ = taskFields
-	// taskDescTitle is the schema descriptor for title field.
-	taskDescTitle := taskFields[1].Descriptor()
-	// task.TitleValidator is a validator for the "title" field. It is called by the builders before save.
-	task.TitleValidator = taskDescTitle.Validators[0].(func(string) error)
-	// taskDescCreatedAt is the schema descriptor for created_at field.
-	taskDescCreatedAt := taskFields[2].Descriptor()
-	// task.DefaultCreatedAt holds the default value on creation for the created_at field.
-	task.DefaultCreatedAt = taskDescCreatedAt.Default.(func() time.Time)
-	// taskDescID is the schema descriptor for id field.
-	taskDescID := taskFields[0].Descriptor()
-	// task.DefaultID holds the default value on creation for the id field.
-	task.DefaultID = taskDescID.Default.(func() uuid.UUID)
+	governmentpolicyFields := schema.GovernmentPolicy{}.Fields()
+	_ = governmentpolicyFields
+	// governmentpolicyDescTitle is the schema descriptor for title field.
+	governmentpolicyDescTitle := governmentpolicyFields[1].Descriptor()
+	// governmentpolicy.TitleValidator is a validator for the "title" field. It is called by the builders before save.
+	governmentpolicy.TitleValidator = governmentpolicyDescTitle.Validators[0].(func(string) error)
+	// governmentpolicyDescID is the schema descriptor for id field.
+	governmentpolicyDescID := governmentpolicyFields[0].Descriptor()
+	// governmentpolicy.DefaultID holds the default value on creation for the id field.
+	governmentpolicy.DefaultID = governmentpolicyDescID.Default.(func() uuid.UUID)
+	policymatchFields := schema.PolicyMatch{}.Fields()
+	_ = policymatchFields
+	// policymatchDescID is the schema descriptor for id field.
+	policymatchDescID := policymatchFields[0].Descriptor()
+	// policymatch.DefaultID holds the default value on creation for the id field.
+	policymatch.DefaultID = policymatchDescID.Default.(func() uuid.UUID)
 	userFields := schema.User{}.Fields()
 	_ = userFields
 	// userDescName is the schema descriptor for name field.
@@ -43,8 +46,20 @@ func init() {
 	userDescPassword := userFields[3].Descriptor()
 	// user.PasswordValidator is a validator for the "password" field. It is called by the builders before save.
 	user.PasswordValidator = userDescPassword.Validators[0].(func(string) error)
+	// userDescIsStudent is the schema descriptor for is_student field.
+	userDescIsStudent := userFields[7].Descriptor()
+	// user.DefaultIsStudent holds the default value on creation for the is_student field.
+	user.DefaultIsStudent = userDescIsStudent.Default.(bool)
+	// userDescIsYouth is the schema descriptor for is_youth field.
+	userDescIsYouth := userFields[8].Descriptor()
+	// user.DefaultIsYouth holds the default value on creation for the is_youth field.
+	user.DefaultIsYouth = userDescIsYouth.Default.(bool)
+	// userDescIsDisabled is the schema descriptor for is_disabled field.
+	userDescIsDisabled := userFields[12].Descriptor()
+	// user.DefaultIsDisabled holds the default value on creation for the is_disabled field.
+	user.DefaultIsDisabled = userDescIsDisabled.Default.(bool)
 	// userDescCreatedAt is the schema descriptor for created_at field.
-	userDescCreatedAt := userFields[4].Descriptor()
+	userDescCreatedAt := userFields[14].Descriptor()
 	// user.DefaultCreatedAt holds the default value on creation for the created_at field.
 	user.DefaultCreatedAt = userDescCreatedAt.Default.(func() time.Time)
 	// userDescID is the schema descriptor for id field.

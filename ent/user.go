@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -24,9 +25,50 @@ type User struct {
 	Email string `json:"email,omitempty"`
 	// Password holds the value of the "password" field.
 	Password string `json:"password,omitempty"`
+	// Age holds the value of the "age" field.
+	Age int `json:"age,omitempty"`
+	// Region holds the value of the "region" field.
+	Region string `json:"region,omitempty"`
+	// Gender holds the value of the "gender" field.
+	Gender user.Gender `json:"gender,omitempty"`
+	// IsStudent holds the value of the "is_student" field.
+	IsStudent bool `json:"is_student,omitempty"`
+	// IsYouth holds the value of the "is_youth" field.
+	IsYouth bool `json:"is_youth,omitempty"`
+	// IsPregnant holds the value of the "is_pregnant" field.
+	IsPregnant *bool `json:"is_pregnant,omitempty"`
+	// IsBusiness holds the value of the "is_business" field.
+	IsBusiness *bool `json:"is_business,omitempty"`
+	// Interests holds the value of the "interests" field.
+	Interests []string `json:"interests,omitempty"`
+	// IsDisabled holds the value of the "is_disabled" field.
+	IsDisabled bool `json:"is_disabled,omitempty"`
+	// Nationality holds the value of the "nationality" field.
+	Nationality user.Nationality `json:"nationality,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
-	CreatedAt    time.Time `json:"created_at,omitempty"`
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the UserQuery when eager-loading is set.
+	Edges        UserEdges `json:"edges"`
 	selectValues sql.SelectValues
+}
+
+// UserEdges holds the relations/edges for other nodes in the graph.
+type UserEdges struct {
+	// PolicyMatches holds the value of the policy_matches edge.
+	PolicyMatches []*PolicyMatch `json:"policy_matches,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// PolicyMatchesOrErr returns the PolicyMatches value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) PolicyMatchesOrErr() ([]*PolicyMatch, error) {
+	if e.loadedTypes[0] {
+		return e.PolicyMatches, nil
+	}
+	return nil, &NotLoadedError{edge: "policy_matches"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -34,7 +76,13 @@ func (*User) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case user.FieldName, user.FieldEmail, user.FieldPassword:
+		case user.FieldInterests:
+			values[i] = new([]byte)
+		case user.FieldIsStudent, user.FieldIsYouth, user.FieldIsPregnant, user.FieldIsBusiness, user.FieldIsDisabled:
+			values[i] = new(sql.NullBool)
+		case user.FieldAge:
+			values[i] = new(sql.NullInt64)
+		case user.FieldName, user.FieldEmail, user.FieldPassword, user.FieldRegion, user.FieldGender, user.FieldNationality:
 			values[i] = new(sql.NullString)
 		case user.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
@@ -79,6 +127,70 @@ func (_m *User) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Password = value.String
 			}
+		case user.FieldAge:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field age", values[i])
+			} else if value.Valid {
+				_m.Age = int(value.Int64)
+			}
+		case user.FieldRegion:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field region", values[i])
+			} else if value.Valid {
+				_m.Region = value.String
+			}
+		case user.FieldGender:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field gender", values[i])
+			} else if value.Valid {
+				_m.Gender = user.Gender(value.String)
+			}
+		case user.FieldIsStudent:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field is_student", values[i])
+			} else if value.Valid {
+				_m.IsStudent = value.Bool
+			}
+		case user.FieldIsYouth:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field is_youth", values[i])
+			} else if value.Valid {
+				_m.IsYouth = value.Bool
+			}
+		case user.FieldIsPregnant:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field is_pregnant", values[i])
+			} else if value.Valid {
+				_m.IsPregnant = new(bool)
+				*_m.IsPregnant = value.Bool
+			}
+		case user.FieldIsBusiness:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field is_business", values[i])
+			} else if value.Valid {
+				_m.IsBusiness = new(bool)
+				*_m.IsBusiness = value.Bool
+			}
+		case user.FieldInterests:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field interests", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.Interests); err != nil {
+					return fmt.Errorf("unmarshal field interests: %w", err)
+				}
+			}
+		case user.FieldIsDisabled:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field is_disabled", values[i])
+			} else if value.Valid {
+				_m.IsDisabled = value.Bool
+			}
+		case user.FieldNationality:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field nationality", values[i])
+			} else if value.Valid {
+				_m.Nationality = user.Nationality(value.String)
+			}
 		case user.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
@@ -96,6 +208,11 @@ func (_m *User) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (_m *User) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
+}
+
+// QueryPolicyMatches queries the "policy_matches" edge of the User entity.
+func (_m *User) QueryPolicyMatches() *PolicyMatchQuery {
+	return NewUserClient(_m.config).QueryPolicyMatches(_m)
 }
 
 // Update returns a builder for updating this User.
@@ -129,6 +246,40 @@ func (_m *User) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("password=")
 	builder.WriteString(_m.Password)
+	builder.WriteString(", ")
+	builder.WriteString("age=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Age))
+	builder.WriteString(", ")
+	builder.WriteString("region=")
+	builder.WriteString(_m.Region)
+	builder.WriteString(", ")
+	builder.WriteString("gender=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Gender))
+	builder.WriteString(", ")
+	builder.WriteString("is_student=")
+	builder.WriteString(fmt.Sprintf("%v", _m.IsStudent))
+	builder.WriteString(", ")
+	builder.WriteString("is_youth=")
+	builder.WriteString(fmt.Sprintf("%v", _m.IsYouth))
+	builder.WriteString(", ")
+	if v := _m.IsPregnant; v != nil {
+		builder.WriteString("is_pregnant=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.IsBusiness; v != nil {
+		builder.WriteString("is_business=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("interests=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Interests))
+	builder.WriteString(", ")
+	builder.WriteString("is_disabled=")
+	builder.WriteString(fmt.Sprintf("%v", _m.IsDisabled))
+	builder.WriteString(", ")
+	builder.WriteString("nationality=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Nationality))
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))

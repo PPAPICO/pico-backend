@@ -16,7 +16,8 @@ import (
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/task"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/governmentpolicy"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/policymatch"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/user"
 )
 
@@ -25,8 +26,10 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
-	// Task is the client for interacting with the Task builders.
-	Task *TaskClient
+	// GovernmentPolicy is the client for interacting with the GovernmentPolicy builders.
+	GovernmentPolicy *GovernmentPolicyClient
+	// PolicyMatch is the client for interacting with the PolicyMatch builders.
+	PolicyMatch *PolicyMatchClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 }
@@ -40,7 +43,8 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
-	c.Task = NewTaskClient(c.config)
+	c.GovernmentPolicy = NewGovernmentPolicyClient(c.config)
+	c.PolicyMatch = NewPolicyMatchClient(c.config)
 	c.User = NewUserClient(c.config)
 }
 
@@ -132,10 +136,11 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:    ctx,
-		config: cfg,
-		Task:   NewTaskClient(cfg),
-		User:   NewUserClient(cfg),
+		ctx:              ctx,
+		config:           cfg,
+		GovernmentPolicy: NewGovernmentPolicyClient(cfg),
+		PolicyMatch:      NewPolicyMatchClient(cfg),
+		User:             NewUserClient(cfg),
 	}, nil
 }
 
@@ -153,17 +158,18 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:    ctx,
-		config: cfg,
-		Task:   NewTaskClient(cfg),
-		User:   NewUserClient(cfg),
+		ctx:              ctx,
+		config:           cfg,
+		GovernmentPolicy: NewGovernmentPolicyClient(cfg),
+		PolicyMatch:      NewPolicyMatchClient(cfg),
+		User:             NewUserClient(cfg),
 	}, nil
 }
 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		Task.
+//		GovernmentPolicy.
 //		Query().
 //		Count(ctx)
 func (c *Client) Debug() *Client {
@@ -185,22 +191,26 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
-	c.Task.Use(hooks...)
+	c.GovernmentPolicy.Use(hooks...)
+	c.PolicyMatch.Use(hooks...)
 	c.User.Use(hooks...)
 }
 
 // Intercept adds the query interceptors to all the entity clients.
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
-	c.Task.Intercept(interceptors...)
+	c.GovernmentPolicy.Intercept(interceptors...)
+	c.PolicyMatch.Intercept(interceptors...)
 	c.User.Intercept(interceptors...)
 }
 
 // Mutate implements the ent.Mutator interface.
 func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
-	case *TaskMutation:
-		return c.Task.mutate(ctx, m)
+	case *GovernmentPolicyMutation:
+		return c.GovernmentPolicy.mutate(ctx, m)
+	case *PolicyMatchMutation:
+		return c.PolicyMatch.mutate(ctx, m)
 	case *UserMutation:
 		return c.User.mutate(ctx, m)
 	default:
@@ -208,107 +218,107 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	}
 }
 
-// TaskClient is a client for the Task schema.
-type TaskClient struct {
+// GovernmentPolicyClient is a client for the GovernmentPolicy schema.
+type GovernmentPolicyClient struct {
 	config
 }
 
-// NewTaskClient returns a client for the Task from the given config.
-func NewTaskClient(c config) *TaskClient {
-	return &TaskClient{config: c}
+// NewGovernmentPolicyClient returns a client for the GovernmentPolicy from the given config.
+func NewGovernmentPolicyClient(c config) *GovernmentPolicyClient {
+	return &GovernmentPolicyClient{config: c}
 }
 
 // Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `task.Hooks(f(g(h())))`.
-func (c *TaskClient) Use(hooks ...Hook) {
-	c.hooks.Task = append(c.hooks.Task, hooks...)
+// A call to `Use(f, g, h)` equals to `governmentpolicy.Hooks(f(g(h())))`.
+func (c *GovernmentPolicyClient) Use(hooks ...Hook) {
+	c.hooks.GovernmentPolicy = append(c.hooks.GovernmentPolicy, hooks...)
 }
 
 // Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `task.Intercept(f(g(h())))`.
-func (c *TaskClient) Intercept(interceptors ...Interceptor) {
-	c.inters.Task = append(c.inters.Task, interceptors...)
+// A call to `Intercept(f, g, h)` equals to `governmentpolicy.Intercept(f(g(h())))`.
+func (c *GovernmentPolicyClient) Intercept(interceptors ...Interceptor) {
+	c.inters.GovernmentPolicy = append(c.inters.GovernmentPolicy, interceptors...)
 }
 
-// Create returns a builder for creating a Task entity.
-func (c *TaskClient) Create() *TaskCreate {
-	mutation := newTaskMutation(c.config, OpCreate)
-	return &TaskCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Create returns a builder for creating a GovernmentPolicy entity.
+func (c *GovernmentPolicyClient) Create() *GovernmentPolicyCreate {
+	mutation := newGovernmentPolicyMutation(c.config, OpCreate)
+	return &GovernmentPolicyCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// CreateBulk returns a builder for creating a bulk of Task entities.
-func (c *TaskClient) CreateBulk(builders ...*TaskCreate) *TaskCreateBulk {
-	return &TaskCreateBulk{config: c.config, builders: builders}
+// CreateBulk returns a builder for creating a bulk of GovernmentPolicy entities.
+func (c *GovernmentPolicyClient) CreateBulk(builders ...*GovernmentPolicyCreate) *GovernmentPolicyCreateBulk {
+	return &GovernmentPolicyCreateBulk{config: c.config, builders: builders}
 }
 
 // MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
 // a builder and applies setFunc on it.
-func (c *TaskClient) MapCreateBulk(slice any, setFunc func(*TaskCreate, int)) *TaskCreateBulk {
+func (c *GovernmentPolicyClient) MapCreateBulk(slice any, setFunc func(*GovernmentPolicyCreate, int)) *GovernmentPolicyCreateBulk {
 	rv := reflect.ValueOf(slice)
 	if rv.Kind() != reflect.Slice {
-		return &TaskCreateBulk{err: fmt.Errorf("calling to TaskClient.MapCreateBulk with wrong type %T, need slice", slice)}
+		return &GovernmentPolicyCreateBulk{err: fmt.Errorf("calling to GovernmentPolicyClient.MapCreateBulk with wrong type %T, need slice", slice)}
 	}
-	builders := make([]*TaskCreate, rv.Len())
+	builders := make([]*GovernmentPolicyCreate, rv.Len())
 	for i := 0; i < rv.Len(); i++ {
 		builders[i] = c.Create()
 		setFunc(builders[i], i)
 	}
-	return &TaskCreateBulk{config: c.config, builders: builders}
+	return &GovernmentPolicyCreateBulk{config: c.config, builders: builders}
 }
 
-// Update returns an update builder for Task.
-func (c *TaskClient) Update() *TaskUpdate {
-	mutation := newTaskMutation(c.config, OpUpdate)
-	return &TaskUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Update returns an update builder for GovernmentPolicy.
+func (c *GovernmentPolicyClient) Update() *GovernmentPolicyUpdate {
+	mutation := newGovernmentPolicyMutation(c.config, OpUpdate)
+	return &GovernmentPolicyUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *TaskClient) UpdateOne(_m *Task) *TaskUpdateOne {
-	mutation := newTaskMutation(c.config, OpUpdateOne, withTask(_m))
-	return &TaskUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *GovernmentPolicyClient) UpdateOne(_m *GovernmentPolicy) *GovernmentPolicyUpdateOne {
+	mutation := newGovernmentPolicyMutation(c.config, OpUpdateOne, withGovernmentPolicy(_m))
+	return &GovernmentPolicyUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *TaskClient) UpdateOneID(id uuid.UUID) *TaskUpdateOne {
-	mutation := newTaskMutation(c.config, OpUpdateOne, withTaskID(id))
-	return &TaskUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *GovernmentPolicyClient) UpdateOneID(id uuid.UUID) *GovernmentPolicyUpdateOne {
+	mutation := newGovernmentPolicyMutation(c.config, OpUpdateOne, withGovernmentPolicyID(id))
+	return &GovernmentPolicyUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// Delete returns a delete builder for Task.
-func (c *TaskClient) Delete() *TaskDelete {
-	mutation := newTaskMutation(c.config, OpDelete)
-	return &TaskDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Delete returns a delete builder for GovernmentPolicy.
+func (c *GovernmentPolicyClient) Delete() *GovernmentPolicyDelete {
+	mutation := newGovernmentPolicyMutation(c.config, OpDelete)
+	return &GovernmentPolicyDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *TaskClient) DeleteOne(_m *Task) *TaskDeleteOne {
+func (c *GovernmentPolicyClient) DeleteOne(_m *GovernmentPolicy) *GovernmentPolicyDeleteOne {
 	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *TaskClient) DeleteOneID(id uuid.UUID) *TaskDeleteOne {
-	builder := c.Delete().Where(task.ID(id))
+func (c *GovernmentPolicyClient) DeleteOneID(id uuid.UUID) *GovernmentPolicyDeleteOne {
+	builder := c.Delete().Where(governmentpolicy.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
-	return &TaskDeleteOne{builder}
+	return &GovernmentPolicyDeleteOne{builder}
 }
 
-// Query returns a query builder for Task.
-func (c *TaskClient) Query() *TaskQuery {
-	return &TaskQuery{
+// Query returns a query builder for GovernmentPolicy.
+func (c *GovernmentPolicyClient) Query() *GovernmentPolicyQuery {
+	return &GovernmentPolicyQuery{
 		config: c.config,
-		ctx:    &QueryContext{Type: TypeTask},
+		ctx:    &QueryContext{Type: TypeGovernmentPolicy},
 		inters: c.Interceptors(),
 	}
 }
 
-// Get returns a Task entity by its id.
-func (c *TaskClient) Get(ctx context.Context, id uuid.UUID) (*Task, error) {
-	return c.Query().Where(task.ID(id)).Only(ctx)
+// Get returns a GovernmentPolicy entity by its id.
+func (c *GovernmentPolicyClient) Get(ctx context.Context, id uuid.UUID) (*GovernmentPolicy, error) {
+	return c.Query().Where(governmentpolicy.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *TaskClient) GetX(ctx context.Context, id uuid.UUID) *Task {
+func (c *GovernmentPolicyClient) GetX(ctx context.Context, id uuid.UUID) *GovernmentPolicy {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -316,15 +326,15 @@ func (c *TaskClient) GetX(ctx context.Context, id uuid.UUID) *Task {
 	return obj
 }
 
-// QueryOwner queries the owner edge of a Task.
-func (c *TaskClient) QueryOwner(_m *Task) *UserQuery {
-	query := (&UserClient{config: c.config}).Query()
+// QueryMatches queries the matches edge of a GovernmentPolicy.
+func (c *GovernmentPolicyClient) QueryMatches(_m *GovernmentPolicy) *PolicyMatchQuery {
+	query := (&PolicyMatchClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := _m.ID
 		step := sqlgraph.NewStep(
-			sqlgraph.From(task.Table, task.FieldID, id),
-			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, task.OwnerTable, task.OwnerColumn),
+			sqlgraph.From(governmentpolicy.Table, governmentpolicy.FieldID, id),
+			sqlgraph.To(policymatch.Table, policymatch.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, governmentpolicy.MatchesTable, governmentpolicy.MatchesColumn),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -333,27 +343,192 @@ func (c *TaskClient) QueryOwner(_m *Task) *UserQuery {
 }
 
 // Hooks returns the client hooks.
-func (c *TaskClient) Hooks() []Hook {
-	return c.hooks.Task
+func (c *GovernmentPolicyClient) Hooks() []Hook {
+	return c.hooks.GovernmentPolicy
 }
 
 // Interceptors returns the client interceptors.
-func (c *TaskClient) Interceptors() []Interceptor {
-	return c.inters.Task
+func (c *GovernmentPolicyClient) Interceptors() []Interceptor {
+	return c.inters.GovernmentPolicy
 }
 
-func (c *TaskClient) mutate(ctx context.Context, m *TaskMutation) (Value, error) {
+func (c *GovernmentPolicyClient) mutate(ctx context.Context, m *GovernmentPolicyMutation) (Value, error) {
 	switch m.Op() {
 	case OpCreate:
-		return (&TaskCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&GovernmentPolicyCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpUpdate:
-		return (&TaskUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&GovernmentPolicyUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpUpdateOne:
-		return (&TaskUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&GovernmentPolicyUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpDelete, OpDeleteOne:
-		return (&TaskDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+		return (&GovernmentPolicyDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
-		return nil, fmt.Errorf("ent: unknown Task mutation op: %q", m.Op())
+		return nil, fmt.Errorf("ent: unknown GovernmentPolicy mutation op: %q", m.Op())
+	}
+}
+
+// PolicyMatchClient is a client for the PolicyMatch schema.
+type PolicyMatchClient struct {
+	config
+}
+
+// NewPolicyMatchClient returns a client for the PolicyMatch from the given config.
+func NewPolicyMatchClient(c config) *PolicyMatchClient {
+	return &PolicyMatchClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `policymatch.Hooks(f(g(h())))`.
+func (c *PolicyMatchClient) Use(hooks ...Hook) {
+	c.hooks.PolicyMatch = append(c.hooks.PolicyMatch, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `policymatch.Intercept(f(g(h())))`.
+func (c *PolicyMatchClient) Intercept(interceptors ...Interceptor) {
+	c.inters.PolicyMatch = append(c.inters.PolicyMatch, interceptors...)
+}
+
+// Create returns a builder for creating a PolicyMatch entity.
+func (c *PolicyMatchClient) Create() *PolicyMatchCreate {
+	mutation := newPolicyMatchMutation(c.config, OpCreate)
+	return &PolicyMatchCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of PolicyMatch entities.
+func (c *PolicyMatchClient) CreateBulk(builders ...*PolicyMatchCreate) *PolicyMatchCreateBulk {
+	return &PolicyMatchCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *PolicyMatchClient) MapCreateBulk(slice any, setFunc func(*PolicyMatchCreate, int)) *PolicyMatchCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &PolicyMatchCreateBulk{err: fmt.Errorf("calling to PolicyMatchClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*PolicyMatchCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &PolicyMatchCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for PolicyMatch.
+func (c *PolicyMatchClient) Update() *PolicyMatchUpdate {
+	mutation := newPolicyMatchMutation(c.config, OpUpdate)
+	return &PolicyMatchUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *PolicyMatchClient) UpdateOne(_m *PolicyMatch) *PolicyMatchUpdateOne {
+	mutation := newPolicyMatchMutation(c.config, OpUpdateOne, withPolicyMatch(_m))
+	return &PolicyMatchUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *PolicyMatchClient) UpdateOneID(id uuid.UUID) *PolicyMatchUpdateOne {
+	mutation := newPolicyMatchMutation(c.config, OpUpdateOne, withPolicyMatchID(id))
+	return &PolicyMatchUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for PolicyMatch.
+func (c *PolicyMatchClient) Delete() *PolicyMatchDelete {
+	mutation := newPolicyMatchMutation(c.config, OpDelete)
+	return &PolicyMatchDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *PolicyMatchClient) DeleteOne(_m *PolicyMatch) *PolicyMatchDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *PolicyMatchClient) DeleteOneID(id uuid.UUID) *PolicyMatchDeleteOne {
+	builder := c.Delete().Where(policymatch.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &PolicyMatchDeleteOne{builder}
+}
+
+// Query returns a query builder for PolicyMatch.
+func (c *PolicyMatchClient) Query() *PolicyMatchQuery {
+	return &PolicyMatchQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypePolicyMatch},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a PolicyMatch entity by its id.
+func (c *PolicyMatchClient) Get(ctx context.Context, id uuid.UUID) (*PolicyMatch, error) {
+	return c.Query().Where(policymatch.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *PolicyMatchClient) GetX(ctx context.Context, id uuid.UUID) *PolicyMatch {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryPolicy queries the policy edge of a PolicyMatch.
+func (c *PolicyMatchClient) QueryPolicy(_m *PolicyMatch) *GovernmentPolicyQuery {
+	query := (&GovernmentPolicyClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(policymatch.Table, policymatch.FieldID, id),
+			sqlgraph.To(governmentpolicy.Table, governmentpolicy.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, policymatch.PolicyTable, policymatch.PolicyColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryUser queries the user edge of a PolicyMatch.
+func (c *PolicyMatchClient) QueryUser(_m *PolicyMatch) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(policymatch.Table, policymatch.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, policymatch.UserTable, policymatch.UserColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *PolicyMatchClient) Hooks() []Hook {
+	return c.hooks.PolicyMatch
+}
+
+// Interceptors returns the client interceptors.
+func (c *PolicyMatchClient) Interceptors() []Interceptor {
+	return c.inters.PolicyMatch
+}
+
+func (c *PolicyMatchClient) mutate(ctx context.Context, m *PolicyMatchMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&PolicyMatchCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&PolicyMatchUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&PolicyMatchUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&PolicyMatchDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown PolicyMatch mutation op: %q", m.Op())
 	}
 }
 
@@ -465,6 +640,22 @@ func (c *UserClient) GetX(ctx context.Context, id uuid.UUID) *User {
 	return obj
 }
 
+// QueryPolicyMatches queries the policy_matches edge of a User.
+func (c *UserClient) QueryPolicyMatches(_m *User) *PolicyMatchQuery {
+	query := (&PolicyMatchClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(policymatch.Table, policymatch.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.PolicyMatchesTable, user.PolicyMatchesColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *UserClient) Hooks() []Hook {
 	return c.hooks.User
@@ -493,9 +684,9 @@ func (c *UserClient) mutate(ctx context.Context, m *UserMutation) (Value, error)
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Task, User []ent.Hook
+		GovernmentPolicy, PolicyMatch, User []ent.Hook
 	}
 	inters struct {
-		Task, User []ent.Interceptor
+		GovernmentPolicy, PolicyMatch, User []ent.Interceptor
 	}
 )
