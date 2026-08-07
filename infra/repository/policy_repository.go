@@ -35,6 +35,14 @@ func (r *policyRepository) FindByID(c context.Context, id *domain.ID) (*domain.P
 	return toDomainPolicy(p), nil
 }
 
+func (r *policyRepository) FindByTitle(c context.Context, title string) (*domain.Policy, error) {
+	p, err := r.client.GovernmentPolicy.Query().Where(governmentpolicy.TitleEQ(title)).First(c)
+	if err != nil {
+		return nil, err
+	}
+	return toDomainPolicy(p), nil
+}
+
 func (r *policyRepository) FindAllByRegionCode(c context.Context, regionCode int) ([]*domain.Policy, error) {
 	policies, err := r.client.GovernmentPolicy.Query().Where(
 		governmentpolicy.RegionCodeEQ(regionCode),

@@ -197,56 +197,170 @@ func (u *policyUseCase) FetchYouthPolicies(ctx context.Context) ([]*domain.Polic
 
 // FetchWelfarePolicies fetches welfare services from 한국사회보장정보원 (중앙부처복지서비스)
 func (u *policyUseCase) FetchWelfarePolicies(ctx context.Context) ([]*domain.Policy, error) {
-	apiKey := config.E.WelfareApiKey
-
-	reqURL := fmt.Sprintf("http://apis.data.go.kr/B554287/NationalWelfareInformations/getNationalWelfarelist?serviceKey=%s&callDpCharTd=1&pageNo=1&numOfRows=20", url.QueryEscape(apiKey))
-
-	body, err := u.doGetRequest(ctx, reqURL)
+	items, err := u.fetchWelfareList(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("http request failed: %w", err)
+		return nil, err
 	}
 
-	var items []domain.WelfareItem
+	var (
+		mu     sync.Mutex
+		result = make([]*domain.Policy, 0, len(items))
+	)
 
-	var xmlResp domain.WelfareXMLResponse
-	if xmlErr := xml.Unmarshal(body, &xmlResp); xmlErr == nil && len(xmlResp.Body.Items.ItemList) > 0 {
-		items = xmlResp.Body.Items.ItemList
-	} else {
-		var jsonResp domain.WelfareJSONResponse
-		if jsonErr := json.Unmarshal(body, &jsonResp); jsonErr == nil && len(jsonResp.Response.Body.Items.Item) > 0 {
-			items = jsonResp.Response.Body.Items.Item
-		}
-	}
-
-	var result []*domain.Policy
-	now := time.Now()
+	g, ctx := errgroup.WithContext(ctx)
+	g.SetLimit(1)
 
 	for _, item := range items {
-		title := strings.TrimSpace(item.ServNm)
-		if title == "" {
-			continue
-		}
-		desc := strings.TrimSpace(item.ServDgst)
-		if item.JurMnofNm != "" {
-			desc = fmt.Sprintf("[%s] %s", item.JurMnofNm, desc)
-		}
-		if item.AplyMtdCn != "" {
-			desc = fmt.Sprintf("%s\n신청방법: %s", desc, item.AplyMtdCn)
-		}
+		time.Sleep(100 * time.Millisecond)
+		item := item
 
-		result = append(result, &domain.Policy{
-			Title:       title,
-			Description: desc,
-			RegionCode:  0, // Central/National policy
-			StartDate:   now,
-			EndDate:     now.AddDate(1, 0, 0),
-			Address:     strings.TrimSpace(item.JurMnofNm),
-			Latitude:    0.0,
-			Longitude:   0.0,
+		g.Go(func() error {
+			exist, _ := u.policyRepository.FindByTitle(ctx, item.ServNm)
+			if exist != nil {
+				return nil
+			}
+			policy, err := u.fetchWelfareDetail(ctx, item.ServID)
+			if err != nil {
+				log.Printf("welfare detail %s: %v", item.ServID, err)
+				return nil
+			}
+
+			mu.Lock()
+			result = append(result, policy)
+			mu.Unlock()
+
+			return nil
 		})
 	}
 
+	if err := g.Wait(); err != nil {
+		return nil, err
+	}
+
 	return result, nil
+}
+
+func (u *policyUseCase) fetchWelfareDetail(
+	ctx context.Context,
+	servID string,
+) (*domain.Policy, error) {
+
+	params := url.Values{}
+	params.Set("serviceKey", config.E.WelfareApiKey)
+	params.Set("callTp", "D")
+	params.Set("servId", servID)
+
+	reqURL := fmt.Sprintf(
+		"https://apis.data.go.kr/B554287/NationalWelfareInformationsV001/NationalWelfaredetailedV001?%s",
+		params.Encode(),
+	)
+
+	body, err := u.doGetRequest(ctx, reqURL)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp domain.WelfareDetailResponse
+	if err := xml.Unmarshal(body, &resp); err != nil {
+		return nil, err
+	}
+
+	item := resp.WelfareDetailItem
+
+	var desc strings.Builder
+
+	desc.WriteString(strings.TrimSpace(item.WlfareInfoOutlCn))
+
+	if item.AlwServCn != "" {
+		desc.WriteString("\n\n지원내용\n")
+		desc.WriteString(item.AlwServCn)
+	}
+
+	if item.TgtrDtlCn != "" {
+		desc.WriteString("\n\n지원대상\n")
+		desc.WriteString(item.TgtrDtlCn)
+	}
+
+	if item.SlctCritCn != "" {
+		desc.WriteString("\n\n선정기준\n")
+		desc.WriteString(item.SlctCritCn)
+	}
+
+	if len(item.ApplmetList) > 0 {
+		desc.WriteString("\n\n신청방법")
+		for _, v := range item.ApplmetList {
+			desc.WriteString("\n- ")
+			desc.WriteString(v.ServSeDetailNm)
+		}
+	}
+
+	address := item.JurMnofNm
+	if item.RprsCtadr != "" {
+		address = item.RprsCtadr
+	}
+
+	return &domain.Policy{
+		Title:       strings.TrimSpace(item.ServNm),
+		Description: desc.String(),
+		RegionCode:  0, // 중앙부처
+		StartDate:   time.Now(),
+		EndDate:     time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC),
+		Address:     address,
+		Latitude:    0,
+		Longitude:   0,
+	}, nil
+}
+
+func (u *policyUseCase) fetchWelfareList(ctx context.Context) ([]domain.WelfareItem, error) {
+	params := url.Values{}
+	params.Set("serviceKey", config.E.WelfareApiKey)
+	params.Set("callTp", "L")
+	params.Set("pageNo", "1")
+	params.Set("numOfRows", "100")
+	params.Set("srchKeyCode", "001")
+
+	reqURL := fmt.Sprintf(
+		"https://apis.data.go.kr/B554287/NationalWelfareInformationsV001/NationalWelfarelistV001?%s",
+		params.Encode(),
+	)
+
+	body, err := u.doGetRequest(ctx, reqURL)
+	if err != nil {
+		return nil, fmt.Errorf("request welfare list: %w", err)
+	}
+
+	// XML 우선
+	var xmlResp domain.WelfareXMLResponse
+	if err := xml.Unmarshal(body, &xmlResp); err == nil {
+		if xmlResp.ResultCode != "" && xmlResp.ResultCode != "0" {
+			return nil, fmt.Errorf(
+				"api error: %s (%s)",
+				xmlResp.ResultMessage,
+				xmlResp.ResultCode,
+			)
+		}
+
+		if len(xmlResp.ServList) > 0 {
+			return xmlResp.ServList, nil
+		}
+	}
+
+	// JSON fallback
+	var jsonResp domain.WelfareJSONResponse
+	if err := json.Unmarshal(body, &jsonResp); err == nil {
+		if jsonResp.WantedList.ResultCode != "" &&
+			jsonResp.WantedList.ResultCode != "0" {
+			return nil, fmt.Errorf(
+				"api error: %s (%s)",
+				jsonResp.WantedList.ResultMessage,
+				jsonResp.WantedList.ResultCode,
+			)
+		}
+
+		return jsonResp.WantedList.ServList, nil
+	}
+
+	return nil, fmt.Errorf("failed to decode welfare response")
 }
 
 // FetchVolunteerEvents fetches volunteer activities and events from 행정안전부 봉사참여정보서비스
@@ -262,12 +376,17 @@ func (u *policyUseCase) FetchVolunteerEvents(ctx context.Context) ([]*domain.Pol
 	)
 
 	g, ctx := errgroup.WithContext(ctx)
-	g.SetLimit(8)
+	g.SetLimit(1)
 
 	for _, item := range list {
+		time.Sleep(100 * time.Millisecond)
 		item := item
 
 		g.Go(func() error {
+			exist, _ := u.policyRepository.FindByTitle(ctx, item.ProgrmSj)
+			if exist != nil {
+				return nil
+			}
 			policy, err := u.fetchVolunteerDetail(ctx, item.ProgrmRegistNo)
 			if err != nil {
 				log.Printf("volunteer detail %s: %v", item.ProgrmRegistNo, err)
@@ -297,9 +416,11 @@ func (u *policyUseCase) fetchVolunteerAreaList(ctx context.Context) ([]domain.Vo
 	params.Set("schSido", "6110000") // 서울
 
 	reqURL := fmt.Sprintf(
-		"https://apis.data.go.kr/1365000/VolunteerPartcptnService/getVltrAreaList?%s",
+		"https://apis.data.go.kr/1741000/volunteerPartcptnService/getVltrAreaList?%s",
 		params.Encode(),
 	)
+
+	fmt.Println(reqURL)
 
 	body, err := u.doGetRequest(ctx, reqURL)
 	if err != nil {
@@ -333,7 +454,7 @@ func (u *policyUseCase) fetchVolunteerDetail(
 	params.Set("progrmRegistNo", registNo)
 
 	reqURL := fmt.Sprintf(
-		"https://apis.data.go.kr/1365000/VolunteerPartcptnService/getVltrPartcptnItem?%s",
+		"https://apis.data.go.kr/1741000/volunteerPartcptnService/getVltrPartcptnItem?%s",
 		params.Encode(),
 	)
 
@@ -393,7 +514,7 @@ func (u *policyUseCase) fetchVolunteerDetail(
 func (u *policyUseCase) FetchMaternityPolicies(ctx context.Context) ([]*domain.Policy, error) {
 	apiKey := config.E.MaternityApiKey
 
-	reqURL := fmt.Sprintf("http://apis.data.go.kr/1352000/MaternityChildcareService/getMaternityChildcareList?serviceKey=%s&ctpvNm=%s&pageNo=1&numOfRows=20", url.QueryEscape(apiKey), url.QueryEscape("서울특별시"))
+	reqURL := fmt.Sprintf("http://apis.data.go.kr/1741000/MaternityChildcareService/getMaternityChildcareList?serviceKey=%s&ctpvNm=%s&pageNo=1&numOfRows=20", url.QueryEscape(apiKey), url.QueryEscape("서울특별시"))
 
 	body, err := u.doGetRequest(ctx, reqURL)
 	if err != nil {
@@ -475,9 +596,17 @@ func (u *policyUseCase) doGetRequest(ctx context.Context, reqURL string) ([]byte
 	}
 	defer resp.Body.Close()
 
+	body, _ := io.ReadAll(resp.Body)
+
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+		return nil, fmt.Errorf(
+			"unexpected status code: %d\nbody: %s",
+			resp.StatusCode,
+			string(body),
+		)
 	}
+
+	return body, nil
 
 	return io.ReadAll(resp.Body)
 }
