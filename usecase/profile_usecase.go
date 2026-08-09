@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent"
 )
 
 type profileUseCase struct {
@@ -25,7 +26,10 @@ func (pu *profileUseCase) GetProfileByID(c context.Context, userID *domain.ID) (
 
 	user, err := pu.userRepository.FindByID(ctx, userID)
 	if err != nil {
-		return nil, err
+		if ent.IsNotFound(err) {
+			return nil, domain.NewNotFoundError(err)
+		}
+		return nil, domain.NewInternalServerError(err)
 	}
 
 	return &domain.Profile{Name: user.Name, Email: user.Email}, nil

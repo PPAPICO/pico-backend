@@ -1,3 +1,5 @@
+export APP_ENV := test
+
 # Variables
 BINARY_NAME=main
 BINARY_PATH=./cmd/main.go
@@ -12,7 +14,7 @@ else
     HELP_CMD=grep -E '^[a-zA-Z_-]+:.*## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*## "}; {printf "  %-15s %s\n", $$1, $$2}'
 endif
 
-.PHONY: run test clean build push up help
+.PHONY: run test integration-test clean build push up help mock docker-build docker-push compose-up ent-new ent-generate
 
 help: ## Show help messages
 	@echo Available commands:
@@ -25,6 +27,10 @@ run: ## Run the application
 test: ## Run tests
 	@echo Testing the application...
 	go test ./...
+
+integration-test: ## Run integration test
+	@echo Integration Testing the application...
+	go test -tags integration -v -run "TestIntegration" ./...
 
 build: ## Build the application
 	@echo Building the application...

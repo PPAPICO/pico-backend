@@ -14,7 +14,7 @@ func FetchProfile(service domain.ProfileUseCase) fiber.Handler {
 
 		profile, err := service.GetProfileByID(ctx, userID)
 		if err != nil {
-			return c.Status(http.StatusInternalServerError).JSON(domain.ErrorResponse{Message: err.Error()})
+			return RespondError(c, err)
 		}
 
 		return c.Status(http.StatusOK).JSON(profile)

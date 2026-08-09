@@ -38,3 +38,10 @@ func NewForbiddenError(err error) *Error {
 		Err:        err,
 	}
 }
+
+func NewNotFoundError(err error) *Error {
+	return &Error{
+		StatusCode: http.StatusNotFound,
+		Err:        err,
+	}
+}
