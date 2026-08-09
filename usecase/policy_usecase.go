@@ -5,24 +5,24 @@ import (
 	"log"
 	"time"
 
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/external/volunteer"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/external/welfare"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/external/youth"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/internal/collections"
+	"github.com/janghanul090801/pico-backend/domain"
+	"github.com/janghanul090801/pico-backend/ent"
+	"github.com/janghanul090801/pico-backend/external/volunteer"
+	"github.com/janghanul090801/pico-backend/external/welfare"
+	"github.com/janghanul090801/pico-backend/external/youth"
+	"github.com/janghanul090801/pico-backend/internal/collections"
 )
 
 type policyUseCase struct {
 	policyRepository      domain.PolicyRepository
 	policyMatchRepository domain.PolicyMatchRepository
-	youthClient           youth.Client
-	welfareClient         welfare.Client
-	volunteerClient       volunteer.Client
+	youthClient           *youth.Client
+	welfareClient         *welfare.Client
+	volunteerClient       *volunteer.Client
 	contextTimeout        time.Duration
 }
 
-func NewPolicyUseCase(policyRepository domain.PolicyRepository, policyMatchRepository domain.PolicyMatchRepository, youthClient youth.Client, welfareClient welfare.Client, volunteerClient volunteer.Client, contextTimeout time.Duration) domain.PolicyUseCase {
+func NewPolicyUseCase(policyRepository domain.PolicyRepository, policyMatchRepository domain.PolicyMatchRepository, youthClient *youth.Client, welfareClient *welfare.Client, volunteerClient *volunteer.Client, contextTimeout time.Duration) domain.PolicyUseCase {
 	return &policyUseCase{
 		policyRepository:      policyRepository,
 		policyMatchRepository: policyMatchRepository,
@@ -57,7 +57,7 @@ func (u *policyUseCase) ListByRegionCodeAndActive(c context.Context, regionCode 
 	return policies, nil
 }
 
-func (u *policyUseCase) GetMatchesByUserID(c context.Context, userID *domain.ID) ([]*domain.Policy, error) {
+func (u *policyUseCase) ListMatchesByUserID(c context.Context, userID *domain.ID) ([]*domain.PolicyMatch, error) {
 	ctx, cancel := context.WithTimeout(c, u.contextTimeout)
 	defer cancel()
 
@@ -66,14 +66,7 @@ func (u *policyUseCase) GetMatchesByUserID(c context.Context, userID *domain.ID)
 		return nil, domain.NewInternalServerError(err)
 	}
 
-	var policies []*domain.Policy
-	for _, match := range matches {
-		p, err := u.policyRepository.FindByID(ctx, &match.PolicyID)
-		if err == nil && p != nil {
-			policies = append(policies, p)
-		}
-	}
-	return policies, nil
+	return matches, nil
 }
 
 // GetFromApi fetches policies from external APIs, filters for Seoul/National targets, and saves them to DB

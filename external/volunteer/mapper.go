@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/internal/parser"
+	"github.com/janghanul090801/pico-backend/domain"
+	"github.com/janghanul090801/pico-backend/internal/parser"
 )
 
 func buildDescription(item DetailItem) string {

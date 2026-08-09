@@ -1,9 +1,9 @@
 package repository
 
 import (
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/policymatch"
+	"github.com/janghanul090801/pico-backend/domain"
+	"github.com/janghanul090801/pico-backend/ent"
+	"github.com/janghanul090801/pico-backend/ent/policymatch"
 )
 
 func toDomainUser(u *ent.User) *domain.User {
@@ -13,7 +13,7 @@ func toDomainUser(u *ent.User) *domain.User {
 		Email:       u.Email,
 		Password:    u.Password,
 		Age:         u.Age,
-		Region:      u.Region,
+		RegionCode:  u.RegionCode,
 		Gender:      domain.Gender(u.Gender),
 		IsStudent:   u.IsStudent,
 		IsYouth:     u.IsYouth,
@@ -68,19 +68,19 @@ func stringsToInterests(values []string) []domain.Interest {
 func entMatchToDomainMatch(value policymatch.Match) domain.Match {
 	switch value {
 	case policymatch.MatchPOSSIBLE:
-		return domain.IMPOSSIBLE
+		return domain.MatchIMPOSSIBLE
 	case policymatch.MatchUNCERTAIN:
-		return domain.UNCERTAIN
+		return domain.MatchUNCERTAIN
 	default:
-		return domain.IMPOSSIBLE
+		return domain.MatchIMPOSSIBLE
 	}
 }
 
 func domainMatchToEntMatch(value domain.Match) policymatch.Match {
 	switch value {
-	case domain.IMPOSSIBLE:
+	case domain.MatchIMPOSSIBLE:
 		return policymatch.MatchIMPOSSIBLE
-	case domain.UNCERTAIN:
+	case domain.MatchUNCERTAIN:
 		return policymatch.MatchUNCERTAIN
 	default:
 		return policymatch.MatchPOSSIBLE

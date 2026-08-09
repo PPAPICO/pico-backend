@@ -12,9 +12,9 @@ import (
 	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/policymatch"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/predicate"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/user"
+	"github.com/janghanul090801/pico-backend/ent/policymatch"
+	"github.com/janghanul090801/pico-backend/ent/predicate"
+	"github.com/janghanul090801/pico-backend/ent/user"
 )
 
 // UserUpdate is the builder for updating User entities.
@@ -93,17 +93,24 @@ func (_u *UserUpdate) AddAge(v int) *UserUpdate {
 	return _u
 }
 
-// SetRegion sets the "region" field.
-func (_u *UserUpdate) SetRegion(v string) *UserUpdate {
-	_u.mutation.SetRegion(v)
+// SetRegionCode sets the "region_code" field.
+func (_u *UserUpdate) SetRegionCode(v int) *UserUpdate {
+	_u.mutation.ResetRegionCode()
+	_u.mutation.SetRegionCode(v)
 	return _u
 }
 
-// SetNillableRegion sets the "region" field if the given value is not nil.
-func (_u *UserUpdate) SetNillableRegion(v *string) *UserUpdate {
+// SetNillableRegionCode sets the "region_code" field if the given value is not nil.
+func (_u *UserUpdate) SetNillableRegionCode(v *int) *UserUpdate {
 	if v != nil {
-		_u.SetRegion(*v)
+		_u.SetRegionCode(*v)
 	}
+	return _u
+}
+
+// AddRegionCode adds value to the "region_code" field.
+func (_u *UserUpdate) AddRegionCode(v int) *UserUpdate {
+	_u.mutation.AddRegionCode(v)
 	return _u
 }
 
@@ -360,8 +367,11 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.AddedAge(); ok {
 		_spec.AddField(user.FieldAge, field.TypeInt, value)
 	}
-	if value, ok := _u.mutation.Region(); ok {
-		_spec.SetField(user.FieldRegion, field.TypeString, value)
+	if value, ok := _u.mutation.RegionCode(); ok {
+		_spec.SetField(user.FieldRegionCode, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedRegionCode(); ok {
+		_spec.AddField(user.FieldRegionCode, field.TypeInt, value)
 	}
 	if value, ok := _u.mutation.Gender(); ok {
 		_spec.SetField(user.FieldGender, field.TypeEnum, value)
@@ -529,17 +539,24 @@ func (_u *UserUpdateOne) AddAge(v int) *UserUpdateOne {
 	return _u
 }
 
-// SetRegion sets the "region" field.
-func (_u *UserUpdateOne) SetRegion(v string) *UserUpdateOne {
-	_u.mutation.SetRegion(v)
+// SetRegionCode sets the "region_code" field.
+func (_u *UserUpdateOne) SetRegionCode(v int) *UserUpdateOne {
+	_u.mutation.ResetRegionCode()
+	_u.mutation.SetRegionCode(v)
 	return _u
 }
 
-// SetNillableRegion sets the "region" field if the given value is not nil.
-func (_u *UserUpdateOne) SetNillableRegion(v *string) *UserUpdateOne {
+// SetNillableRegionCode sets the "region_code" field if the given value is not nil.
+func (_u *UserUpdateOne) SetNillableRegionCode(v *int) *UserUpdateOne {
 	if v != nil {
-		_u.SetRegion(*v)
+		_u.SetRegionCode(*v)
 	}
+	return _u
+}
+
+// AddRegionCode adds value to the "region_code" field.
+func (_u *UserUpdateOne) AddRegionCode(v int) *UserUpdateOne {
+	_u.mutation.AddRegionCode(v)
 	return _u
 }
 
@@ -826,8 +843,11 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 	if value, ok := _u.mutation.AddedAge(); ok {
 		_spec.AddField(user.FieldAge, field.TypeInt, value)
 	}
-	if value, ok := _u.mutation.Region(); ok {
-		_spec.SetField(user.FieldRegion, field.TypeString, value)
+	if value, ok := _u.mutation.RegionCode(); ok {
+		_spec.SetField(user.FieldRegionCode, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedRegionCode(); ok {
+		_spec.AddField(user.FieldRegionCode, field.TypeInt, value)
 	}
 	if value, ok := _u.mutation.Gender(); ok {
 		_spec.SetField(user.FieldGender, field.TypeEnum, value)

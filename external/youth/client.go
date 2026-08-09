@@ -9,15 +9,22 @@ import (
 	"strings"
 	"time"
 
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/config"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/internal/httpclient"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/internal/parser"
+	"github.com/janghanul090801/pico-backend/config"
+	"github.com/janghanul090801/pico-backend/domain"
+	"github.com/janghanul090801/pico-backend/internal/httpclient"
+	"github.com/janghanul090801/pico-backend/internal/parser"
 )
 
 type Client struct {
 	httpClient *httpclient.Client
 	apiKey     string
+}
+
+func NewClient(httpClient *httpclient.Client, apiKey string) *Client {
+	return &Client{
+		httpClient: httpClient,
+		apiKey:     apiKey,
+	}
 }
 
 // Fetch fetches policies from 온통청년 청년정책 API

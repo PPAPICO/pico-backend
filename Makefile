@@ -43,11 +43,11 @@ clean: ## Delete the build file
 
 docker-build: ## Build docker image
 	@echo Building the application...
-	docker build -t janghanul090801/go-backend-clean-architecture-fiber:latest .
+	docker build -t janghanul090801/pico-backend:latest .
 
 docker-push: ## Push docker image
 	@echo Pushing the docker image...
-	docker push janghanul090801/go-backend-clean-architecture-fiber:latest
+	docker push janghanul090801/pico-backend:latest
 
 compose-up: ## Up docker-compose
 	@echo Upping docker compose...
@@ -64,3 +64,7 @@ ent-new: ## Create new ent schema (make ent-new name=User)
 ent-generate: ## Generate ent
 	@echo Genarating...
 	go generate ./ent
+
+swag: ## Swag int
+	@echo swag init...
+	swag init -g cmd/main.go -o docs

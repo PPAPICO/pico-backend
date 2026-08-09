@@ -33,7 +33,7 @@ func (User) Fields() []ent.Field {
 
 		field.Int("age"),
 
-		field.String("region"),
+		field.Int("region_code"),
 
 		field.Enum("gender").
 			Values("MALE", "FEMALE", "OTHER"),

@@ -26,12 +26,44 @@ type PolicyMatch struct {
 	Status   Match
 }
 
+type PolicyResponse struct {
+	ID          ID        `json:"id"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	RegionCode  int       `json:"region_code"`
+	StartDate   time.Time `json:"start_date"`
+	EndDate     time.Time `json:"end_date"`
+	Address     string    `json:"address"`
+	Latitude    float64   `json:"latitude"`
+	Longitude   float64   `json:"longitude"`
+	Status      Match     `json:"status"`
+}
+
+func (p *Policy) ToResponse(match *PolicyMatch) *PolicyResponse {
+	status := MatchUNCERTAIN
+	if match != nil {
+		status = match.Status
+	}
+	return &PolicyResponse{
+		ID:          p.ID,
+		Title:       p.Title,
+		Description: p.Description,
+		RegionCode:  p.RegionCode,
+		StartDate:   p.StartDate,
+		EndDate:     p.EndDate,
+		Address:     p.Address,
+		Latitude:    p.Latitude,
+		Longitude:   p.Longitude,
+		Status:      status,
+	}
+}
+
 type Match int
 
 const (
-	POSSIBLE   Match = iota
-	UNCERTAIN  Match = iota
-	IMPOSSIBLE Match = iota
+	MatchPOSSIBLE   Match = iota
+	MatchUNCERTAIN  Match = iota
+	MatchIMPOSSIBLE Match = iota
 )
 
 type XMLHeader struct {
@@ -124,5 +156,5 @@ type PolicyUseCase interface {
 	GetByID(c context.Context, id *ID) (*Policy, error)
 	ListByRegionCodeAndActive(c context.Context, regionCode int) ([]*Policy, error)
 	GetFromApi(c context.Context) ([]*Policy, error)
-	GetMatchesByUserID(c context.Context, userID *ID) ([]*Policy, error)
+	ListMatchesByUserID(c context.Context, userID *ID) ([]*PolicyMatch, error)
 }

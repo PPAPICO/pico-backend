@@ -12,9 +12,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/config"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain/mocks"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/internal/httpclient"
+	"github.com/janghanul090801/pico-backend/config"
+	"github.com/janghanul090801/pico-backend/domain/mocks"
+	"github.com/janghanul090801/pico-backend/internal/httpclient"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"

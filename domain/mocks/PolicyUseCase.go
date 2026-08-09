@@ -5,7 +5,7 @@ package mocks
 import (
 	context "context"
 
-	domain "github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
+	domain "github.com/janghanul090801/pico-backend/domain"
 	mock "github.com/stretchr/testify/mock"
 
 	uuid "github.com/google/uuid"
@@ -76,37 +76,7 @@ func (_m *PolicyUseCase) GetFromApi(c context.Context) ([]*domain.Policy, error)
 	return r0, r1
 }
 
-// GetMatchesByUserID provides a mock function with given fields: c, userID
-func (_m *PolicyUseCase) GetMatchesByUserID(c context.Context, userID *uuid.UUID) ([]*domain.Policy, error) {
-	ret := _m.Called(c, userID)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetMatchesByUserID")
-	}
-
-	var r0 []*domain.Policy
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *uuid.UUID) ([]*domain.Policy, error)); ok {
-		return rf(c, userID)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, *uuid.UUID) []*domain.Policy); ok {
-		r0 = rf(c, userID)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*domain.Policy)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, *uuid.UUID) error); ok {
-		r1 = rf(c, userID)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// ListRegionCodeAndActive provides a mock function with given fields: c, regionCode
+// ListByRegionCodeAndActive provides a mock function with given fields: c, regionCode
 func (_m *PolicyUseCase) ListByRegionCodeAndActive(c context.Context, regionCode int) ([]*domain.Policy, error) {
 	ret := _m.Called(c, regionCode)
 
@@ -129,6 +99,36 @@ func (_m *PolicyUseCase) ListByRegionCodeAndActive(c context.Context, regionCode
 
 	if rf, ok := ret.Get(1).(func(context.Context, int) error); ok {
 		r1 = rf(c, regionCode)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ListMatchesByUserID provides a mock function with given fields: c, userID
+func (_m *PolicyUseCase) ListMatchesByUserID(c context.Context, userID *uuid.UUID) ([]*domain.PolicyMatch, error) {
+	ret := _m.Called(c, userID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListMatchesByUserID")
+	}
+
+	var r0 []*domain.PolicyMatch
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *uuid.UUID) ([]*domain.PolicyMatch, error)); ok {
+		return rf(c, userID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *uuid.UUID) []*domain.PolicyMatch); ok {
+		r0 = rf(c, userID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*domain.PolicyMatch)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *uuid.UUID) error); ok {
+		r1 = rf(c, userID)
 	} else {
 		r1 = ret.Error(1)
 	}

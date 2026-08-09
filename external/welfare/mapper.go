@@ -4,7 +4,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
+	"github.com/janghanul090801/pico-backend/domain"
 )
 
 func buildDescription(item DetailItem) string {

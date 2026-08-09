@@ -1,0 +1,342 @@
+basePath: /api
+definitions:
+  domain.AuthResponse:
+    properties:
+      accessToken:
+        type: string
+      refreshToken:
+        type: string
+    type: object
+  domain.ErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  domain.Gender:
+    enum:
+    - MALE
+    - FEMALE
+    - OTHER
+    type: string
+    x-enum-varnames:
+    - GenderMale
+    - GenderFemale
+    - GenderOther
+  domain.Interest:
+    enum:
+    - CULTURE
+    - WELFARE
+    - ENVIRONMENT
+    - EMPLOYMENT
+    - EDUCATION
+    - HOUSING
+    - STARTUP
+    - ECONOMY
+    - HEALTHCARE
+    - TRANSPORTATION
+    type: string
+    x-enum-varnames:
+    - InterestCulture
+    - InterestWelfare
+    - InterestEnvironment
+    - InterestEmployment
+    - InterestEducation
+    - InterestHousing
+    - InterestStartup
+    - InterestEconomy
+    - InterestHealthcare
+    - InterestTransportation
+  domain.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  domain.Match:
+    enum:
+    - 0
+    - 1
+    - 2
+    type: integer
+    x-enum-varnames:
+    - MatchPOSSIBLE
+    - MatchUNCERTAIN
+    - MatchIMPOSSIBLE
+  domain.Nationality:
+    enum:
+    - DOMESTIC
+    - FOREIGN
+    type: string
+    x-enum-varnames:
+    - NationalityDomestic
+    - NationalityForeign
+  domain.PolicyResponse:
+    properties:
+      address:
+        type: string
+      description:
+        type: string
+      end_date:
+        type: string
+      id:
+        type: string
+      latitude:
+        type: number
+      longitude:
+        type: number
+      region_code:
+        type: integer
+      start_date:
+        type: string
+      status:
+        $ref: '#/definitions/domain.Match'
+      title:
+        type: string
+    type: object
+  domain.Profile:
+    properties:
+      age:
+        type: integer
+      created_at:
+        type: string
+      email:
+        type: string
+      gender:
+        $ref: '#/definitions/domain.Gender'
+      id:
+        type: string
+      interests:
+        items:
+          $ref: '#/definitions/domain.Interest'
+        type: array
+      is_business:
+        type: boolean
+      is_disabled:
+        type: boolean
+      is_pregnant:
+        type: boolean
+      is_student:
+        type: boolean
+      is_youth:
+        type: boolean
+      name:
+        type: string
+      nationality:
+        $ref: '#/definitions/domain.Nationality'
+      region:
+        type: integer
+    type: object
+  domain.RefreshTokenRequest:
+    properties:
+      refreshToken:
+        type: string
+    required:
+    - refreshToken
+    type: object
+  domain.SignupRequest:
+    properties:
+      age:
+        type: integer
+      email:
+        type: string
+      gender:
+        $ref: '#/definitions/domain.Gender'
+      interests:
+        items:
+          $ref: '#/definitions/domain.Interest'
+        type: array
+      is_business:
+        type: boolean
+      is_disabled:
+        type: boolean
+      is_pregnant:
+        type: boolean
+      is_student:
+        type: boolean
+      is_youth:
+        type: boolean
+      name:
+        type: string
+      nationality:
+        $ref: '#/definitions/domain.Nationality'
+      password:
+        type: string
+      region:
+        type: integer
+    required:
+    - age
+    - email
+    - gender
+    - interests
+    - is_disabled
+    - is_student
+    - is_youth
+    - name
+    - nationality
+    - password
+    - region
+    type: object
+host: localhost:8000
+info:
+  contact: {}
+  description: PICO Backend API
+  title: PICO Backend API
+  version: "1.0"
+paths:
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: 로그인
+      parameters:
+      - description: 로그인 요청
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.AuthResponse'
+        "400":
+          description: 잘못된 요청
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "401":
+          description: 인증 실패
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: 서버 오류
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: 로그인
+      tags:
+      - Auth
+  /policy/protected:
+    get:
+      description: 현재 로그인한 사용자의 지역에 해당하는 정책 리스트 반환
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.PolicyResponse'
+        "401":
+          description: 인증되지 않은 사용자
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: 서버 오류
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 내 지역 정책 조회
+      tags:
+      - Policy
+  /profile/protected:
+    get:
+      description: 현재 로그인한 사용자의 프로필 정보를 조회합니다.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Profile'
+        "401":
+          description: 인증되지 않은 사용자
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "404":
+          description: 프로필을 찾을 수 없음
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: 서버 오류
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 내 프로필 조회
+      tags:
+      - Profile
+  /refresh:
+    post:
+      consumes:
+      - application/json
+      description: Refresh Token 으로 새로운 Access Token과 Refresh Token을 발급
+      parameters:
+      - description: 토큰 갱신 요청
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.RefreshTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.AuthResponse'
+        "400":
+          description: 잘못된 요청
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "401":
+          description: 유효하지 않은 Refresh Token
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: 서버 오류
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: 토큰 갱신
+      tags:
+      - Auth
+  /signup:
+    post:
+      consumes:
+      - application/json
+      description: 이름, 이메일, 비밀번호를 사용하여 회원가입
+      parameters:
+      - description: 회원가입 요청
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.SignupRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.AuthResponse'
+        "400":
+          description: 잘못된 요청
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "409":
+          description: 이미 존재하는 사용자
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: 서버 오류
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: 회원가입
+      tags:
+      - Auth
+swagger: "2.0"

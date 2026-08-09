@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gofiber/fiber/v3"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
+	"github.com/janghanul090801/pico-backend/domain"
 )
 
 // Login
@@ -19,7 +19,7 @@ import (
 // @Failure      400  {object}  domain.ErrorResponse  "잘못된 요청"
 // @Failure      401  {object}  domain.ErrorResponse  "인증 실패"
 // @Failure      500  {object}  domain.ErrorResponse  "서버 오류"
-// @Router       /auth/login [post]
+// @Router       /login [post]
 func Login(service domain.AuthUseCase) fiber.Handler {
 	return func(c fiber.Ctx) error {
 		ctx := c.RequestCtx()
@@ -65,7 +65,7 @@ func Login(service domain.AuthUseCase) fiber.Handler {
 // @Failure      400  {object}  domain.ErrorResponse  "잘못된 요청"
 // @Failure      401  {object}  domain.ErrorResponse  "유효하지 않은 Refresh Token"
 // @Failure      500  {object}  domain.ErrorResponse  "서버 오류"
-// @Router       /auth/refresh [post]
+// @Router       /refresh [post]
 func RefreshToken(service domain.AuthUseCase) fiber.Handler {
 	return func(c fiber.Ctx) error {
 		ctx := c.RequestCtx()
@@ -111,7 +111,7 @@ func RefreshToken(service domain.AuthUseCase) fiber.Handler {
 // @Failure      400  {object}  domain.ErrorResponse  "잘못된 요청"
 // @Failure      409  {object}  domain.ErrorResponse  "이미 존재하는 사용자"
 // @Failure      500  {object}  domain.ErrorResponse  "서버 오류"
-// @Router       /auth/signup [post]
+// @Router       /signup [post]
 func Signup(service domain.AuthUseCase) fiber.Handler {
 	return func(c fiber.Ctx) error {
 		ctx := c.RequestCtx()

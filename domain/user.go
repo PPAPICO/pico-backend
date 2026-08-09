@@ -11,7 +11,7 @@ type User struct {
 	Email       string
 	Password    string
 	Age         int
-	Region      string
+	RegionCode  int
 	Gender      Gender
 	IsStudent   bool
 	IsYouth     bool

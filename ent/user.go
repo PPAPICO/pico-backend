@@ -11,7 +11,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/user"
+	"github.com/janghanul090801/pico-backend/ent/user"
 )
 
 // User is the model entity for the User schema.
@@ -27,8 +27,8 @@ type User struct {
 	Password string `json:"password,omitempty"`
 	// Age holds the value of the "age" field.
 	Age int `json:"age,omitempty"`
-	// Region holds the value of the "region" field.
-	Region string `json:"region,omitempty"`
+	// RegionCode holds the value of the "region_code" field.
+	RegionCode int `json:"region_code,omitempty"`
 	// Gender holds the value of the "gender" field.
 	Gender user.Gender `json:"gender,omitempty"`
 	// IsStudent holds the value of the "is_student" field.
@@ -80,9 +80,9 @@ func (*User) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case user.FieldIsStudent, user.FieldIsYouth, user.FieldIsPregnant, user.FieldIsBusiness, user.FieldIsDisabled:
 			values[i] = new(sql.NullBool)
-		case user.FieldAge:
+		case user.FieldAge, user.FieldRegionCode:
 			values[i] = new(sql.NullInt64)
-		case user.FieldName, user.FieldEmail, user.FieldPassword, user.FieldRegion, user.FieldGender, user.FieldNationality:
+		case user.FieldName, user.FieldEmail, user.FieldPassword, user.FieldGender, user.FieldNationality:
 			values[i] = new(sql.NullString)
 		case user.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
@@ -133,11 +133,11 @@ func (_m *User) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Age = int(value.Int64)
 			}
-		case user.FieldRegion:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field region", values[i])
+		case user.FieldRegionCode:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field region_code", values[i])
 			} else if value.Valid {
-				_m.Region = value.String
+				_m.RegionCode = int(value.Int64)
 			}
 		case user.FieldGender:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -250,8 +250,8 @@ func (_m *User) String() string {
 	builder.WriteString("age=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Age))
 	builder.WriteString(", ")
-	builder.WriteString("region=")
-	builder.WriteString(_m.Region)
+	builder.WriteString("region_code=")
+	builder.WriteString(fmt.Sprintf("%v", _m.RegionCode))
 	builder.WriteString(", ")
 	builder.WriteString("gender=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Gender))

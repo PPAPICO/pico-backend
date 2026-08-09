@@ -17,3 +17,12 @@ func Filter[T any](iterable []T, predicate func(T) bool) []T {
 	}
 	return result
 }
+
+func Find[T any](iterable []T, predicate func(T) bool) *T {
+	for _, item := range iterable {
+		if predicate(item) {
+			return &item
+		}
+	}
+	return nil
+}

@@ -11,8 +11,8 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/policymatch"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/user"
+	"github.com/janghanul090801/pico-backend/ent/policymatch"
+	"github.com/janghanul090801/pico-backend/ent/user"
 )
 
 // UserCreate is the builder for creating a User entity.
@@ -46,9 +46,9 @@ func (_c *UserCreate) SetAge(v int) *UserCreate {
 	return _c
 }
 
-// SetRegion sets the "region" field.
-func (_c *UserCreate) SetRegion(v string) *UserCreate {
-	_c.mutation.SetRegion(v)
+// SetRegionCode sets the "region_code" field.
+func (_c *UserCreate) SetRegionCode(v int) *UserCreate {
+	_c.mutation.SetRegionCode(v)
 	return _c
 }
 
@@ -269,8 +269,8 @@ func (_c *UserCreate) check() error {
 	if _, ok := _c.mutation.Age(); !ok {
 		return &ValidationError{Name: "age", err: errors.New(`ent: missing required field "User.age"`)}
 	}
-	if _, ok := _c.mutation.Region(); !ok {
-		return &ValidationError{Name: "region", err: errors.New(`ent: missing required field "User.region"`)}
+	if _, ok := _c.mutation.RegionCode(); !ok {
+		return &ValidationError{Name: "region_code", err: errors.New(`ent: missing required field "User.region_code"`)}
 	}
 	if _, ok := _c.mutation.Gender(); !ok {
 		return &ValidationError{Name: "gender", err: errors.New(`ent: missing required field "User.gender"`)}
@@ -351,9 +351,9 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		_spec.SetField(user.FieldAge, field.TypeInt, value)
 		_node.Age = value
 	}
-	if value, ok := _c.mutation.Region(); ok {
-		_spec.SetField(user.FieldRegion, field.TypeString, value)
-		_node.Region = value
+	if value, ok := _c.mutation.RegionCode(); ok {
+		_spec.SetField(user.FieldRegionCode, field.TypeInt, value)
+		_node.RegionCode = value
 	}
 	if value, ok := _c.mutation.Gender(); ok {
 		_spec.SetField(user.FieldGender, field.TypeEnum, value)

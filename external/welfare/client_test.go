@@ -7,9 +7,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain/mocks"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/internal/httpclient"
+	"github.com/janghanul090801/pico-backend/domain"
+	"github.com/janghanul090801/pico-backend/domain/mocks"
+	"github.com/janghanul090801/pico-backend/internal/httpclient"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

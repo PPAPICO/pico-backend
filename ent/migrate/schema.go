@@ -60,7 +60,7 @@ var (
 		{Name: "email", Type: field.TypeString, Unique: true},
 		{Name: "password", Type: field.TypeString},
 		{Name: "age", Type: field.TypeInt},
-		{Name: "region", Type: field.TypeString},
+		{Name: "region_code", Type: field.TypeInt},
 		{Name: "gender", Type: field.TypeEnum, Enums: []string{"MALE", "FEMALE", "OTHER"}},
 		{Name: "is_student", Type: field.TypeBool, Default: false},
 		{Name: "is_youth", Type: field.TypeBool, Default: false},

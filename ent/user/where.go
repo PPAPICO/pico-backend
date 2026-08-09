@@ -8,7 +8,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/predicate"
+	"github.com/janghanul090801/pico-backend/ent/predicate"
 )
 
 // ID filters vertices based on their ID field.
@@ -76,9 +76,9 @@ func Age(v int) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldAge, v))
 }
 
-// Region applies equality check predicate on the "region" field. It's identical to RegionEQ.
-func Region(v string) predicate.User {
-	return predicate.User(sql.FieldEQ(FieldRegion, v))
+// RegionCode applies equality check predicate on the "region_code" field. It's identical to RegionCodeEQ.
+func RegionCode(v int) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldRegionCode, v))
 }
 
 // IsStudent applies equality check predicate on the "is_student" field. It's identical to IsStudentEQ.
@@ -346,69 +346,44 @@ func AgeLTE(v int) predicate.User {
 	return predicate.User(sql.FieldLTE(FieldAge, v))
 }
 
-// RegionEQ applies the EQ predicate on the "region" field.
-func RegionEQ(v string) predicate.User {
-	return predicate.User(sql.FieldEQ(FieldRegion, v))
+// RegionCodeEQ applies the EQ predicate on the "region_code" field.
+func RegionCodeEQ(v int) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldRegionCode, v))
 }
 
-// RegionNEQ applies the NEQ predicate on the "region" field.
-func RegionNEQ(v string) predicate.User {
-	return predicate.User(sql.FieldNEQ(FieldRegion, v))
+// RegionCodeNEQ applies the NEQ predicate on the "region_code" field.
+func RegionCodeNEQ(v int) predicate.User {
+	return predicate.User(sql.FieldNEQ(FieldRegionCode, v))
 }
 
-// RegionIn applies the In predicate on the "region" field.
-func RegionIn(vs ...string) predicate.User {
-	return predicate.User(sql.FieldIn(FieldRegion, vs...))
+// RegionCodeIn applies the In predicate on the "region_code" field.
+func RegionCodeIn(vs ...int) predicate.User {
+	return predicate.User(sql.FieldIn(FieldRegionCode, vs...))
 }
 
-// RegionNotIn applies the NotIn predicate on the "region" field.
-func RegionNotIn(vs ...string) predicate.User {
-	return predicate.User(sql.FieldNotIn(FieldRegion, vs...))
+// RegionCodeNotIn applies the NotIn predicate on the "region_code" field.
+func RegionCodeNotIn(vs ...int) predicate.User {
+	return predicate.User(sql.FieldNotIn(FieldRegionCode, vs...))
 }
 
-// RegionGT applies the GT predicate on the "region" field.
-func RegionGT(v string) predicate.User {
-	return predicate.User(sql.FieldGT(FieldRegion, v))
+// RegionCodeGT applies the GT predicate on the "region_code" field.
+func RegionCodeGT(v int) predicate.User {
+	return predicate.User(sql.FieldGT(FieldRegionCode, v))
 }
 
-// RegionGTE applies the GTE predicate on the "region" field.
-func RegionGTE(v string) predicate.User {
-	return predicate.User(sql.FieldGTE(FieldRegion, v))
+// RegionCodeGTE applies the GTE predicate on the "region_code" field.
+func RegionCodeGTE(v int) predicate.User {
+	return predicate.User(sql.FieldGTE(FieldRegionCode, v))
 }
 
-// RegionLT applies the LT predicate on the "region" field.
-func RegionLT(v string) predicate.User {
-	return predicate.User(sql.FieldLT(FieldRegion, v))
+// RegionCodeLT applies the LT predicate on the "region_code" field.
+func RegionCodeLT(v int) predicate.User {
+	return predicate.User(sql.FieldLT(FieldRegionCode, v))
 }
 
-// RegionLTE applies the LTE predicate on the "region" field.
-func RegionLTE(v string) predicate.User {
-	return predicate.User(sql.FieldLTE(FieldRegion, v))
-}
-
-// RegionContains applies the Contains predicate on the "region" field.
-func RegionContains(v string) predicate.User {
-	return predicate.User(sql.FieldContains(FieldRegion, v))
-}
-
-// RegionHasPrefix applies the HasPrefix predicate on the "region" field.
-func RegionHasPrefix(v string) predicate.User {
-	return predicate.User(sql.FieldHasPrefix(FieldRegion, v))
-}
-
-// RegionHasSuffix applies the HasSuffix predicate on the "region" field.
-func RegionHasSuffix(v string) predicate.User {
-	return predicate.User(sql.FieldHasSuffix(FieldRegion, v))
-}
-
-// RegionEqualFold applies the EqualFold predicate on the "region" field.
-func RegionEqualFold(v string) predicate.User {
-	return predicate.User(sql.FieldEqualFold(FieldRegion, v))
-}
-
-// RegionContainsFold applies the ContainsFold predicate on the "region" field.
-func RegionContainsFold(v string) predicate.User {
-	return predicate.User(sql.FieldContainsFold(FieldRegion, v))
+// RegionCodeLTE applies the LTE predicate on the "region_code" field.
+func RegionCodeLTE(v int) predicate.User {
+	return predicate.User(sql.FieldLTE(FieldRegionCode, v))
 }
 
 // GenderEQ applies the EQ predicate on the "gender" field.

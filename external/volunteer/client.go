@@ -9,10 +9,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/config"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/internal/delay"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/internal/httpclient"
+	"github.com/janghanul090801/pico-backend/config"
+	"github.com/janghanul090801/pico-backend/domain"
+	"github.com/janghanul090801/pico-backend/internal/delay"
+	"github.com/janghanul090801/pico-backend/internal/httpclient"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -20,6 +20,14 @@ type Client struct {
 	httpClient       *httpclient.Client
 	policyRepository domain.PolicyRepository
 	apiKey           string
+}
+
+func NewClient(httpClient *httpclient.Client, policyRepository domain.PolicyRepository, apiKey string) *Client {
+	return &Client{
+		httpClient:       httpClient,
+		policyRepository: policyRepository,
+		apiKey:           apiKey,
+	}
 }
 
 // Fetch fetches volunteer activities and events from 행정안전부 봉사참여정보서비스

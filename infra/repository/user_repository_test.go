@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/enttest"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/infra/repository"
+	"github.com/janghanul090801/pico-backend/domain"
+	"github.com/janghanul090801/pico-backend/ent/enttest"
+	"github.com/janghanul090801/pico-backend/infra/repository"
 	"github.com/stretchr/testify/assert"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -25,7 +25,7 @@ func TestCreate(t *testing.T) {
 		Email:      "hanul@gmail.com",
 		Password:   "123456",
 		Age:        20,
-		Region:     "서울특별시",
+		RegionCode: 110,
 		Gender:     domain.GenderMale,
 		IsStudent:  true,
 		IsYouth:    true,
@@ -45,7 +45,7 @@ func TestCreate(t *testing.T) {
 	assert.Equal(t, "hanul", u.Name)
 	assert.Equal(t, "hanul@gmail.com", u.Email)
 	assert.Equal(t, 20, u.Age)
-	assert.Equal(t, "서울특별시", u.Region)
+	assert.Equal(t, 110, u.RegionCode)
 	assert.Equal(t, domain.GenderMale, u.Gender)
 	assert.True(t, u.IsStudent)
 	assert.True(t, u.IsYouth)

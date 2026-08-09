@@ -1,6 +1,8 @@
 package domain
 
-import "context"
+import (
+	"context"
+)
 
 type LoginRequest struct {
 	Email    string `form:"email" binding:"required,email"`
@@ -8,9 +10,19 @@ type LoginRequest struct {
 }
 
 type SignupRequest struct {
-	Name     string `form:"name" binding:"required"`
-	Email    string `form:"email" binding:"required,email"`
-	Password string `form:"password" binding:"required"`
+	Name        string      `form:"name" binding:"required"`
+	Email       string      `form:"email" binding:"required,email"`
+	Password    string      `form:"password" binding:"required"`
+	Age         int         `form:"age" binding:"required"`
+	RegionCode  int         `form:"region" binding:"required"`
+	Gender      Gender      `form:"gender" binding:"required"`
+	IsStudent   bool        `form:"is_student" binding:"required"`
+	IsYouth     bool        `form:"is_youth" binding:"required"`
+	IsPregnant  *bool       `form:"is_pregnant"`
+	IsBusiness  *bool       `form:"is_business"`
+	Interests   []Interest  `form:"interests" binding:"required"`
+	IsDisabled  bool        `json:"is_disabled" binding:"required"`
+	Nationality Nationality `json:"nationality" binding:"required"`
 }
 
 type RefreshTokenRequest struct {

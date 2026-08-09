@@ -7,9 +7,9 @@ import (
 	"github.com/janghanul090801/pico-backend/domain"
 )
 
-func NewProfileRouter(app fiber.Router, service domain.ProfileUseCase) {
+func NewPolicyRouter(app fiber.Router, policyService domain.PolicyUseCase, profileService domain.ProfileUseCase) {
 	// protected
-	protected := app.Group("protected")
+	protected := app.Group("/protected")
 	protected.Use(middleware.JwtMiddleware)
-	protected.Get("/", handler.FetchProfile(service))
+	protected.Get("/", handler.GetPoliciesInMyRegion(policyService, profileService))
 }

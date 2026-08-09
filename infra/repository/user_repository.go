@@ -3,10 +3,10 @@ package repository
 import (
 	"context"
 
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/user"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/internal/collections"
+	"github.com/janghanul090801/pico-backend/domain"
+	"github.com/janghanul090801/pico-backend/ent"
+	"github.com/janghanul090801/pico-backend/ent/user"
+	"github.com/janghanul090801/pico-backend/internal/collections"
 )
 
 type userRepository struct {
@@ -25,7 +25,7 @@ func (r *userRepository) Create(c context.Context, u *domain.User) (*domain.User
 		SetEmail(u.Email).
 		SetPassword(u.Password).
 		SetAge(u.Age).
-		SetRegion(u.Region).
+		SetRegionCode(u.RegionCode).
 		SetGender(user.Gender(u.Gender)).
 		SetIsStudent(u.IsStudent).
 		SetIsYouth(u.IsYouth).

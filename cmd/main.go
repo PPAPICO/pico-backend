@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gofiber/contrib/v3/swaggo"
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/compress"
 	"github.com/gofiber/fiber/v3/middleware/cors"
@@ -16,13 +17,24 @@ import (
 	"github.com/gofiber/fiber/v3/middleware/logger"
 	"github.com/gofiber/fiber/v3/middleware/recover"
 	"github.com/gofiber/fiber/v3/middleware/requestid"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/api/route"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/config"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/infra/database"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/infra/repository"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/usecase"
+	"github.com/janghanul090801/pico-backend/api/route"
+	"github.com/janghanul090801/pico-backend/config"
+	"github.com/janghanul090801/pico-backend/external/volunteer"
+	"github.com/janghanul090801/pico-backend/external/welfare"
+	"github.com/janghanul090801/pico-backend/external/youth"
+	"github.com/janghanul090801/pico-backend/infra/database"
+	"github.com/janghanul090801/pico-backend/infra/repository"
+	"github.com/janghanul090801/pico-backend/internal/httpclient"
+	"github.com/janghanul090801/pico-backend/usecase"
+
+	_ "github.com/janghanul090801/pico-backend/docs"
 )
 
+// @title          PICO Backend API
+// @version        1.0
+// @description    PICO Backend API
+// @host			localhost:8000
+// @BasePath		/api
 func main() {
 	config.NewEnv()
 
@@ -51,6 +63,10 @@ func main() {
 
 	api := app.Group("/api")
 
+	app.Get("/swagger/*", swaggo.HandlerDefault)
+
+	app.Get("/docs/*", swaggo.HandlerDefault)
+
 	client, err := database.NewClient()
 	if err != nil {
 		panic(err)
@@ -63,22 +79,31 @@ func main() {
 
 	timeout := time.Duration(config.E.ContextTimeout) * time.Second
 
+	httpClient := httpclient.NewClient(&http.Client{
+		Timeout: timeout,
+	})
+
 	// repository
 	userRepository := repository.NewUserRepository(client)
 	policyRepository := repository.NewPolicyRepository(client)
 	policyMatchRepository := repository.NewPolicyMatchRepository(client)
 
+	// external client
+	youthClient := youth.NewClient(httpClient, config.E.YouthApiKey)
+	welfareClient := welfare.NewClient(httpClient, policyRepository, config.E.WelfareApiKey)
+	volunteerClient := volunteer.NewClient(httpClient, policyRepository, config.E.VolunteerApiKey)
+
 	// usecase
 	profileUseCase := usecase.NewProfileUseCase(userRepository, timeout)
 	authUseCase := usecase.NewAuthUseCase(userRepository, timeout)
-	policyUseCase := usecase.NewPolicyUseCase(policyRepository, policyMatchRepository, timeout)
-	_ = policyUseCase
+	policyUseCase := usecase.NewPolicyUseCase(policyRepository, policyMatchRepository, youthClient, welfareClient, volunteerClient, timeout)
 
 	// router
 	route.NewLoginRouter(api.Group("/login"), authUseCase)
 	route.NewProfileRouter(api.Group("/profile"), profileUseCase)
 	route.NewRefreshTokenRouter(api.Group("/refresh"), authUseCase)
 	route.NewSignupRouter(api.Group("/signup"), authUseCase)
+	route.NewPolicyRouter(api.Group("/policy"), policyUseCase, profileUseCase)
 
 	app.All("*", func(c fiber.Ctx) error {
 		notFoundErr := fmt.Errorf(

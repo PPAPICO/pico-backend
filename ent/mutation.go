@@ -12,10 +12,10 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/governmentpolicy"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/policymatch"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/predicate"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/user"
+	"github.com/janghanul090801/pico-backend/ent/governmentpolicy"
+	"github.com/janghanul090801/pico-backend/ent/policymatch"
+	"github.com/janghanul090801/pico-backend/ent/predicate"
+	"github.com/janghanul090801/pico-backend/ent/user"
 )
 
 const (
@@ -1406,7 +1406,8 @@ type UserMutation struct {
 	password              *string
 	age                   *int
 	addage                *int
-	region                *string
+	region_code           *int
+	addregion_code        *int
 	gender                *user.Gender
 	is_student            *bool
 	is_youth              *bool
@@ -1694,40 +1695,60 @@ func (m *UserMutation) ResetAge() {
 	m.addage = nil
 }
 
-// SetRegion sets the "region" field.
-func (m *UserMutation) SetRegion(s string) {
-	m.region = &s
+// SetRegionCode sets the "region_code" field.
+func (m *UserMutation) SetRegionCode(i int) {
+	m.region_code = &i
+	m.addregion_code = nil
 }
 
-// Region returns the value of the "region" field in the mutation.
-func (m *UserMutation) Region() (r string, exists bool) {
-	v := m.region
+// RegionCode returns the value of the "region_code" field in the mutation.
+func (m *UserMutation) RegionCode() (r int, exists bool) {
+	v := m.region_code
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldRegion returns the old "region" field's value of the User entity.
+// OldRegionCode returns the old "region_code" field's value of the User entity.
 // If the User object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *UserMutation) OldRegion(ctx context.Context) (v string, err error) {
+func (m *UserMutation) OldRegionCode(ctx context.Context) (v int, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldRegion is only allowed on UpdateOne operations")
+		return v, errors.New("OldRegionCode is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldRegion requires an ID field in the mutation")
+		return v, errors.New("OldRegionCode requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldRegion: %w", err)
+		return v, fmt.Errorf("querying old value for OldRegionCode: %w", err)
 	}
-	return oldValue.Region, nil
+	return oldValue.RegionCode, nil
 }
 
-// ResetRegion resets all changes to the "region" field.
-func (m *UserMutation) ResetRegion() {
-	m.region = nil
+// AddRegionCode adds i to the "region_code" field.
+func (m *UserMutation) AddRegionCode(i int) {
+	if m.addregion_code != nil {
+		*m.addregion_code += i
+	} else {
+		m.addregion_code = &i
+	}
+}
+
+// AddedRegionCode returns the value that was added to the "region_code" field in this mutation.
+func (m *UserMutation) AddedRegionCode() (r int, exists bool) {
+	v := m.addregion_code
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetRegionCode resets all changes to the "region_code" field.
+func (m *UserMutation) ResetRegionCode() {
+	m.region_code = nil
+	m.addregion_code = nil
 }
 
 // SetGender sets the "gender" field.
@@ -2210,8 +2231,8 @@ func (m *UserMutation) Fields() []string {
 	if m.age != nil {
 		fields = append(fields, user.FieldAge)
 	}
-	if m.region != nil {
-		fields = append(fields, user.FieldRegion)
+	if m.region_code != nil {
+		fields = append(fields, user.FieldRegionCode)
 	}
 	if m.gender != nil {
 		fields = append(fields, user.FieldGender)
@@ -2256,8 +2277,8 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 		return m.Password()
 	case user.FieldAge:
 		return m.Age()
-	case user.FieldRegion:
-		return m.Region()
+	case user.FieldRegionCode:
+		return m.RegionCode()
 	case user.FieldGender:
 		return m.Gender()
 	case user.FieldIsStudent:
@@ -2293,8 +2314,8 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldPassword(ctx)
 	case user.FieldAge:
 		return m.OldAge(ctx)
-	case user.FieldRegion:
-		return m.OldRegion(ctx)
+	case user.FieldRegionCode:
+		return m.OldRegionCode(ctx)
 	case user.FieldGender:
 		return m.OldGender(ctx)
 	case user.FieldIsStudent:
@@ -2350,12 +2371,12 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetAge(v)
 		return nil
-	case user.FieldRegion:
-		v, ok := value.(string)
+	case user.FieldRegionCode:
+		v, ok := value.(int)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetRegion(v)
+		m.SetRegionCode(v)
 		return nil
 	case user.FieldGender:
 		v, ok := value.(user.Gender)
@@ -2431,6 +2452,9 @@ func (m *UserMutation) AddedFields() []string {
 	if m.addage != nil {
 		fields = append(fields, user.FieldAge)
 	}
+	if m.addregion_code != nil {
+		fields = append(fields, user.FieldRegionCode)
+	}
 	return fields
 }
 
@@ -2441,6 +2465,8 @@ func (m *UserMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
 	case user.FieldAge:
 		return m.AddedAge()
+	case user.FieldRegionCode:
+		return m.AddedRegionCode()
 	}
 	return nil, false
 }
@@ -2456,6 +2482,13 @@ func (m *UserMutation) AddField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddAge(v)
+		return nil
+	case user.FieldRegionCode:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddRegionCode(v)
 		return nil
 	}
 	return fmt.Errorf("unknown User numeric field %s", name)
@@ -2517,8 +2550,8 @@ func (m *UserMutation) ResetField(name string) error {
 	case user.FieldAge:
 		m.ResetAge()
 		return nil
-	case user.FieldRegion:
-		m.ResetRegion()
+	case user.FieldRegionCode:
+		m.ResetRegionCode()
 		return nil
 	case user.FieldGender:
 		m.ResetGender()

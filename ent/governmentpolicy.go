@@ -10,7 +10,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/governmentpolicy"
+	"github.com/janghanul090801/pico-backend/ent/governmentpolicy"
 )
 
 // GovernmentPolicy is the model entity for the GovernmentPolicy schema.

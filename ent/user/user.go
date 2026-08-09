@@ -24,8 +24,8 @@ const (
 	FieldPassword = "password"
 	// FieldAge holds the string denoting the age field in the database.
 	FieldAge = "age"
-	// FieldRegion holds the string denoting the region field in the database.
-	FieldRegion = "region"
+	// FieldRegionCode holds the string denoting the region_code field in the database.
+	FieldRegionCode = "region_code"
 	// FieldGender holds the string denoting the gender field in the database.
 	FieldGender = "gender"
 	// FieldIsStudent holds the string denoting the is_student field in the database.
@@ -64,7 +64,7 @@ var Columns = []string{
 	FieldEmail,
 	FieldPassword,
 	FieldAge,
-	FieldRegion,
+	FieldRegionCode,
 	FieldGender,
 	FieldIsStudent,
 	FieldIsYouth,
@@ -180,9 +180,9 @@ func ByAge(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldAge, opts...).ToFunc()
 }
 
-// ByRegion orders the results by the region field.
-func ByRegion(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldRegion, opts...).ToFunc()
+// ByRegionCode orders the results by the region_code field.
+func ByRegionCode(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRegionCode, opts...).ToFunc()
 }
 
 // ByGender orders the results by the gender field.
