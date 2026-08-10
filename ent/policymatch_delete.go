@@ -8,8 +8,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/policymatch"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/predicate"
+	"github.com/janghanul090801/pico-backend/ent/policymatch"
+	"github.com/janghanul090801/pico-backend/ent/predicate"
 )
 
 // PolicyMatchDelete is the builder for deleting a PolicyMatch entity.

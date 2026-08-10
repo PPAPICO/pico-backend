@@ -9,9 +9,9 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/governmentpolicy"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/policymatch"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/user"
+	"github.com/janghanul090801/pico-backend/ent/governmentpolicy"
+	"github.com/janghanul090801/pico-backend/ent/policymatch"
+	"github.com/janghanul090801/pico-backend/ent/user"
 )
 
 // PolicyMatch is the model entity for the PolicyMatch schema.

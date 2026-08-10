@@ -1,3 +1,5 @@
+export APP_ENV := test
+
 # Variables
 BINARY_NAME=main
 BINARY_PATH=./cmd/main.go
@@ -12,7 +14,7 @@ else
     HELP_CMD=grep -E '^[a-zA-Z_-]+:.*## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*## "}; {printf "  %-15s %s\n", $$1, $$2}'
 endif
 
-.PHONY: run test clean build push up help
+.PHONY: run test integration-test clean build push up help mock docker-build docker-push compose-up ent-new ent-generate
 
 help: ## Show help messages
 	@echo Available commands:
@@ -26,6 +28,10 @@ test: ## Run tests
 	@echo Testing the application...
 	go test ./...
 
+integration-test: ## Run integration test
+	@echo Integration Testing the application...
+	go test -tags integration -v -run "TestIntegration" ./...
+
 build: ## Build the application
 	@echo Building the application...
 	go build -o ${BINARY_OUT} ${BINARY_PATH}
@@ -37,11 +43,11 @@ clean: ## Delete the build file
 
 docker-build: ## Build docker image
 	@echo Building the application...
-	docker build -t janghanul090801/go-backend-clean-architecture-fiber:latest .
+	docker build -t janghanul090801/pico-backend:latest .
 
 docker-push: ## Push docker image
 	@echo Pushing the docker image...
-	docker push janghanul090801/go-backend-clean-architecture-fiber:latest
+	docker push janghanul090801/pico-backend:latest
 
 compose-up: ## Up docker-compose
 	@echo Upping docker compose...
@@ -58,3 +64,7 @@ ent-new: ## Create new ent schema (make ent-new name=User)
 ent-generate: ## Generate ent
 	@echo Genarating...
 	go generate ./ent
+
+swag: ## Swag int
+	@echo swag init...
+	swag init -g cmd/main.go -o docs

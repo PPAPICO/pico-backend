@@ -33,7 +33,7 @@ func (User) Fields() []ent.Field {
 
 		field.Int("age"),
 
-		field.String("region"),
+		field.Int("region_code"),
 
 		field.Enum("gender").
 			Values("MALE", "FEMALE", "OTHER"),
@@ -45,21 +45,19 @@ func (User) Fields() []ent.Field {
 			Default(false),
 
 		field.Bool("is_pregnant").
-			Optional().
-			Nillable(),
+			Default(false),
 
 		field.Bool("is_business").
-			Optional().
-			Nillable(),
+			Default(false),
 
-		field.Strings("interests").
-			Optional(),
+		field.Bool("is_foreign").
+			Default(false),
 
 		field.Bool("is_disabled").
 			Default(false),
 
-		field.Enum("nationality").
-			Values("DOMESTIC", "FOREIGN"),
+		field.Strings("interests").
+			Optional(),
 
 		field.Time("created_at").
 			Default(time.Now).

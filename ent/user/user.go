@@ -24,8 +24,8 @@ const (
 	FieldPassword = "password"
 	// FieldAge holds the string denoting the age field in the database.
 	FieldAge = "age"
-	// FieldRegion holds the string denoting the region field in the database.
-	FieldRegion = "region"
+	// FieldRegionCode holds the string denoting the region_code field in the database.
+	FieldRegionCode = "region_code"
 	// FieldGender holds the string denoting the gender field in the database.
 	FieldGender = "gender"
 	// FieldIsStudent holds the string denoting the is_student field in the database.
@@ -36,12 +36,12 @@ const (
 	FieldIsPregnant = "is_pregnant"
 	// FieldIsBusiness holds the string denoting the is_business field in the database.
 	FieldIsBusiness = "is_business"
-	// FieldInterests holds the string denoting the interests field in the database.
-	FieldInterests = "interests"
+	// FieldIsForeign holds the string denoting the is_foreign field in the database.
+	FieldIsForeign = "is_foreign"
 	// FieldIsDisabled holds the string denoting the is_disabled field in the database.
 	FieldIsDisabled = "is_disabled"
-	// FieldNationality holds the string denoting the nationality field in the database.
-	FieldNationality = "nationality"
+	// FieldInterests holds the string denoting the interests field in the database.
+	FieldInterests = "interests"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
 	// EdgePolicyMatches holds the string denoting the policy_matches edge name in mutations.
@@ -64,15 +64,15 @@ var Columns = []string{
 	FieldEmail,
 	FieldPassword,
 	FieldAge,
-	FieldRegion,
+	FieldRegionCode,
 	FieldGender,
 	FieldIsStudent,
 	FieldIsYouth,
 	FieldIsPregnant,
 	FieldIsBusiness,
-	FieldInterests,
+	FieldIsForeign,
 	FieldIsDisabled,
-	FieldNationality,
+	FieldInterests,
 	FieldCreatedAt,
 }
 
@@ -97,6 +97,12 @@ var (
 	DefaultIsStudent bool
 	// DefaultIsYouth holds the default value on creation for the "is_youth" field.
 	DefaultIsYouth bool
+	// DefaultIsPregnant holds the default value on creation for the "is_pregnant" field.
+	DefaultIsPregnant bool
+	// DefaultIsBusiness holds the default value on creation for the "is_business" field.
+	DefaultIsBusiness bool
+	// DefaultIsForeign holds the default value on creation for the "is_foreign" field.
+	DefaultIsForeign bool
 	// DefaultIsDisabled holds the default value on creation for the "is_disabled" field.
 	DefaultIsDisabled bool
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
@@ -129,29 +135,6 @@ func GenderValidator(ge Gender) error {
 	}
 }
 
-// Nationality defines the type for the "nationality" enum field.
-type Nationality string
-
-// Nationality values.
-const (
-	NationalityDOMESTIC Nationality = "DOMESTIC"
-	NationalityFOREIGN  Nationality = "FOREIGN"
-)
-
-func (n Nationality) String() string {
-	return string(n)
-}
-
-// NationalityValidator is a validator for the "nationality" field enum values. It is called by the builders before save.
-func NationalityValidator(n Nationality) error {
-	switch n {
-	case NationalityDOMESTIC, NationalityFOREIGN:
-		return nil
-	default:
-		return fmt.Errorf("user: invalid enum value for nationality field: %q", n)
-	}
-}
-
 // OrderOption defines the ordering options for the User queries.
 type OrderOption func(*sql.Selector)
 
@@ -180,9 +163,9 @@ func ByAge(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldAge, opts...).ToFunc()
 }
 
-// ByRegion orders the results by the region field.
-func ByRegion(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldRegion, opts...).ToFunc()
+// ByRegionCode orders the results by the region_code field.
+func ByRegionCode(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRegionCode, opts...).ToFunc()
 }
 
 // ByGender orders the results by the gender field.
@@ -210,14 +193,14 @@ func ByIsBusiness(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldIsBusiness, opts...).ToFunc()
 }
 
+// ByIsForeign orders the results by the is_foreign field.
+func ByIsForeign(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIsForeign, opts...).ToFunc()
+}
+
 // ByIsDisabled orders the results by the is_disabled field.
 func ByIsDisabled(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldIsDisabled, opts...).ToFunc()
-}
-
-// ByNationality orders the results by the nationality field.
-func ByNationality(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldNationality, opts...).ToFunc()
 }
 
 // ByCreatedAt orders the results by the created_at field.

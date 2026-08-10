@@ -9,9 +9,9 @@ import (
 	"testing"
 
 	"github.com/gofiber/fiber/v3"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/api/handler"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain/mocks"
+	"github.com/janghanul090801/pico-backend/api/handler"
+	"github.com/janghanul090801/pico-backend/domain"
+	"github.com/janghanul090801/pico-backend/domain/mocks"
 	"github.com/stretchr/testify/require"
 
 	"github.com/stretchr/testify/assert"

@@ -6,10 +6,10 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/governmentpolicy"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/policymatch"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/schema"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/user"
+	"github.com/janghanul090801/pico-backend/ent/governmentpolicy"
+	"github.com/janghanul090801/pico-backend/ent/policymatch"
+	"github.com/janghanul090801/pico-backend/ent/schema"
+	"github.com/janghanul090801/pico-backend/ent/user"
 )
 
 // The init function reads all schema descriptors with runtime code
@@ -54,6 +54,18 @@ func init() {
 	userDescIsYouth := userFields[8].Descriptor()
 	// user.DefaultIsYouth holds the default value on creation for the is_youth field.
 	user.DefaultIsYouth = userDescIsYouth.Default.(bool)
+	// userDescIsPregnant is the schema descriptor for is_pregnant field.
+	userDescIsPregnant := userFields[9].Descriptor()
+	// user.DefaultIsPregnant holds the default value on creation for the is_pregnant field.
+	user.DefaultIsPregnant = userDescIsPregnant.Default.(bool)
+	// userDescIsBusiness is the schema descriptor for is_business field.
+	userDescIsBusiness := userFields[10].Descriptor()
+	// user.DefaultIsBusiness holds the default value on creation for the is_business field.
+	user.DefaultIsBusiness = userDescIsBusiness.Default.(bool)
+	// userDescIsForeign is the schema descriptor for is_foreign field.
+	userDescIsForeign := userFields[11].Descriptor()
+	// user.DefaultIsForeign holds the default value on creation for the is_foreign field.
+	user.DefaultIsForeign = userDescIsForeign.Default.(bool)
 	// userDescIsDisabled is the schema descriptor for is_disabled field.
 	userDescIsDisabled := userFields[12].Descriptor()
 	// user.DefaultIsDisabled holds the default value on creation for the is_disabled field.

@@ -3,10 +3,10 @@ package repository
 import (
 	"context"
 
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/user"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/internal/collections"
+	"github.com/janghanul090801/pico-backend/domain"
+	"github.com/janghanul090801/pico-backend/ent"
+	"github.com/janghanul090801/pico-backend/ent/user"
+	"github.com/janghanul090801/pico-backend/internal/collections"
 )
 
 type userRepository struct {
@@ -20,28 +20,20 @@ func NewUserRepository(client *ent.Client) domain.UserRepository {
 }
 
 func (r *userRepository) Create(c context.Context, u *domain.User) (*domain.User, error) {
-	builder := r.client.User.Create().
+	userEnt, err := r.client.User.Create().
 		SetName(u.Name).
 		SetEmail(u.Email).
 		SetPassword(u.Password).
 		SetAge(u.Age).
-		SetRegion(u.Region).
+		SetRegionCode(u.RegionCode).
 		SetGender(user.Gender(u.Gender)).
 		SetIsStudent(u.IsStudent).
 		SetIsYouth(u.IsYouth).
 		SetInterests(interestsToStrings(u.Interests)).
 		SetIsDisabled(u.IsDisabled).
-		SetNationality(user.Nationality(u.Nationality))
-
-	if u.IsPregnant != nil {
-		builder.SetIsPregnant(*u.IsPregnant)
-	}
-
-	if u.IsBusiness != nil {
-		builder.SetIsBusiness(*u.IsBusiness)
-	}
-
-	userEnt, err := builder.Save(c)
+		SetIsForeign(u.IsForeign).
+		SetIsPregnant(u.IsPregnant).
+		SetIsBusiness(u.IsBusiness).Save(c)
 	if err != nil {
 		return nil, err
 	}

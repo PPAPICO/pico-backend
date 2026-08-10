@@ -8,8 +8,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/governmentpolicy"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/predicate"
+	"github.com/janghanul090801/pico-backend/ent/governmentpolicy"
+	"github.com/janghanul090801/pico-backend/ent/predicate"
 )
 
 // GovernmentPolicyDelete is the builder for deleting a GovernmentPolicy entity.

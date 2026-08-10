@@ -4,7 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
+	"github.com/janghanul090801/pico-backend/domain"
+	"github.com/janghanul090801/pico-backend/ent"
 )
 
 type profileUseCase struct {
@@ -25,8 +26,25 @@ func (pu *profileUseCase) GetProfileByID(c context.Context, userID *domain.ID) (
 
 	user, err := pu.userRepository.FindByID(ctx, userID)
 	if err != nil {
-		return nil, err
+		if ent.IsNotFound(err) {
+			return nil, domain.NewNotFoundError(err)
+		}
+		return nil, domain.NewInternalServerError(err)
 	}
 
-	return &domain.Profile{Name: user.Name, Email: user.Email}, nil
+	return &domain.Profile{
+		ID:         user.ID,
+		Name:       user.Name,
+		Email:      user.Email,
+		Age:        user.Age,
+		RegionCode: user.RegionCode,
+		Gender:     user.Gender,
+		IsStudent:  user.IsStudent,
+		IsYouth:    user.IsYouth,
+		IsPregnant: user.IsPregnant,
+		IsBusiness: user.IsBusiness,
+		IsForeign:  user.IsForeign,
+		Interests:  user.Interests,
+		CreatedAt:  user.CreatedAt,
+	}, nil
 }

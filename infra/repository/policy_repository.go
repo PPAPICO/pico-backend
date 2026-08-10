@@ -4,10 +4,10 @@ import (
 	"context"
 	"time"
 
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/governmentpolicy"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/internal/collections"
+	"github.com/janghanul090801/pico-backend/domain"
+	"github.com/janghanul090801/pico-backend/ent"
+	"github.com/janghanul090801/pico-backend/ent/governmentpolicy"
+	"github.com/janghanul090801/pico-backend/internal/collections"
 )
 
 type policyRepository struct {
@@ -29,6 +29,14 @@ func (r *policyRepository) FindAll(c context.Context) ([]*domain.Policy, error) 
 
 func (r *policyRepository) FindByID(c context.Context, id *domain.ID) (*domain.Policy, error) {
 	p, err := r.client.GovernmentPolicy.Get(c, *id)
+	if err != nil {
+		return nil, err
+	}
+	return toDomainPolicy(p), nil
+}
+
+func (r *policyRepository) FindByTitle(c context.Context, title string) (*domain.Policy, error) {
+	p, err := r.client.GovernmentPolicy.Query().Where(governmentpolicy.TitleEQ(title)).First(c)
 	if err != nil {
 		return nil, err
 	}

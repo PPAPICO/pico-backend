@@ -21,6 +21,11 @@ type Env struct {
 	RefreshTokenExpiryHour int    `mapstructure:"REFRESH_TOKEN_EXPIRY_HOUR"`
 	AccessTokenSecret      string `mapstructure:"ACCESS_TOKEN_SECRET"`
 	RefreshTokenSecret     string `mapstructure:"REFRESH_TOKEN_SECRET"`
+	YouthApiKey            string `mapstructure:"YOUTH_API_KEY"`
+	WelfareApiKey          string `mapstructure:"WELFARE_API_KEY"`
+	VolunteerApiKey        string `mapstructure:"VOLUNTEER_API_KEY"`
+	MaternityApiKey        string `mapstructure:"MATERNITY_API_KEY"`
+	KakaoMapApiKey         string `mapstructure:"KAKAO_MAP_API_KEY"`
 }
 
 func NewEnv() {

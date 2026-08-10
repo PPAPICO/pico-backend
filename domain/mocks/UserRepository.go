@@ -5,7 +5,7 @@ package mocks
 import (
 	context "context"
 
-	domain "github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
+	domain "github.com/janghanul090801/pico-backend/domain"
 	mock "github.com/stretchr/testify/mock"
 
 	uuid "github.com/google/uuid"
@@ -46,12 +46,12 @@ func (_m *UserRepository) Create(c context.Context, user *domain.User) (*domain.
 	return r0, r1
 }
 
-// Fetch provides a mock function with given fields: c
+// FindAll provides a mock function with given fields: c
 func (_m *UserRepository) FindAll(c context.Context) ([]*domain.User, error) {
 	ret := _m.Called(c)
 
 	if len(ret) == 0 {
-		panic("no return value specified for Fetch")
+		panic("no return value specified for FindAll")
 	}
 
 	var r0 []*domain.User
@@ -76,12 +76,12 @@ func (_m *UserRepository) FindAll(c context.Context) ([]*domain.User, error) {
 	return r0, r1
 }
 
-// GetByEmail provides a mock function with given fields: c, email
+// FindByEmail provides a mock function with given fields: c, email
 func (_m *UserRepository) FindByEmail(c context.Context, email string) (*domain.User, error) {
 	ret := _m.Called(c, email)
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetByEmail")
+		panic("no return value specified for FindByEmail")
 	}
 
 	var r0 *domain.User
@@ -106,12 +106,12 @@ func (_m *UserRepository) FindByEmail(c context.Context, email string) (*domain.
 	return r0, r1
 }
 
-// GetByID provides a mock function with given fields: c, id
+// FindByID provides a mock function with given fields: c, id
 func (_m *UserRepository) FindByID(c context.Context, id *uuid.UUID) (*domain.User, error) {
 	ret := _m.Called(c, id)
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetByID")
+		panic("no return value specified for FindByID")
 	}
 
 	var r0 *domain.User

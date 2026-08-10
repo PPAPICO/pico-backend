@@ -12,10 +12,10 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/governmentpolicy"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/policymatch"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/predicate"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/user"
+	"github.com/janghanul090801/pico-backend/ent/governmentpolicy"
+	"github.com/janghanul090801/pico-backend/ent/policymatch"
+	"github.com/janghanul090801/pico-backend/ent/predicate"
+	"github.com/janghanul090801/pico-backend/ent/user"
 )
 
 const (
@@ -1406,16 +1406,17 @@ type UserMutation struct {
 	password              *string
 	age                   *int
 	addage                *int
-	region                *string
+	region_code           *int
+	addregion_code        *int
 	gender                *user.Gender
 	is_student            *bool
 	is_youth              *bool
 	is_pregnant           *bool
 	is_business           *bool
+	is_foreign            *bool
+	is_disabled           *bool
 	interests             *[]string
 	appendinterests       []string
-	is_disabled           *bool
-	nationality           *user.Nationality
 	created_at            *time.Time
 	clearedFields         map[string]struct{}
 	policy_matches        map[uuid.UUID]struct{}
@@ -1694,40 +1695,60 @@ func (m *UserMutation) ResetAge() {
 	m.addage = nil
 }
 
-// SetRegion sets the "region" field.
-func (m *UserMutation) SetRegion(s string) {
-	m.region = &s
+// SetRegionCode sets the "region_code" field.
+func (m *UserMutation) SetRegionCode(i int) {
+	m.region_code = &i
+	m.addregion_code = nil
 }
 
-// Region returns the value of the "region" field in the mutation.
-func (m *UserMutation) Region() (r string, exists bool) {
-	v := m.region
+// RegionCode returns the value of the "region_code" field in the mutation.
+func (m *UserMutation) RegionCode() (r int, exists bool) {
+	v := m.region_code
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldRegion returns the old "region" field's value of the User entity.
+// OldRegionCode returns the old "region_code" field's value of the User entity.
 // If the User object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *UserMutation) OldRegion(ctx context.Context) (v string, err error) {
+func (m *UserMutation) OldRegionCode(ctx context.Context) (v int, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldRegion is only allowed on UpdateOne operations")
+		return v, errors.New("OldRegionCode is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldRegion requires an ID field in the mutation")
+		return v, errors.New("OldRegionCode requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldRegion: %w", err)
+		return v, fmt.Errorf("querying old value for OldRegionCode: %w", err)
 	}
-	return oldValue.Region, nil
+	return oldValue.RegionCode, nil
 }
 
-// ResetRegion resets all changes to the "region" field.
-func (m *UserMutation) ResetRegion() {
-	m.region = nil
+// AddRegionCode adds i to the "region_code" field.
+func (m *UserMutation) AddRegionCode(i int) {
+	if m.addregion_code != nil {
+		*m.addregion_code += i
+	} else {
+		m.addregion_code = &i
+	}
+}
+
+// AddedRegionCode returns the value that was added to the "region_code" field in this mutation.
+func (m *UserMutation) AddedRegionCode() (r int, exists bool) {
+	v := m.addregion_code
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetRegionCode resets all changes to the "region_code" field.
+func (m *UserMutation) ResetRegionCode() {
+	m.region_code = nil
+	m.addregion_code = nil
 }
 
 // SetGender sets the "gender" field.
@@ -1855,7 +1876,7 @@ func (m *UserMutation) IsPregnant() (r bool, exists bool) {
 // OldIsPregnant returns the old "is_pregnant" field's value of the User entity.
 // If the User object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *UserMutation) OldIsPregnant(ctx context.Context) (v *bool, err error) {
+func (m *UserMutation) OldIsPregnant(ctx context.Context) (v bool, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldIsPregnant is only allowed on UpdateOne operations")
 	}
@@ -1869,22 +1890,9 @@ func (m *UserMutation) OldIsPregnant(ctx context.Context) (v *bool, err error) {
 	return oldValue.IsPregnant, nil
 }
 
-// ClearIsPregnant clears the value of the "is_pregnant" field.
-func (m *UserMutation) ClearIsPregnant() {
-	m.is_pregnant = nil
-	m.clearedFields[user.FieldIsPregnant] = struct{}{}
-}
-
-// IsPregnantCleared returns if the "is_pregnant" field was cleared in this mutation.
-func (m *UserMutation) IsPregnantCleared() bool {
-	_, ok := m.clearedFields[user.FieldIsPregnant]
-	return ok
-}
-
 // ResetIsPregnant resets all changes to the "is_pregnant" field.
 func (m *UserMutation) ResetIsPregnant() {
 	m.is_pregnant = nil
-	delete(m.clearedFields, user.FieldIsPregnant)
 }
 
 // SetIsBusiness sets the "is_business" field.
@@ -1904,7 +1912,7 @@ func (m *UserMutation) IsBusiness() (r bool, exists bool) {
 // OldIsBusiness returns the old "is_business" field's value of the User entity.
 // If the User object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *UserMutation) OldIsBusiness(ctx context.Context) (v *bool, err error) {
+func (m *UserMutation) OldIsBusiness(ctx context.Context) (v bool, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldIsBusiness is only allowed on UpdateOne operations")
 	}
@@ -1918,22 +1926,81 @@ func (m *UserMutation) OldIsBusiness(ctx context.Context) (v *bool, err error) {
 	return oldValue.IsBusiness, nil
 }
 
-// ClearIsBusiness clears the value of the "is_business" field.
-func (m *UserMutation) ClearIsBusiness() {
-	m.is_business = nil
-	m.clearedFields[user.FieldIsBusiness] = struct{}{}
-}
-
-// IsBusinessCleared returns if the "is_business" field was cleared in this mutation.
-func (m *UserMutation) IsBusinessCleared() bool {
-	_, ok := m.clearedFields[user.FieldIsBusiness]
-	return ok
-}
-
 // ResetIsBusiness resets all changes to the "is_business" field.
 func (m *UserMutation) ResetIsBusiness() {
 	m.is_business = nil
-	delete(m.clearedFields, user.FieldIsBusiness)
+}
+
+// SetIsForeign sets the "is_foreign" field.
+func (m *UserMutation) SetIsForeign(b bool) {
+	m.is_foreign = &b
+}
+
+// IsForeign returns the value of the "is_foreign" field in the mutation.
+func (m *UserMutation) IsForeign() (r bool, exists bool) {
+	v := m.is_foreign
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIsForeign returns the old "is_foreign" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldIsForeign(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIsForeign is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIsForeign requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIsForeign: %w", err)
+	}
+	return oldValue.IsForeign, nil
+}
+
+// ResetIsForeign resets all changes to the "is_foreign" field.
+func (m *UserMutation) ResetIsForeign() {
+	m.is_foreign = nil
+}
+
+// SetIsDisabled sets the "is_disabled" field.
+func (m *UserMutation) SetIsDisabled(b bool) {
+	m.is_disabled = &b
+}
+
+// IsDisabled returns the value of the "is_disabled" field in the mutation.
+func (m *UserMutation) IsDisabled() (r bool, exists bool) {
+	v := m.is_disabled
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIsDisabled returns the old "is_disabled" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldIsDisabled(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIsDisabled is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIsDisabled requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIsDisabled: %w", err)
+	}
+	return oldValue.IsDisabled, nil
+}
+
+// ResetIsDisabled resets all changes to the "is_disabled" field.
+func (m *UserMutation) ResetIsDisabled() {
+	m.is_disabled = nil
 }
 
 // SetInterests sets the "interests" field.
@@ -1999,78 +2066,6 @@ func (m *UserMutation) ResetInterests() {
 	m.interests = nil
 	m.appendinterests = nil
 	delete(m.clearedFields, user.FieldInterests)
-}
-
-// SetIsDisabled sets the "is_disabled" field.
-func (m *UserMutation) SetIsDisabled(b bool) {
-	m.is_disabled = &b
-}
-
-// IsDisabled returns the value of the "is_disabled" field in the mutation.
-func (m *UserMutation) IsDisabled() (r bool, exists bool) {
-	v := m.is_disabled
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldIsDisabled returns the old "is_disabled" field's value of the User entity.
-// If the User object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *UserMutation) OldIsDisabled(ctx context.Context) (v bool, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldIsDisabled is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldIsDisabled requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldIsDisabled: %w", err)
-	}
-	return oldValue.IsDisabled, nil
-}
-
-// ResetIsDisabled resets all changes to the "is_disabled" field.
-func (m *UserMutation) ResetIsDisabled() {
-	m.is_disabled = nil
-}
-
-// SetNationality sets the "nationality" field.
-func (m *UserMutation) SetNationality(u user.Nationality) {
-	m.nationality = &u
-}
-
-// Nationality returns the value of the "nationality" field in the mutation.
-func (m *UserMutation) Nationality() (r user.Nationality, exists bool) {
-	v := m.nationality
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldNationality returns the old "nationality" field's value of the User entity.
-// If the User object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *UserMutation) OldNationality(ctx context.Context) (v user.Nationality, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldNationality is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldNationality requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldNationality: %w", err)
-	}
-	return oldValue.Nationality, nil
-}
-
-// ResetNationality resets all changes to the "nationality" field.
-func (m *UserMutation) ResetNationality() {
-	m.nationality = nil
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -2210,8 +2205,8 @@ func (m *UserMutation) Fields() []string {
 	if m.age != nil {
 		fields = append(fields, user.FieldAge)
 	}
-	if m.region != nil {
-		fields = append(fields, user.FieldRegion)
+	if m.region_code != nil {
+		fields = append(fields, user.FieldRegionCode)
 	}
 	if m.gender != nil {
 		fields = append(fields, user.FieldGender)
@@ -2228,14 +2223,14 @@ func (m *UserMutation) Fields() []string {
 	if m.is_business != nil {
 		fields = append(fields, user.FieldIsBusiness)
 	}
-	if m.interests != nil {
-		fields = append(fields, user.FieldInterests)
+	if m.is_foreign != nil {
+		fields = append(fields, user.FieldIsForeign)
 	}
 	if m.is_disabled != nil {
 		fields = append(fields, user.FieldIsDisabled)
 	}
-	if m.nationality != nil {
-		fields = append(fields, user.FieldNationality)
+	if m.interests != nil {
+		fields = append(fields, user.FieldInterests)
 	}
 	if m.created_at != nil {
 		fields = append(fields, user.FieldCreatedAt)
@@ -2256,8 +2251,8 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 		return m.Password()
 	case user.FieldAge:
 		return m.Age()
-	case user.FieldRegion:
-		return m.Region()
+	case user.FieldRegionCode:
+		return m.RegionCode()
 	case user.FieldGender:
 		return m.Gender()
 	case user.FieldIsStudent:
@@ -2268,12 +2263,12 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 		return m.IsPregnant()
 	case user.FieldIsBusiness:
 		return m.IsBusiness()
-	case user.FieldInterests:
-		return m.Interests()
+	case user.FieldIsForeign:
+		return m.IsForeign()
 	case user.FieldIsDisabled:
 		return m.IsDisabled()
-	case user.FieldNationality:
-		return m.Nationality()
+	case user.FieldInterests:
+		return m.Interests()
 	case user.FieldCreatedAt:
 		return m.CreatedAt()
 	}
@@ -2293,8 +2288,8 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldPassword(ctx)
 	case user.FieldAge:
 		return m.OldAge(ctx)
-	case user.FieldRegion:
-		return m.OldRegion(ctx)
+	case user.FieldRegionCode:
+		return m.OldRegionCode(ctx)
 	case user.FieldGender:
 		return m.OldGender(ctx)
 	case user.FieldIsStudent:
@@ -2305,12 +2300,12 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldIsPregnant(ctx)
 	case user.FieldIsBusiness:
 		return m.OldIsBusiness(ctx)
-	case user.FieldInterests:
-		return m.OldInterests(ctx)
+	case user.FieldIsForeign:
+		return m.OldIsForeign(ctx)
 	case user.FieldIsDisabled:
 		return m.OldIsDisabled(ctx)
-	case user.FieldNationality:
-		return m.OldNationality(ctx)
+	case user.FieldInterests:
+		return m.OldInterests(ctx)
 	case user.FieldCreatedAt:
 		return m.OldCreatedAt(ctx)
 	}
@@ -2350,12 +2345,12 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetAge(v)
 		return nil
-	case user.FieldRegion:
-		v, ok := value.(string)
+	case user.FieldRegionCode:
+		v, ok := value.(int)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetRegion(v)
+		m.SetRegionCode(v)
 		return nil
 	case user.FieldGender:
 		v, ok := value.(user.Gender)
@@ -2392,12 +2387,12 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetIsBusiness(v)
 		return nil
-	case user.FieldInterests:
-		v, ok := value.([]string)
+	case user.FieldIsForeign:
+		v, ok := value.(bool)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetInterests(v)
+		m.SetIsForeign(v)
 		return nil
 	case user.FieldIsDisabled:
 		v, ok := value.(bool)
@@ -2406,12 +2401,12 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetIsDisabled(v)
 		return nil
-	case user.FieldNationality:
-		v, ok := value.(user.Nationality)
+	case user.FieldInterests:
+		v, ok := value.([]string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetNationality(v)
+		m.SetInterests(v)
 		return nil
 	case user.FieldCreatedAt:
 		v, ok := value.(time.Time)
@@ -2431,6 +2426,9 @@ func (m *UserMutation) AddedFields() []string {
 	if m.addage != nil {
 		fields = append(fields, user.FieldAge)
 	}
+	if m.addregion_code != nil {
+		fields = append(fields, user.FieldRegionCode)
+	}
 	return fields
 }
 
@@ -2441,6 +2439,8 @@ func (m *UserMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
 	case user.FieldAge:
 		return m.AddedAge()
+	case user.FieldRegionCode:
+		return m.AddedRegionCode()
 	}
 	return nil, false
 }
@@ -2457,6 +2457,13 @@ func (m *UserMutation) AddField(name string, value ent.Value) error {
 		}
 		m.AddAge(v)
 		return nil
+	case user.FieldRegionCode:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddRegionCode(v)
+		return nil
 	}
 	return fmt.Errorf("unknown User numeric field %s", name)
 }
@@ -2465,12 +2472,6 @@ func (m *UserMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *UserMutation) ClearedFields() []string {
 	var fields []string
-	if m.FieldCleared(user.FieldIsPregnant) {
-		fields = append(fields, user.FieldIsPregnant)
-	}
-	if m.FieldCleared(user.FieldIsBusiness) {
-		fields = append(fields, user.FieldIsBusiness)
-	}
 	if m.FieldCleared(user.FieldInterests) {
 		fields = append(fields, user.FieldInterests)
 	}
@@ -2488,12 +2489,6 @@ func (m *UserMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *UserMutation) ClearField(name string) error {
 	switch name {
-	case user.FieldIsPregnant:
-		m.ClearIsPregnant()
-		return nil
-	case user.FieldIsBusiness:
-		m.ClearIsBusiness()
-		return nil
 	case user.FieldInterests:
 		m.ClearInterests()
 		return nil
@@ -2517,8 +2512,8 @@ func (m *UserMutation) ResetField(name string) error {
 	case user.FieldAge:
 		m.ResetAge()
 		return nil
-	case user.FieldRegion:
-		m.ResetRegion()
+	case user.FieldRegionCode:
+		m.ResetRegionCode()
 		return nil
 	case user.FieldGender:
 		m.ResetGender()
@@ -2535,14 +2530,14 @@ func (m *UserMutation) ResetField(name string) error {
 	case user.FieldIsBusiness:
 		m.ResetIsBusiness()
 		return nil
-	case user.FieldInterests:
-		m.ResetInterests()
+	case user.FieldIsForeign:
+		m.ResetIsForeign()
 		return nil
 	case user.FieldIsDisabled:
 		m.ResetIsDisabled()
 		return nil
-	case user.FieldNationality:
-		m.ResetNationality()
+	case user.FieldInterests:
+		m.ResetInterests()
 		return nil
 	case user.FieldCreatedAt:
 		m.ResetCreatedAt()

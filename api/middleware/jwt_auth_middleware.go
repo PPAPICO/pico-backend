@@ -5,9 +5,9 @@ import (
 	"strings"
 
 	"github.com/gofiber/fiber/v3"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/config"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/internal/token"
+	"github.com/janghanul090801/pico-backend/config"
+	"github.com/janghanul090801/pico-backend/domain"
+	"github.com/janghanul090801/pico-backend/internal/token"
 )
 
 func JwtMiddleware(c fiber.Ctx) error {

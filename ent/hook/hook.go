@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent"
+	"github.com/janghanul090801/pico-backend/ent"
 )
 
 // The GovernmentPolicyFunc type is an adapter to allow the use of ordinary

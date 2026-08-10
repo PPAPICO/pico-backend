@@ -1,10 +1,11 @@
 package database
 
 import (
-	"entgo.io/ent/dialect"
 	"fmt"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/config"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent"
+
+	"entgo.io/ent/dialect"
+	"github.com/janghanul090801/pico-backend/config"
+	"github.com/janghanul090801/pico-backend/ent"
 	_ "github.com/lib/pq"
 )
 
