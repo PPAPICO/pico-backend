@@ -20,7 +20,7 @@ func NewUserRepository(client *ent.Client) domain.UserRepository {
 }
 
 func (r *userRepository) Create(c context.Context, u *domain.User) (*domain.User, error) {
-	builder := r.client.User.Create().
+	userEnt, err := r.client.User.Create().
 		SetName(u.Name).
 		SetEmail(u.Email).
 		SetPassword(u.Password).
@@ -31,17 +31,9 @@ func (r *userRepository) Create(c context.Context, u *domain.User) (*domain.User
 		SetIsYouth(u.IsYouth).
 		SetInterests(interestsToStrings(u.Interests)).
 		SetIsDisabled(u.IsDisabled).
-		SetNationality(user.Nationality(u.Nationality))
-
-	if u.IsPregnant != nil {
-		builder.SetIsPregnant(*u.IsPregnant)
-	}
-
-	if u.IsBusiness != nil {
-		builder.SetIsBusiness(*u.IsBusiness)
-	}
-
-	userEnt, err := builder.Save(c)
+		SetIsForeign(u.IsForeign).
+		SetIsPregnant(u.IsPregnant).
+		SetIsBusiness(u.IsBusiness).Save(c)
 	if err != nil {
 		return nil, err
 	}

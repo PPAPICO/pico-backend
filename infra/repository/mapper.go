@@ -8,21 +8,21 @@ import (
 
 func toDomainUser(u *ent.User) *domain.User {
 	return &domain.User{
-		ID:          domain.ID(u.ID),
-		Name:        u.Name,
-		Email:       u.Email,
-		Password:    u.Password,
-		Age:         u.Age,
-		RegionCode:  u.RegionCode,
-		Gender:      domain.Gender(u.Gender),
-		IsStudent:   u.IsStudent,
-		IsYouth:     u.IsYouth,
-		IsPregnant:  u.IsPregnant,
-		IsBusiness:  u.IsBusiness,
-		Interests:   stringsToInterests(u.Interests),
-		IsDisabled:  u.IsDisabled,
-		Nationality: domain.Nationality(u.Nationality),
-		CreatedAt:   u.CreatedAt,
+		ID:         domain.ID(u.ID),
+		Name:       u.Name,
+		Email:      u.Email,
+		Password:   u.Password,
+		Age:        u.Age,
+		RegionCode: u.RegionCode,
+		Gender:     domain.Gender(u.Gender),
+		IsStudent:  u.IsStudent,
+		IsYouth:    u.IsYouth,
+		IsPregnant: u.IsPregnant,
+		IsBusiness: u.IsBusiness,
+		IsDisabled: u.IsDisabled,
+		IsForeign:  u.IsForeign,
+		Interests:  stringsToInterests(u.Interests),
+		CreatedAt:  u.CreatedAt,
 	}
 }
 

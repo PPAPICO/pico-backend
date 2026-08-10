@@ -36,15 +36,15 @@ type User struct {
 	// IsYouth holds the value of the "is_youth" field.
 	IsYouth bool `json:"is_youth,omitempty"`
 	// IsPregnant holds the value of the "is_pregnant" field.
-	IsPregnant *bool `json:"is_pregnant,omitempty"`
+	IsPregnant bool `json:"is_pregnant,omitempty"`
 	// IsBusiness holds the value of the "is_business" field.
-	IsBusiness *bool `json:"is_business,omitempty"`
-	// Interests holds the value of the "interests" field.
-	Interests []string `json:"interests,omitempty"`
+	IsBusiness bool `json:"is_business,omitempty"`
+	// IsForeign holds the value of the "is_foreign" field.
+	IsForeign bool `json:"is_foreign,omitempty"`
 	// IsDisabled holds the value of the "is_disabled" field.
 	IsDisabled bool `json:"is_disabled,omitempty"`
-	// Nationality holds the value of the "nationality" field.
-	Nationality user.Nationality `json:"nationality,omitempty"`
+	// Interests holds the value of the "interests" field.
+	Interests []string `json:"interests,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -78,11 +78,11 @@ func (*User) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case user.FieldInterests:
 			values[i] = new([]byte)
-		case user.FieldIsStudent, user.FieldIsYouth, user.FieldIsPregnant, user.FieldIsBusiness, user.FieldIsDisabled:
+		case user.FieldIsStudent, user.FieldIsYouth, user.FieldIsPregnant, user.FieldIsBusiness, user.FieldIsForeign, user.FieldIsDisabled:
 			values[i] = new(sql.NullBool)
 		case user.FieldAge, user.FieldRegionCode:
 			values[i] = new(sql.NullInt64)
-		case user.FieldName, user.FieldEmail, user.FieldPassword, user.FieldGender, user.FieldNationality:
+		case user.FieldName, user.FieldEmail, user.FieldPassword, user.FieldGender:
 			values[i] = new(sql.NullString)
 		case user.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
@@ -161,15 +161,25 @@ func (_m *User) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field is_pregnant", values[i])
 			} else if value.Valid {
-				_m.IsPregnant = new(bool)
-				*_m.IsPregnant = value.Bool
+				_m.IsPregnant = value.Bool
 			}
 		case user.FieldIsBusiness:
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field is_business", values[i])
 			} else if value.Valid {
-				_m.IsBusiness = new(bool)
-				*_m.IsBusiness = value.Bool
+				_m.IsBusiness = value.Bool
+			}
+		case user.FieldIsForeign:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field is_foreign", values[i])
+			} else if value.Valid {
+				_m.IsForeign = value.Bool
+			}
+		case user.FieldIsDisabled:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field is_disabled", values[i])
+			} else if value.Valid {
+				_m.IsDisabled = value.Bool
 			}
 		case user.FieldInterests:
 			if value, ok := values[i].(*[]byte); !ok {
@@ -178,18 +188,6 @@ func (_m *User) assignValues(columns []string, values []any) error {
 				if err := json.Unmarshal(*value, &_m.Interests); err != nil {
 					return fmt.Errorf("unmarshal field interests: %w", err)
 				}
-			}
-		case user.FieldIsDisabled:
-			if value, ok := values[i].(*sql.NullBool); !ok {
-				return fmt.Errorf("unexpected type %T for field is_disabled", values[i])
-			} else if value.Valid {
-				_m.IsDisabled = value.Bool
-			}
-		case user.FieldNationality:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field nationality", values[i])
-			} else if value.Valid {
-				_m.Nationality = user.Nationality(value.String)
 			}
 		case user.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -262,24 +260,20 @@ func (_m *User) String() string {
 	builder.WriteString("is_youth=")
 	builder.WriteString(fmt.Sprintf("%v", _m.IsYouth))
 	builder.WriteString(", ")
-	if v := _m.IsPregnant; v != nil {
-		builder.WriteString("is_pregnant=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
-	}
+	builder.WriteString("is_pregnant=")
+	builder.WriteString(fmt.Sprintf("%v", _m.IsPregnant))
 	builder.WriteString(", ")
-	if v := _m.IsBusiness; v != nil {
-		builder.WriteString("is_business=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
-	}
+	builder.WriteString("is_business=")
+	builder.WriteString(fmt.Sprintf("%v", _m.IsBusiness))
 	builder.WriteString(", ")
-	builder.WriteString("interests=")
-	builder.WriteString(fmt.Sprintf("%v", _m.Interests))
+	builder.WriteString("is_foreign=")
+	builder.WriteString(fmt.Sprintf("%v", _m.IsForeign))
 	builder.WriteString(", ")
 	builder.WriteString("is_disabled=")
 	builder.WriteString(fmt.Sprintf("%v", _m.IsDisabled))
 	builder.WriteString(", ")
-	builder.WriteString("nationality=")
-	builder.WriteString(fmt.Sprintf("%v", _m.Nationality))
+	builder.WriteString("interests=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Interests))
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))

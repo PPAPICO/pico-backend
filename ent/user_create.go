@@ -114,9 +114,17 @@ func (_c *UserCreate) SetNillableIsBusiness(v *bool) *UserCreate {
 	return _c
 }
 
-// SetInterests sets the "interests" field.
-func (_c *UserCreate) SetInterests(v []string) *UserCreate {
-	_c.mutation.SetInterests(v)
+// SetIsForeign sets the "is_foreign" field.
+func (_c *UserCreate) SetIsForeign(v bool) *UserCreate {
+	_c.mutation.SetIsForeign(v)
+	return _c
+}
+
+// SetNillableIsForeign sets the "is_foreign" field if the given value is not nil.
+func (_c *UserCreate) SetNillableIsForeign(v *bool) *UserCreate {
+	if v != nil {
+		_c.SetIsForeign(*v)
+	}
 	return _c
 }
 
@@ -134,9 +142,9 @@ func (_c *UserCreate) SetNillableIsDisabled(v *bool) *UserCreate {
 	return _c
 }
 
-// SetNationality sets the "nationality" field.
-func (_c *UserCreate) SetNationality(v user.Nationality) *UserCreate {
-	_c.mutation.SetNationality(v)
+// SetInterests sets the "interests" field.
+func (_c *UserCreate) SetInterests(v []string) *UserCreate {
+	_c.mutation.SetInterests(v)
 	return _c
 }
 
@@ -226,6 +234,18 @@ func (_c *UserCreate) defaults() {
 		v := user.DefaultIsYouth
 		_c.mutation.SetIsYouth(v)
 	}
+	if _, ok := _c.mutation.IsPregnant(); !ok {
+		v := user.DefaultIsPregnant
+		_c.mutation.SetIsPregnant(v)
+	}
+	if _, ok := _c.mutation.IsBusiness(); !ok {
+		v := user.DefaultIsBusiness
+		_c.mutation.SetIsBusiness(v)
+	}
+	if _, ok := _c.mutation.IsForeign(); !ok {
+		v := user.DefaultIsForeign
+		_c.mutation.SetIsForeign(v)
+	}
 	if _, ok := _c.mutation.IsDisabled(); !ok {
 		v := user.DefaultIsDisabled
 		_c.mutation.SetIsDisabled(v)
@@ -286,16 +306,17 @@ func (_c *UserCreate) check() error {
 	if _, ok := _c.mutation.IsYouth(); !ok {
 		return &ValidationError{Name: "is_youth", err: errors.New(`ent: missing required field "User.is_youth"`)}
 	}
+	if _, ok := _c.mutation.IsPregnant(); !ok {
+		return &ValidationError{Name: "is_pregnant", err: errors.New(`ent: missing required field "User.is_pregnant"`)}
+	}
+	if _, ok := _c.mutation.IsBusiness(); !ok {
+		return &ValidationError{Name: "is_business", err: errors.New(`ent: missing required field "User.is_business"`)}
+	}
+	if _, ok := _c.mutation.IsForeign(); !ok {
+		return &ValidationError{Name: "is_foreign", err: errors.New(`ent: missing required field "User.is_foreign"`)}
+	}
 	if _, ok := _c.mutation.IsDisabled(); !ok {
 		return &ValidationError{Name: "is_disabled", err: errors.New(`ent: missing required field "User.is_disabled"`)}
-	}
-	if _, ok := _c.mutation.Nationality(); !ok {
-		return &ValidationError{Name: "nationality", err: errors.New(`ent: missing required field "User.nationality"`)}
-	}
-	if v, ok := _c.mutation.Nationality(); ok {
-		if err := user.NationalityValidator(v); err != nil {
-			return &ValidationError{Name: "nationality", err: fmt.Errorf(`ent: validator failed for field "User.nationality": %w`, err)}
-		}
 	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "User.created_at"`)}
@@ -369,23 +390,23 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	}
 	if value, ok := _c.mutation.IsPregnant(); ok {
 		_spec.SetField(user.FieldIsPregnant, field.TypeBool, value)
-		_node.IsPregnant = &value
+		_node.IsPregnant = value
 	}
 	if value, ok := _c.mutation.IsBusiness(); ok {
 		_spec.SetField(user.FieldIsBusiness, field.TypeBool, value)
-		_node.IsBusiness = &value
+		_node.IsBusiness = value
 	}
-	if value, ok := _c.mutation.Interests(); ok {
-		_spec.SetField(user.FieldInterests, field.TypeJSON, value)
-		_node.Interests = value
+	if value, ok := _c.mutation.IsForeign(); ok {
+		_spec.SetField(user.FieldIsForeign, field.TypeBool, value)
+		_node.IsForeign = value
 	}
 	if value, ok := _c.mutation.IsDisabled(); ok {
 		_spec.SetField(user.FieldIsDisabled, field.TypeBool, value)
 		_node.IsDisabled = value
 	}
-	if value, ok := _c.mutation.Nationality(); ok {
-		_spec.SetField(user.FieldNationality, field.TypeEnum, value)
-		_node.Nationality = value
+	if value, ok := _c.mutation.Interests(); ok {
+		_spec.SetField(user.FieldInterests, field.TypeJSON, value)
+		_node.Interests = value
 	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(user.FieldCreatedAt, field.TypeTime, value)

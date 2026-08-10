@@ -101,6 +101,11 @@ func IsBusiness(v bool) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldIsBusiness, v))
 }
 
+// IsForeign applies equality check predicate on the "is_foreign" field. It's identical to IsForeignEQ.
+func IsForeign(v bool) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldIsForeign, v))
+}
+
 // IsDisabled applies equality check predicate on the "is_disabled" field. It's identical to IsDisabledEQ.
 func IsDisabled(v bool) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldIsDisabled, v))
@@ -436,16 +441,6 @@ func IsPregnantNEQ(v bool) predicate.User {
 	return predicate.User(sql.FieldNEQ(FieldIsPregnant, v))
 }
 
-// IsPregnantIsNil applies the IsNil predicate on the "is_pregnant" field.
-func IsPregnantIsNil() predicate.User {
-	return predicate.User(sql.FieldIsNull(FieldIsPregnant))
-}
-
-// IsPregnantNotNil applies the NotNil predicate on the "is_pregnant" field.
-func IsPregnantNotNil() predicate.User {
-	return predicate.User(sql.FieldNotNull(FieldIsPregnant))
-}
-
 // IsBusinessEQ applies the EQ predicate on the "is_business" field.
 func IsBusinessEQ(v bool) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldIsBusiness, v))
@@ -456,24 +451,14 @@ func IsBusinessNEQ(v bool) predicate.User {
 	return predicate.User(sql.FieldNEQ(FieldIsBusiness, v))
 }
 
-// IsBusinessIsNil applies the IsNil predicate on the "is_business" field.
-func IsBusinessIsNil() predicate.User {
-	return predicate.User(sql.FieldIsNull(FieldIsBusiness))
+// IsForeignEQ applies the EQ predicate on the "is_foreign" field.
+func IsForeignEQ(v bool) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldIsForeign, v))
 }
 
-// IsBusinessNotNil applies the NotNil predicate on the "is_business" field.
-func IsBusinessNotNil() predicate.User {
-	return predicate.User(sql.FieldNotNull(FieldIsBusiness))
-}
-
-// InterestsIsNil applies the IsNil predicate on the "interests" field.
-func InterestsIsNil() predicate.User {
-	return predicate.User(sql.FieldIsNull(FieldInterests))
-}
-
-// InterestsNotNil applies the NotNil predicate on the "interests" field.
-func InterestsNotNil() predicate.User {
-	return predicate.User(sql.FieldNotNull(FieldInterests))
+// IsForeignNEQ applies the NEQ predicate on the "is_foreign" field.
+func IsForeignNEQ(v bool) predicate.User {
+	return predicate.User(sql.FieldNEQ(FieldIsForeign, v))
 }
 
 // IsDisabledEQ applies the EQ predicate on the "is_disabled" field.
@@ -486,24 +471,14 @@ func IsDisabledNEQ(v bool) predicate.User {
 	return predicate.User(sql.FieldNEQ(FieldIsDisabled, v))
 }
 
-// NationalityEQ applies the EQ predicate on the "nationality" field.
-func NationalityEQ(v Nationality) predicate.User {
-	return predicate.User(sql.FieldEQ(FieldNationality, v))
+// InterestsIsNil applies the IsNil predicate on the "interests" field.
+func InterestsIsNil() predicate.User {
+	return predicate.User(sql.FieldIsNull(FieldInterests))
 }
 
-// NationalityNEQ applies the NEQ predicate on the "nationality" field.
-func NationalityNEQ(v Nationality) predicate.User {
-	return predicate.User(sql.FieldNEQ(FieldNationality, v))
-}
-
-// NationalityIn applies the In predicate on the "nationality" field.
-func NationalityIn(vs ...Nationality) predicate.User {
-	return predicate.User(sql.FieldIn(FieldNationality, vs...))
-}
-
-// NationalityNotIn applies the NotIn predicate on the "nationality" field.
-func NationalityNotIn(vs ...Nationality) predicate.User {
-	return predicate.User(sql.FieldNotIn(FieldNationality, vs...))
+// InterestsNotNil applies the NotNil predicate on the "interests" field.
+func InterestsNotNil() predicate.User {
+	return predicate.User(sql.FieldNotNull(FieldInterests))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.

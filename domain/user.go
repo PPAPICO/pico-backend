@@ -6,21 +6,21 @@ import (
 )
 
 type User struct {
-	ID          ID
-	Name        string
-	Email       string
-	Password    string
-	Age         int
-	RegionCode  int
-	Gender      Gender
-	IsStudent   bool
-	IsYouth     bool
-	IsPregnant  *bool
-	IsBusiness  *bool
-	Interests   []Interest
-	IsDisabled  bool
-	Nationality Nationality
-	CreatedAt   time.Time
+	ID         ID
+	Name       string
+	Email      string
+	Password   string
+	Age        int
+	RegionCode int
+	Gender     Gender
+	IsStudent  bool
+	IsYouth    bool
+	IsPregnant bool
+	IsBusiness bool
+	IsDisabled bool
+	IsForeign  bool
+	Interests  []Interest
+	CreatedAt  time.Time
 }
 
 type Gender string
@@ -29,13 +29,6 @@ const (
 	GenderMale   Gender = "MALE"
 	GenderFemale Gender = "FEMALE"
 	GenderOther  Gender = "OTHER"
-)
-
-type Nationality string
-
-const (
-	NationalityDomestic Nationality = "DOMESTIC"
-	NationalityForeign  Nationality = "FOREIGN"
 )
 
 type Interest string

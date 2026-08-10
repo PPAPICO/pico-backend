@@ -24,7 +24,7 @@ func NewAuthUseCase(userRepository domain.UserRepository, timeout time.Duration)
 	}
 }
 
-func (u *authUseCase) Register(c context.Context, name, email, password string) (*domain.User, error) {
+func (u *authUseCase) Register(c context.Context, name, email, password string, age, regionCode int, gender domain.Gender, isStudent, isYouth, isPregnant, isBusiness, isDisabled, isForeign bool, interest []domain.Interest) (*domain.User, error) {
 	ctx, cancel := context.WithTimeout(c, u.contextTimeout)
 	defer cancel()
 
@@ -42,9 +42,19 @@ func (u *authUseCase) Register(c context.Context, name, email, password string) 
 	}
 
 	user, err := u.userRepository.Create(ctx, &domain.User{
-		Name:     name,
-		Email:    email,
-		Password: string(encrypted),
+		Name:       name,
+		Email:      email,
+		Password:   string(encrypted),
+		Age:        age,
+		RegionCode: regionCode,
+		Gender:     gender,
+		IsStudent:  isStudent,
+		IsYouth:    isYouth,
+		IsPregnant: isPregnant,
+		IsBusiness: isBusiness,
+		IsForeign:  isForeign,
+		IsDisabled: isDisabled,
+		Interests:  interest,
 	})
 	if err != nil {
 		return nil, domain.NewInternalServerError(err)

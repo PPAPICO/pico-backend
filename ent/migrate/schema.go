@@ -64,11 +64,11 @@ var (
 		{Name: "gender", Type: field.TypeEnum, Enums: []string{"MALE", "FEMALE", "OTHER"}},
 		{Name: "is_student", Type: field.TypeBool, Default: false},
 		{Name: "is_youth", Type: field.TypeBool, Default: false},
-		{Name: "is_pregnant", Type: field.TypeBool, Nullable: true},
-		{Name: "is_business", Type: field.TypeBool, Nullable: true},
-		{Name: "interests", Type: field.TypeJSON, Nullable: true},
+		{Name: "is_pregnant", Type: field.TypeBool, Default: false},
+		{Name: "is_business", Type: field.TypeBool, Default: false},
+		{Name: "is_foreign", Type: field.TypeBool, Default: false},
 		{Name: "is_disabled", Type: field.TypeBool, Default: false},
-		{Name: "nationality", Type: field.TypeEnum, Enums: []string{"DOMESTIC", "FOREIGN"}},
+		{Name: "interests", Type: field.TypeJSON, Nullable: true},
 		{Name: "created_at", Type: field.TypeTime},
 	}
 	// UsersTable holds the schema information for the "users" table.

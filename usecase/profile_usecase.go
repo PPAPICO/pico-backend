@@ -32,5 +32,19 @@ func (pu *profileUseCase) GetProfileByID(c context.Context, userID *domain.ID) (
 		return nil, domain.NewInternalServerError(err)
 	}
 
-	return &domain.Profile{Name: user.Name, Email: user.Email}, nil
+	return &domain.Profile{
+		ID:         user.ID,
+		Name:       user.Name,
+		Email:      user.Email,
+		Age:        user.Age,
+		RegionCode: user.RegionCode,
+		Gender:     user.Gender,
+		IsStudent:  user.IsStudent,
+		IsYouth:    user.IsYouth,
+		IsPregnant: user.IsPregnant,
+		IsBusiness: user.IsBusiness,
+		IsForeign:  user.IsForeign,
+		Interests:  user.Interests,
+		CreatedAt:  user.CreatedAt,
+	}, nil
 }

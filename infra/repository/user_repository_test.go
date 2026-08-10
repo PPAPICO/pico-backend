@@ -18,8 +18,6 @@ func TestCreate(t *testing.T) {
 
 	repo := repository.NewUserRepository(client)
 
-	isBusiness := true
-
 	u, err := repo.Create(context.Background(), &domain.User{
 		Name:       "hanul",
 		Email:      "hanul@gmail.com",
@@ -29,14 +27,14 @@ func TestCreate(t *testing.T) {
 		Gender:     domain.GenderMale,
 		IsStudent:  true,
 		IsYouth:    true,
-		IsPregnant: nil,
-		IsBusiness: &isBusiness,
+		IsPregnant: false,
+		IsBusiness: true,
 		Interests: []domain.Interest{
 			domain.InterestCulture,
 			domain.InterestEducation,
 		},
-		IsDisabled:  false,
-		Nationality: domain.NationalityDomestic,
+		IsDisabled: false,
+		IsForeign:  false,
 	})
 
 	assert.NoError(t, err)
@@ -49,15 +47,15 @@ func TestCreate(t *testing.T) {
 	assert.Equal(t, domain.GenderMale, u.Gender)
 	assert.True(t, u.IsStudent)
 	assert.True(t, u.IsYouth)
-	assert.Nil(t, u.IsPregnant)
-	assert.NotNil(t, u.IsBusiness)
-	assert.True(t, *u.IsBusiness)
+	assert.False(t, u.IsPregnant)
+	assert.True(t, u.IsBusiness)
+	assert.True(t, u.IsBusiness)
 	assert.Equal(t, []domain.Interest{
 		domain.InterestCulture,
 		domain.InterestEducation,
 	}, u.Interests)
 	assert.False(t, u.IsDisabled)
-	assert.Equal(t, domain.NationalityDomestic, u.Nationality)
+	assert.False(t, u.IsForeign)
 
 	assert.NotZero(t, u.ID)
 	assert.False(t, u.CreatedAt.IsZero())

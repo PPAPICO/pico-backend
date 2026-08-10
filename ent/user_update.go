@@ -170,12 +170,6 @@ func (_u *UserUpdate) SetNillableIsPregnant(v *bool) *UserUpdate {
 	return _u
 }
 
-// ClearIsPregnant clears the value of the "is_pregnant" field.
-func (_u *UserUpdate) ClearIsPregnant() *UserUpdate {
-	_u.mutation.ClearIsPregnant()
-	return _u
-}
-
 // SetIsBusiness sets the "is_business" field.
 func (_u *UserUpdate) SetIsBusiness(v bool) *UserUpdate {
 	_u.mutation.SetIsBusiness(v)
@@ -190,9 +184,31 @@ func (_u *UserUpdate) SetNillableIsBusiness(v *bool) *UserUpdate {
 	return _u
 }
 
-// ClearIsBusiness clears the value of the "is_business" field.
-func (_u *UserUpdate) ClearIsBusiness() *UserUpdate {
-	_u.mutation.ClearIsBusiness()
+// SetIsForeign sets the "is_foreign" field.
+func (_u *UserUpdate) SetIsForeign(v bool) *UserUpdate {
+	_u.mutation.SetIsForeign(v)
+	return _u
+}
+
+// SetNillableIsForeign sets the "is_foreign" field if the given value is not nil.
+func (_u *UserUpdate) SetNillableIsForeign(v *bool) *UserUpdate {
+	if v != nil {
+		_u.SetIsForeign(*v)
+	}
+	return _u
+}
+
+// SetIsDisabled sets the "is_disabled" field.
+func (_u *UserUpdate) SetIsDisabled(v bool) *UserUpdate {
+	_u.mutation.SetIsDisabled(v)
+	return _u
+}
+
+// SetNillableIsDisabled sets the "is_disabled" field if the given value is not nil.
+func (_u *UserUpdate) SetNillableIsDisabled(v *bool) *UserUpdate {
+	if v != nil {
+		_u.SetIsDisabled(*v)
+	}
 	return _u
 }
 
@@ -211,34 +227,6 @@ func (_u *UserUpdate) AppendInterests(v []string) *UserUpdate {
 // ClearInterests clears the value of the "interests" field.
 func (_u *UserUpdate) ClearInterests() *UserUpdate {
 	_u.mutation.ClearInterests()
-	return _u
-}
-
-// SetIsDisabled sets the "is_disabled" field.
-func (_u *UserUpdate) SetIsDisabled(v bool) *UserUpdate {
-	_u.mutation.SetIsDisabled(v)
-	return _u
-}
-
-// SetNillableIsDisabled sets the "is_disabled" field if the given value is not nil.
-func (_u *UserUpdate) SetNillableIsDisabled(v *bool) *UserUpdate {
-	if v != nil {
-		_u.SetIsDisabled(*v)
-	}
-	return _u
-}
-
-// SetNationality sets the "nationality" field.
-func (_u *UserUpdate) SetNationality(v user.Nationality) *UserUpdate {
-	_u.mutation.SetNationality(v)
-	return _u
-}
-
-// SetNillableNationality sets the "nationality" field if the given value is not nil.
-func (_u *UserUpdate) SetNillableNationality(v *user.Nationality) *UserUpdate {
-	if v != nil {
-		_u.SetNationality(*v)
-	}
 	return _u
 }
 
@@ -332,11 +320,6 @@ func (_u *UserUpdate) check() error {
 			return &ValidationError{Name: "gender", err: fmt.Errorf(`ent: validator failed for field "User.gender": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.Nationality(); ok {
-		if err := user.NationalityValidator(v); err != nil {
-			return &ValidationError{Name: "nationality", err: fmt.Errorf(`ent: validator failed for field "User.nationality": %w`, err)}
-		}
-	}
 	return nil
 }
 
@@ -385,14 +368,14 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.IsPregnant(); ok {
 		_spec.SetField(user.FieldIsPregnant, field.TypeBool, value)
 	}
-	if _u.mutation.IsPregnantCleared() {
-		_spec.ClearField(user.FieldIsPregnant, field.TypeBool)
-	}
 	if value, ok := _u.mutation.IsBusiness(); ok {
 		_spec.SetField(user.FieldIsBusiness, field.TypeBool, value)
 	}
-	if _u.mutation.IsBusinessCleared() {
-		_spec.ClearField(user.FieldIsBusiness, field.TypeBool)
+	if value, ok := _u.mutation.IsForeign(); ok {
+		_spec.SetField(user.FieldIsForeign, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.IsDisabled(); ok {
+		_spec.SetField(user.FieldIsDisabled, field.TypeBool, value)
 	}
 	if value, ok := _u.mutation.Interests(); ok {
 		_spec.SetField(user.FieldInterests, field.TypeJSON, value)
@@ -404,12 +387,6 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.InterestsCleared() {
 		_spec.ClearField(user.FieldInterests, field.TypeJSON)
-	}
-	if value, ok := _u.mutation.IsDisabled(); ok {
-		_spec.SetField(user.FieldIsDisabled, field.TypeBool, value)
-	}
-	if value, ok := _u.mutation.Nationality(); ok {
-		_spec.SetField(user.FieldNationality, field.TypeEnum, value)
 	}
 	if _u.mutation.PolicyMatchesCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -616,12 +593,6 @@ func (_u *UserUpdateOne) SetNillableIsPregnant(v *bool) *UserUpdateOne {
 	return _u
 }
 
-// ClearIsPregnant clears the value of the "is_pregnant" field.
-func (_u *UserUpdateOne) ClearIsPregnant() *UserUpdateOne {
-	_u.mutation.ClearIsPregnant()
-	return _u
-}
-
 // SetIsBusiness sets the "is_business" field.
 func (_u *UserUpdateOne) SetIsBusiness(v bool) *UserUpdateOne {
 	_u.mutation.SetIsBusiness(v)
@@ -636,9 +607,31 @@ func (_u *UserUpdateOne) SetNillableIsBusiness(v *bool) *UserUpdateOne {
 	return _u
 }
 
-// ClearIsBusiness clears the value of the "is_business" field.
-func (_u *UserUpdateOne) ClearIsBusiness() *UserUpdateOne {
-	_u.mutation.ClearIsBusiness()
+// SetIsForeign sets the "is_foreign" field.
+func (_u *UserUpdateOne) SetIsForeign(v bool) *UserUpdateOne {
+	_u.mutation.SetIsForeign(v)
+	return _u
+}
+
+// SetNillableIsForeign sets the "is_foreign" field if the given value is not nil.
+func (_u *UserUpdateOne) SetNillableIsForeign(v *bool) *UserUpdateOne {
+	if v != nil {
+		_u.SetIsForeign(*v)
+	}
+	return _u
+}
+
+// SetIsDisabled sets the "is_disabled" field.
+func (_u *UserUpdateOne) SetIsDisabled(v bool) *UserUpdateOne {
+	_u.mutation.SetIsDisabled(v)
+	return _u
+}
+
+// SetNillableIsDisabled sets the "is_disabled" field if the given value is not nil.
+func (_u *UserUpdateOne) SetNillableIsDisabled(v *bool) *UserUpdateOne {
+	if v != nil {
+		_u.SetIsDisabled(*v)
+	}
 	return _u
 }
 
@@ -657,34 +650,6 @@ func (_u *UserUpdateOne) AppendInterests(v []string) *UserUpdateOne {
 // ClearInterests clears the value of the "interests" field.
 func (_u *UserUpdateOne) ClearInterests() *UserUpdateOne {
 	_u.mutation.ClearInterests()
-	return _u
-}
-
-// SetIsDisabled sets the "is_disabled" field.
-func (_u *UserUpdateOne) SetIsDisabled(v bool) *UserUpdateOne {
-	_u.mutation.SetIsDisabled(v)
-	return _u
-}
-
-// SetNillableIsDisabled sets the "is_disabled" field if the given value is not nil.
-func (_u *UserUpdateOne) SetNillableIsDisabled(v *bool) *UserUpdateOne {
-	if v != nil {
-		_u.SetIsDisabled(*v)
-	}
-	return _u
-}
-
-// SetNationality sets the "nationality" field.
-func (_u *UserUpdateOne) SetNationality(v user.Nationality) *UserUpdateOne {
-	_u.mutation.SetNationality(v)
-	return _u
-}
-
-// SetNillableNationality sets the "nationality" field if the given value is not nil.
-func (_u *UserUpdateOne) SetNillableNationality(v *user.Nationality) *UserUpdateOne {
-	if v != nil {
-		_u.SetNationality(*v)
-	}
 	return _u
 }
 
@@ -791,11 +756,6 @@ func (_u *UserUpdateOne) check() error {
 			return &ValidationError{Name: "gender", err: fmt.Errorf(`ent: validator failed for field "User.gender": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.Nationality(); ok {
-		if err := user.NationalityValidator(v); err != nil {
-			return &ValidationError{Name: "nationality", err: fmt.Errorf(`ent: validator failed for field "User.nationality": %w`, err)}
-		}
-	}
 	return nil
 }
 
@@ -861,14 +821,14 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 	if value, ok := _u.mutation.IsPregnant(); ok {
 		_spec.SetField(user.FieldIsPregnant, field.TypeBool, value)
 	}
-	if _u.mutation.IsPregnantCleared() {
-		_spec.ClearField(user.FieldIsPregnant, field.TypeBool)
-	}
 	if value, ok := _u.mutation.IsBusiness(); ok {
 		_spec.SetField(user.FieldIsBusiness, field.TypeBool, value)
 	}
-	if _u.mutation.IsBusinessCleared() {
-		_spec.ClearField(user.FieldIsBusiness, field.TypeBool)
+	if value, ok := _u.mutation.IsForeign(); ok {
+		_spec.SetField(user.FieldIsForeign, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.IsDisabled(); ok {
+		_spec.SetField(user.FieldIsDisabled, field.TypeBool, value)
 	}
 	if value, ok := _u.mutation.Interests(); ok {
 		_spec.SetField(user.FieldInterests, field.TypeJSON, value)
@@ -880,12 +840,6 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 	}
 	if _u.mutation.InterestsCleared() {
 		_spec.ClearField(user.FieldInterests, field.TypeJSON)
-	}
-	if value, ok := _u.mutation.IsDisabled(); ok {
-		_spec.SetField(user.FieldIsDisabled, field.TypeBool, value)
-	}
-	if value, ok := _u.mutation.Nationality(); ok {
-		_spec.SetField(user.FieldNationality, field.TypeEnum, value)
 	}
 	if _u.mutation.PolicyMatchesCleared() {
 		edge := &sqlgraph.EdgeSpec{
