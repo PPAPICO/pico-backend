@@ -23,12 +23,12 @@ func GetPoliciesInMyRegion(policyService domain.PolicyUseCase, profileService do
 		ctx := c.RequestCtx()
 		userID := c.Locals("id").(*domain.ID)
 
-		user, err := profileService.GetProfileByID(ctx, userID)
+		profile, err := profileService.GetProfileByID(ctx, userID)
 		if err != nil {
 			return RespondError(c, err)
 		}
 
-		policies, err := policyService.ListByRegionCodeAndActive(ctx, user.RegionCode)
+		policies, err := policyService.ListByRegionCodeAndActive(ctx, profile.RegionCode)
 		if err != nil {
 			return RespondError(c, err)
 		}

@@ -2,17 +2,12 @@ package youth
 
 import (
 	"context"
-	"encoding/json"
-	"encoding/xml"
 	"fmt"
 	"net/url"
 	"strings"
-	"time"
 
-	"github.com/janghanul090801/pico-backend/config"
 	"github.com/janghanul090801/pico-backend/domain"
 	"github.com/janghanul090801/pico-backend/internal/httpclient"
-	"github.com/janghanul090801/pico-backend/internal/parser"
 )
 
 type Client struct {
@@ -27,62 +22,36 @@ func NewClient(httpClient *httpclient.Client, apiKey string) *Client {
 	}
 }
 
-// Fetch fetches policies from 온통청년 청년정책 API
+// Fetch fetches policies from 온통청년 청년정책 API.
 func (c *Client) Fetch(ctx context.Context) ([]*domain.Policy, error) {
-	apiKey := config.E.YouthApiKey
+	params := url.Values{}
+	params.Set("apiKeyNm", c.apiKey)
+	params.Set("pageNum", "1")
+	params.Set("pageSize", "100")
+	params.Set("pageType", "1")
+	params.Set("rtnType", "json")
 
-	reqURL := fmt.Sprintf("https://www.youthcenter.go.kr/opi/empSprtList.do?openApiVcntId=%s&pageIndex=1&display=20", url.QueryEscape(apiKey))
+	reqURL := "https://www.youthcenter.go.kr/go/ythip/getPlcy?" + params.Encode()
 
 	body, err := c.httpClient.Get(ctx, reqURL)
 	if err != nil {
-		return nil, fmt.Errorf("http request failed: %w", err)
+		return nil, fmt.Errorf("youth api request failed: %w", err)
 	}
 
-	var items []Item
-
-	var xmlResp XMLResponse
-	if xmlErr := xml.Unmarshal(body, &xmlResp); xmlErr == nil && len(xmlResp.PolicyList) > 0 {
-		items = xmlResp.PolicyList
-	} else {
-		var jsonResp JSONResponse
-		if jsonErr := json.Unmarshal(body, &jsonResp); jsonErr == nil && len(jsonResp.EmpsInfo.Emp) > 0 {
-			items = jsonResp.EmpsInfo.Emp
-		}
+	items, err := parseResponse(body)
+	if err != nil {
+		return nil, fmt.Errorf("youth api response parse failed: %w", err)
 	}
 
-	var result []*domain.Policy
-	now := time.Now()
+	result := make([]*domain.Policy, 0, len(items))
 
 	for _, item := range items {
-		title := strings.TrimSpace(item.PolyBizSjnNm)
+		title := strings.TrimSpace(item.PlcyNm)
 		if title == "" {
 			continue
 		}
-		desc := strings.TrimSpace(item.PolyItcnCn)
-		if desc == "" {
-			desc = title
-		}
 
-		sDate, eDate := parser.ParseDateRange(item.RqstPrdCn)
-		if sDate.IsZero() {
-			sDate = now
-		}
-		if eDate.IsZero() {
-			eDate = now.AddDate(1, 0, 0)
-		}
-
-		regionCode := parser.ParseRegionCode(item.PolyBizSecd, item.CnsgNtiPrdCn)
-
-		result = append(result, &domain.Policy{
-			Title:       title,
-			Description: desc,
-			RegionCode:  regionCode,
-			StartDate:   sDate,
-			EndDate:     eDate,
-			Address:     strings.TrimSpace(item.CnsgNtiPrdCn),
-			Latitude:    0.0,
-			Longitude:   0.0,
-		})
+		result = append(result, toPolicy(item))
 	}
 
 	return result, nil

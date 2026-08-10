@@ -109,9 +109,9 @@ func (_m *AuthUseCase) Login(c context.Context, email string, password string) (
 	return r0, r1
 }
 
-// Register provides a mock function with given fields: c, name, email, password
-func (_m *AuthUseCase) Register(c context.Context, name string, email string, password string) (*domain.User, error) {
-	ret := _m.Called(c, name, email, password)
+// Register provides a mock function with given fields: c, name, email, password, age, regionCode, gender, isStudent, isYouth, isPregnant, isBusiness, isDisabled, isForeign, interest
+func (_m *AuthUseCase) Register(c context.Context, name string, email string, password string, age int, regionCode int, gender domain.Gender, isStudent bool, isYouth bool, isPregnant bool, isBusiness bool, isDisabled bool, isForeign bool, interest []domain.Interest) (*domain.User, error) {
+	ret := _m.Called(c, name, email, password, age, regionCode, gender, isStudent, isYouth, isPregnant, isBusiness, isDisabled, isForeign, interest)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Register")
@@ -119,19 +119,19 @@ func (_m *AuthUseCase) Register(c context.Context, name string, email string, pa
 
 	var r0 *domain.User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, string) (*domain.User, error)); ok {
-		return rf(c, name, email, password)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, int, int, domain.Gender, bool, bool, bool, bool, bool, bool, []domain.Interest) (*domain.User, error)); ok {
+		return rf(c, name, email, password, age, regionCode, gender, isStudent, isYouth, isPregnant, isBusiness, isDisabled, isForeign, interest)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, string) *domain.User); ok {
-		r0 = rf(c, name, email, password)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, int, int, domain.Gender, bool, bool, bool, bool, bool, bool, []domain.Interest) *domain.User); ok {
+		r0 = rf(c, name, email, password, age, regionCode, gender, isStudent, isYouth, isPregnant, isBusiness, isDisabled, isForeign, interest)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*domain.User)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, string, string) error); ok {
-		r1 = rf(c, name, email, password)
+	if rf, ok := ret.Get(1).(func(context.Context, string, string, string, int, int, domain.Gender, bool, bool, bool, bool, bool, bool, []domain.Interest) error); ok {
+		r1 = rf(c, name, email, password, age, regionCode, gender, isStudent, isYouth, isPregnant, isBusiness, isDisabled, isForeign, interest)
 	} else {
 		r1 = ret.Error(1)
 	}

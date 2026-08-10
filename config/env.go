@@ -25,6 +25,7 @@ type Env struct {
 	WelfareApiKey          string `mapstructure:"WELFARE_API_KEY"`
 	VolunteerApiKey        string `mapstructure:"VOLUNTEER_API_KEY"`
 	MaternityApiKey        string `mapstructure:"MATERNITY_API_KEY"`
+	KakaoMapApiKey         string `mapstructure:"KAKAO_MAP_API_KEY"`
 }
 
 func NewEnv() {

@@ -7,6 +7,7 @@ import (
 
 	"github.com/janghanul090801/pico-backend/domain"
 	"github.com/janghanul090801/pico-backend/ent"
+	"github.com/janghanul090801/pico-backend/external/kakaomap"
 	"github.com/janghanul090801/pico-backend/external/volunteer"
 	"github.com/janghanul090801/pico-backend/external/welfare"
 	"github.com/janghanul090801/pico-backend/external/youth"
@@ -19,16 +20,18 @@ type policyUseCase struct {
 	youthClient           *youth.Client
 	welfareClient         *welfare.Client
 	volunteerClient       *volunteer.Client
+	kakaoMapClient        *kakaomap.Client
 	contextTimeout        time.Duration
 }
 
-func NewPolicyUseCase(policyRepository domain.PolicyRepository, policyMatchRepository domain.PolicyMatchRepository, youthClient *youth.Client, welfareClient *welfare.Client, volunteerClient *volunteer.Client, contextTimeout time.Duration) domain.PolicyUseCase {
+func NewPolicyUseCase(policyRepository domain.PolicyRepository, policyMatchRepository domain.PolicyMatchRepository, youthClient *youth.Client, welfareClient *welfare.Client, volunteerClient *volunteer.Client, kakaoMapClient *kakaomap.Client, contextTimeout time.Duration) domain.PolicyUseCase {
 	return &policyUseCase{
 		policyRepository:      policyRepository,
 		policyMatchRepository: policyMatchRepository,
 		youthClient:           youthClient,
 		welfareClient:         welfareClient,
 		volunteerClient:       volunteerClient,
+		kakaoMapClient:        kakaoMapClient,
 		contextTimeout:        contextTimeout,
 	}
 }
@@ -71,7 +74,7 @@ func (u *policyUseCase) ListMatchesByUserID(c context.Context, userID *domain.ID
 
 // GetFromApi fetches policies from external APIs, filters for Seoul/National targets, and saves them to DB
 func (u *policyUseCase) GetFromApi(c context.Context) ([]*domain.Policy, error) {
-	ctx, cancel := context.WithTimeout(c, u.contextTimeout*5)
+	ctx, cancel := context.WithTimeout(c, u.contextTimeout*50)
 	defer cancel()
 
 	var fetchedPolicies []*domain.Policy
@@ -104,6 +107,12 @@ func (u *policyUseCase) GetFromApi(c context.Context) ([]*domain.Policy, error) 
 
 	var savedPolicies []*domain.Policy
 	for _, p := range seoulPolicies {
+		lat, long, err := u.kakaoMapClient.Geocode(ctx, p.Address)
+		if err != nil {
+			log.Printf("[PolicyUseCase] policy id: %s, kakaoMapClient.Geocode error: %v", p.ID, err)
+		}
+		p.Latitude = lat
+		p.Longitude = long
 		saved, err := u.policyRepository.Create(ctx, p)
 		if err != nil {
 			log.Printf("[PolicyUseCase] Failed to save policy '%s': %v", p.Title, err)

@@ -340,17 +340,6 @@ const docTemplate = `{
                 "MatchIMPOSSIBLE"
             ]
         },
-        "domain.Nationality": {
-            "type": "string",
-            "enum": [
-                "DOMESTIC",
-                "FOREIGN"
-            ],
-            "x-enum-varnames": [
-                "NationalityDomestic",
-                "NationalityForeign"
-            ]
-        },
         "domain.PolicyResponse": {
             "type": "object",
             "properties": {
@@ -416,6 +405,9 @@ const docTemplate = `{
                 "is_disabled": {
                     "type": "boolean"
                 },
+                "is_foreign": {
+                    "type": "boolean"
+                },
                 "is_pregnant": {
                     "type": "boolean"
                 },
@@ -427,9 +419,6 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
-                },
-                "nationality": {
-                    "$ref": "#/definitions/domain.Nationality"
                 },
                 "region": {
                     "type": "integer"
@@ -454,11 +443,13 @@ const docTemplate = `{
                 "email",
                 "gender",
                 "interests",
+                "is_business",
                 "is_disabled",
+                "is_foreign",
+                "is_pregnant",
                 "is_student",
                 "is_youth",
                 "name",
-                "nationality",
                 "password",
                 "region"
             ],
@@ -484,6 +475,9 @@ const docTemplate = `{
                 "is_disabled": {
                     "type": "boolean"
                 },
+                "is_foreign": {
+                    "type": "boolean"
+                },
                 "is_pregnant": {
                     "type": "boolean"
                 },
@@ -495,9 +489,6 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
-                },
-                "nationality": {
-                    "$ref": "#/definitions/domain.Nationality"
                 },
                 "password": {
                     "type": "string"

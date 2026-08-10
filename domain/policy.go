@@ -104,7 +104,7 @@ func (p *Policy) IsSeoulOrNational() bool {
 
 	if p.RegionCode == 0 {
 		return !isNonSeoulText(p.Address) &&
-			!isNonSeoulText(p.Title)
+			!isNonSeoulText(p.Title) && !isNonSeoulText(p.Description)
 	}
 
 	return strings.Contains(p.Address, "서울")

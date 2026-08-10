@@ -44,3 +44,7 @@ func (c *Client) Get(ctx context.Context, url string) ([]byte, error) {
 
 	return body, nil
 }
+
+func (c *Client) Req(req *http.Request) (*http.Response, error) {
+	return c.httpClient.Do(req)
+}

@@ -334,17 +334,6 @@
                 "MatchIMPOSSIBLE"
             ]
         },
-        "domain.Nationality": {
-            "type": "string",
-            "enum": [
-                "DOMESTIC",
-                "FOREIGN"
-            ],
-            "x-enum-varnames": [
-                "NationalityDomestic",
-                "NationalityForeign"
-            ]
-        },
         "domain.PolicyResponse": {
             "type": "object",
             "properties": {
@@ -410,6 +399,9 @@
                 "is_disabled": {
                     "type": "boolean"
                 },
+                "is_foreign": {
+                    "type": "boolean"
+                },
                 "is_pregnant": {
                     "type": "boolean"
                 },
@@ -421,9 +413,6 @@
                 },
                 "name": {
                     "type": "string"
-                },
-                "nationality": {
-                    "$ref": "#/definitions/domain.Nationality"
                 },
                 "region": {
                     "type": "integer"
@@ -448,11 +437,13 @@
                 "email",
                 "gender",
                 "interests",
+                "is_business",
                 "is_disabled",
+                "is_foreign",
+                "is_pregnant",
                 "is_student",
                 "is_youth",
                 "name",
-                "nationality",
                 "password",
                 "region"
             ],
@@ -478,6 +469,9 @@
                 "is_disabled": {
                     "type": "boolean"
                 },
+                "is_foreign": {
+                    "type": "boolean"
+                },
                 "is_pregnant": {
                     "type": "boolean"
                 },
@@ -489,9 +483,6 @@
                 },
                 "name": {
                     "type": "string"
-                },
-                "nationality": {
-                    "$ref": "#/definitions/domain.Nationality"
                 },
                 "password": {
                     "type": "string"

@@ -54,3 +54,22 @@ func cleanAndParseDate(dateStr string) time.Time {
 	}
 	return time.Time{}
 }
+
+func ParseDate(value string) time.Time {
+	value = strings.TrimSpace(value)
+
+	layouts := []string{
+		"20060102",
+		"2006-01-02",
+		"20060102150405",
+		"2006-01-02 15:04:05",
+	}
+
+	for _, layout := range layouts {
+		if t, err := time.ParseInLocation(layout, value, time.Local); err == nil {
+			return t
+		}
+	}
+
+	return time.Time{}
+}

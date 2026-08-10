@@ -19,9 +19,11 @@ import (
 	"github.com/gofiber/fiber/v3/middleware/requestid"
 	"github.com/janghanul090801/pico-backend/api/route"
 	"github.com/janghanul090801/pico-backend/config"
+	"github.com/janghanul090801/pico-backend/external/kakaomap"
 	"github.com/janghanul090801/pico-backend/external/volunteer"
 	"github.com/janghanul090801/pico-backend/external/welfare"
 	"github.com/janghanul090801/pico-backend/external/youth"
+	"github.com/janghanul090801/pico-backend/infra/cron"
 	"github.com/janghanul090801/pico-backend/infra/database"
 	"github.com/janghanul090801/pico-backend/infra/repository"
 	"github.com/janghanul090801/pico-backend/internal/httpclient"
@@ -92,11 +94,12 @@ func main() {
 	youthClient := youth.NewClient(httpClient, config.E.YouthApiKey)
 	welfareClient := welfare.NewClient(httpClient, policyRepository, config.E.WelfareApiKey)
 	volunteerClient := volunteer.NewClient(httpClient, policyRepository, config.E.VolunteerApiKey)
+	kakaoMapClient := kakaomap.NewClient(httpClient, config.E.KakaoMapApiKey)
 
 	// usecase
 	profileUseCase := usecase.NewProfileUseCase(userRepository, timeout)
 	authUseCase := usecase.NewAuthUseCase(userRepository, timeout)
-	policyUseCase := usecase.NewPolicyUseCase(policyRepository, policyMatchRepository, youthClient, welfareClient, volunteerClient, timeout)
+	policyUseCase := usecase.NewPolicyUseCase(policyRepository, policyMatchRepository, youthClient, welfareClient, volunteerClient, kakaoMapClient, timeout)
 
 	// router
 	route.NewLoginRouter(api.Group("/login"), authUseCase)
@@ -104,6 +107,12 @@ func main() {
 	route.NewRefreshTokenRouter(api.Group("/refresh"), authUseCase)
 	route.NewSignupRouter(api.Group("/signup"), authUseCase)
 	route.NewPolicyRouter(api.Group("/policy"), policyUseCase, profileUseCase)
+
+	policyJob := cron.NewPolicyJob(policyUseCase)
+	scheduler := cron.NewScheduler(policyJob)
+
+	scheduler.Start()
+	defer scheduler.Stop()
 
 	app.All("*", func(c fiber.Ctx) error {
 		notFoundErr := fmt.Errorf(
