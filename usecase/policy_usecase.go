@@ -21,10 +21,11 @@ type policyUseCase struct {
 	welfareClient         *welfare.Client
 	volunteerClient       *volunteer.Client
 	kakaoMapClient        *kakaomap.Client
+	matcher               *PolicyMatcher
 	contextTimeout        time.Duration
 }
 
-func NewPolicyUseCase(policyRepository domain.PolicyRepository, policyMatchRepository domain.PolicyMatchRepository, youthClient *youth.Client, welfareClient *welfare.Client, volunteerClient *volunteer.Client, kakaoMapClient *kakaomap.Client, contextTimeout time.Duration) domain.PolicyUseCase {
+func NewPolicyUseCase(policyRepository domain.PolicyRepository, policyMatchRepository domain.PolicyMatchRepository, youthClient *youth.Client, welfareClient *welfare.Client, volunteerClient *volunteer.Client, kakaoMapClient *kakaomap.Client, matcher *PolicyMatcher, contextTimeout time.Duration) domain.PolicyUseCase {
 	return &policyUseCase{
 		policyRepository:      policyRepository,
 		policyMatchRepository: policyMatchRepository,
@@ -32,6 +33,7 @@ func NewPolicyUseCase(policyRepository domain.PolicyRepository, policyMatchRepos
 		welfareClient:         welfareClient,
 		volunteerClient:       volunteerClient,
 		kakaoMapClient:        kakaoMapClient,
+		matcher:               matcher,
 		contextTimeout:        contextTimeout,
 	}
 }
@@ -122,6 +124,13 @@ func (u *policyUseCase) GetFromApi(c context.Context) ([]*domain.Policy, error) 
 	}
 
 	return savedPolicies, nil
+}
+
+func (u *policyUseCase) List(c context.Context) ([]*domain.Policy, error) {
+	ctx, cancel := context.WithTimeout(c, u.contextTimeout)
+	defer cancel()
+
+	return u.policyRepository.FindAll(ctx)
 }
 
 //// FetchMaternityPolicies fetches maternity & childcare support status (도/시 출산장려/양육비 지원현황)

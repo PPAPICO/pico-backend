@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
+	"github.com/janghanul090801/pico-backend/domain"
 	"github.com/janghanul090801/pico-backend/ent/governmentpolicy"
 	"github.com/janghanul090801/pico-backend/ent/policymatch"
 	"github.com/janghanul090801/pico-backend/ent/predicate"
@@ -163,6 +164,20 @@ func (_u *GovernmentPolicyUpdate) AddLongitude(v float64) *GovernmentPolicyUpdat
 	return _u
 }
 
+// SetCondition sets the "condition" field.
+func (_u *GovernmentPolicyUpdate) SetCondition(v domain.PolicyCondition) *GovernmentPolicyUpdate {
+	_u.mutation.SetCondition(v)
+	return _u
+}
+
+// SetNillableCondition sets the "condition" field if the given value is not nil.
+func (_u *GovernmentPolicyUpdate) SetNillableCondition(v *domain.PolicyCondition) *GovernmentPolicyUpdate {
+	if v != nil {
+		_u.SetCondition(*v)
+	}
+	return _u
+}
+
 // AddMatchIDs adds the "matches" edge to the PolicyMatch entity by IDs.
 func (_u *GovernmentPolicyUpdate) AddMatchIDs(ids ...uuid.UUID) *GovernmentPolicyUpdate {
 	_u.mutation.AddMatchIDs(ids...)
@@ -285,6 +300,9 @@ func (_u *GovernmentPolicyUpdate) sqlSave(ctx context.Context) (_node int, err e
 	}
 	if value, ok := _u.mutation.AddedLongitude(); ok {
 		_spec.AddField(governmentpolicy.FieldLongitude, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.Condition(); ok {
+		_spec.SetField(governmentpolicy.FieldCondition, field.TypeJSON, value)
 	}
 	if _u.mutation.MatchesCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -484,6 +502,20 @@ func (_u *GovernmentPolicyUpdateOne) AddLongitude(v float64) *GovernmentPolicyUp
 	return _u
 }
 
+// SetCondition sets the "condition" field.
+func (_u *GovernmentPolicyUpdateOne) SetCondition(v domain.PolicyCondition) *GovernmentPolicyUpdateOne {
+	_u.mutation.SetCondition(v)
+	return _u
+}
+
+// SetNillableCondition sets the "condition" field if the given value is not nil.
+func (_u *GovernmentPolicyUpdateOne) SetNillableCondition(v *domain.PolicyCondition) *GovernmentPolicyUpdateOne {
+	if v != nil {
+		_u.SetCondition(*v)
+	}
+	return _u
+}
+
 // AddMatchIDs adds the "matches" edge to the PolicyMatch entity by IDs.
 func (_u *GovernmentPolicyUpdateOne) AddMatchIDs(ids ...uuid.UUID) *GovernmentPolicyUpdateOne {
 	_u.mutation.AddMatchIDs(ids...)
@@ -636,6 +668,9 @@ func (_u *GovernmentPolicyUpdateOne) sqlSave(ctx context.Context) (_node *Govern
 	}
 	if value, ok := _u.mutation.AddedLongitude(); ok {
 		_spec.AddField(governmentpolicy.FieldLongitude, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.Condition(); ok {
+		_spec.SetField(governmentpolicy.FieldCondition, field.TypeJSON, value)
 	}
 	if _u.mutation.MatchesCleared() {
 		edge := &sqlgraph.EdgeSpec{

@@ -17,6 +17,7 @@ type Policy struct {
 	Address     string
 	Latitude    float64
 	Longitude   float64
+	Condition   PolicyCondition
 }
 
 type PolicyMatch struct {
@@ -61,9 +62,9 @@ func (p *Policy) ToResponse(match *PolicyMatch) *PolicyResponse {
 type Match int
 
 const (
-	MatchPOSSIBLE   Match = iota
-	MatchUNCERTAIN  Match = iota
-	MatchIMPOSSIBLE Match = iota
+	MatchPOSSIBLE Match = iota
+	MatchUNCERTAIN
+	MatchIMPOSSIBLE
 )
 
 type XMLHeader struct {
@@ -157,4 +158,5 @@ type PolicyUseCase interface {
 	ListByRegionCodeAndActive(c context.Context, regionCode int) ([]*Policy, error)
 	GetFromApi(c context.Context) ([]*Policy, error)
 	ListMatchesByUserID(c context.Context, userID *ID) ([]*PolicyMatch, error)
+	List(c context.Context) ([]*Policy, error)
 }

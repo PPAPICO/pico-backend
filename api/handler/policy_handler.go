@@ -47,3 +47,16 @@ func GetPoliciesInMyRegion(policyService domain.PolicyUseCase, profileService do
 		return c.Status(http.StatusOK).JSON(policyResponses)
 	}
 }
+
+func GetAllPolicies(policyService domain.PolicyUseCase) fiber.Handler {
+	return func(c fiber.Ctx) error {
+		ctx := c.RequestCtx()
+
+		policies, err := policyService.List(ctx)
+		if err != nil {
+			return RespondError(c, err)
+		}
+
+		return c.Status(http.StatusOK).JSON(policies)
+	}
+}

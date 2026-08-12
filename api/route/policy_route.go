@@ -8,6 +8,8 @@ import (
 )
 
 func NewPolicyRouter(app fiber.Router, policyService domain.PolicyUseCase, profileService domain.ProfileUseCase) {
+	app.Get("/", handler.GetAllPolicies(policyService))
+
 	// protected
 	protected := app.Group("/protected")
 	protected.Use(middleware.JwtMiddleware)

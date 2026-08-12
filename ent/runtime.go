@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/janghanul090801/pico-backend/domain"
 	"github.com/janghanul090801/pico-backend/ent/governmentpolicy"
 	"github.com/janghanul090801/pico-backend/ent/policymatch"
 	"github.com/janghanul090801/pico-backend/ent/schema"
@@ -22,6 +23,10 @@ func init() {
 	governmentpolicyDescTitle := governmentpolicyFields[1].Descriptor()
 	// governmentpolicy.TitleValidator is a validator for the "title" field. It is called by the builders before save.
 	governmentpolicy.TitleValidator = governmentpolicyDescTitle.Validators[0].(func(string) error)
+	// governmentpolicyDescCondition is the schema descriptor for condition field.
+	governmentpolicyDescCondition := governmentpolicyFields[9].Descriptor()
+	// governmentpolicy.DefaultCondition holds the default value on creation for the condition field.
+	governmentpolicy.DefaultCondition = governmentpolicyDescCondition.Default.(domain.PolicyCondition)
 	// governmentpolicyDescID is the schema descriptor for id field.
 	governmentpolicyDescID := governmentpolicyFields[0].Descriptor()
 	// governmentpolicy.DefaultID holds the default value on creation for the id field.

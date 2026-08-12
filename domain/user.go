@@ -34,16 +34,14 @@ const (
 type Interest string
 
 const (
-	InterestCulture        Interest = "CULTURE"
-	InterestWelfare        Interest = "WELFARE"
-	InterestEnvironment    Interest = "ENVIRONMENT"
-	InterestEmployment     Interest = "EMPLOYMENT"
-	InterestEducation      Interest = "EDUCATION"
-	InterestHousing        Interest = "HOUSING"
-	InterestStartup        Interest = "STARTUP"
-	InterestEconomy        Interest = "ECONOMY"
-	InterestHealthcare     Interest = "HEALTHCARE"
-	InterestTransportation Interest = "TRANSPORTATION"
+	InterestEmployment    Interest = "EMPLOYMENT"
+	InterestHousing       Interest = "HOUSING"
+	InterestEducation     Interest = "EDUCATION"
+	InterestWelfare       Interest = "WELFARE"
+	InterestPregnancy     Interest = "PREGNANCY"
+	InterestCulture       Interest = "CULTURE"
+	InterestEnvironment   Interest = "ENVIRONMENT"
+	InterestParticipation Interest = "PARTICIPATION"
 )
 
 type UserRepository interface {

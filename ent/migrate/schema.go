@@ -19,6 +19,7 @@ var (
 		{Name: "address", Type: field.TypeString},
 		{Name: "latitude", Type: field.TypeFloat64},
 		{Name: "longitude", Type: field.TypeFloat64},
+		{Name: "condition", Type: field.TypeJSON},
 	}
 	// GovernmentPoliciesTable holds the schema information for the "government_policies" table.
 	GovernmentPoliciesTable = &schema.Table{

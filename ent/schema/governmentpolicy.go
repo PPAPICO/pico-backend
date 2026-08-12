@@ -5,6 +5,7 @@ import (
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
+	"github.com/janghanul090801/pico-backend/domain"
 )
 
 type GovernmentPolicy struct {
@@ -33,6 +34,9 @@ func (GovernmentPolicy) Fields() []ent.Field {
 		field.Float("latitude"),
 
 		field.Float("longitude"),
+
+		field.JSON("condition", domain.PolicyCondition{}).
+			Default(domain.PolicyCondition{}),
 	}
 }
 

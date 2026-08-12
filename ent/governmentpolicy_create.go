@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
+	"github.com/janghanul090801/pico-backend/domain"
 	"github.com/janghanul090801/pico-backend/ent/governmentpolicy"
 	"github.com/janghanul090801/pico-backend/ent/policymatch"
 )
@@ -67,6 +68,20 @@ func (_c *GovernmentPolicyCreate) SetLatitude(v float64) *GovernmentPolicyCreate
 // SetLongitude sets the "longitude" field.
 func (_c *GovernmentPolicyCreate) SetLongitude(v float64) *GovernmentPolicyCreate {
 	_c.mutation.SetLongitude(v)
+	return _c
+}
+
+// SetCondition sets the "condition" field.
+func (_c *GovernmentPolicyCreate) SetCondition(v domain.PolicyCondition) *GovernmentPolicyCreate {
+	_c.mutation.SetCondition(v)
+	return _c
+}
+
+// SetNillableCondition sets the "condition" field if the given value is not nil.
+func (_c *GovernmentPolicyCreate) SetNillableCondition(v *domain.PolicyCondition) *GovernmentPolicyCreate {
+	if v != nil {
+		_c.SetCondition(*v)
+	}
 	return _c
 }
 
@@ -134,6 +149,10 @@ func (_c *GovernmentPolicyCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (_c *GovernmentPolicyCreate) defaults() {
+	if _, ok := _c.mutation.Condition(); !ok {
+		v := governmentpolicy.DefaultCondition
+		_c.mutation.SetCondition(v)
+	}
 	if _, ok := _c.mutation.ID(); !ok {
 		v := governmentpolicy.DefaultID()
 		_c.mutation.SetID(v)
@@ -170,6 +189,9 @@ func (_c *GovernmentPolicyCreate) check() error {
 	}
 	if _, ok := _c.mutation.Longitude(); !ok {
 		return &ValidationError{Name: "longitude", err: errors.New(`ent: missing required field "GovernmentPolicy.longitude"`)}
+	}
+	if _, ok := _c.mutation.Condition(); !ok {
+		return &ValidationError{Name: "condition", err: errors.New(`ent: missing required field "GovernmentPolicy.condition"`)}
 	}
 	return nil
 }
@@ -237,6 +259,10 @@ func (_c *GovernmentPolicyCreate) createSpec() (*GovernmentPolicy, *sqlgraph.Cre
 	if value, ok := _c.mutation.Longitude(); ok {
 		_spec.SetField(governmentpolicy.FieldLongitude, field.TypeFloat64, value)
 		_node.Longitude = value
+	}
+	if value, ok := _c.mutation.Condition(); ok {
+		_spec.SetField(governmentpolicy.FieldCondition, field.TypeJSON, value)
+		_node.Condition = value
 	}
 	if nodes := _c.mutation.MatchesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
+	"github.com/janghanul090801/pico-backend/domain"
 	"github.com/janghanul090801/pico-backend/ent/governmentpolicy"
 	"github.com/janghanul090801/pico-backend/ent/policymatch"
 	"github.com/janghanul090801/pico-backend/ent/predicate"
@@ -49,6 +50,7 @@ type GovernmentPolicyMutation struct {
 	addlatitude    *float64
 	longitude      *float64
 	addlongitude   *float64
+	condition      *domain.PolicyCondition
 	clearedFields  map[string]struct{}
 	matches        map[uuid.UUID]struct{}
 	removedmatches map[uuid.UUID]struct{}
@@ -510,6 +512,42 @@ func (m *GovernmentPolicyMutation) ResetLongitude() {
 	m.addlongitude = nil
 }
 
+// SetCondition sets the "condition" field.
+func (m *GovernmentPolicyMutation) SetCondition(dc domain.PolicyCondition) {
+	m.condition = &dc
+}
+
+// Condition returns the value of the "condition" field in the mutation.
+func (m *GovernmentPolicyMutation) Condition() (r domain.PolicyCondition, exists bool) {
+	v := m.condition
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCondition returns the old "condition" field's value of the GovernmentPolicy entity.
+// If the GovernmentPolicy object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GovernmentPolicyMutation) OldCondition(ctx context.Context) (v domain.PolicyCondition, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCondition is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCondition requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCondition: %w", err)
+	}
+	return oldValue.Condition, nil
+}
+
+// ResetCondition resets all changes to the "condition" field.
+func (m *GovernmentPolicyMutation) ResetCondition() {
+	m.condition = nil
+}
+
 // AddMatchIDs adds the "matches" edge to the PolicyMatch entity by ids.
 func (m *GovernmentPolicyMutation) AddMatchIDs(ids ...uuid.UUID) {
 	if m.matches == nil {
@@ -598,7 +636,7 @@ func (m *GovernmentPolicyMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *GovernmentPolicyMutation) Fields() []string {
-	fields := make([]string, 0, 8)
+	fields := make([]string, 0, 9)
 	if m.title != nil {
 		fields = append(fields, governmentpolicy.FieldTitle)
 	}
@@ -622,6 +660,9 @@ func (m *GovernmentPolicyMutation) Fields() []string {
 	}
 	if m.longitude != nil {
 		fields = append(fields, governmentpolicy.FieldLongitude)
+	}
+	if m.condition != nil {
+		fields = append(fields, governmentpolicy.FieldCondition)
 	}
 	return fields
 }
@@ -647,6 +688,8 @@ func (m *GovernmentPolicyMutation) Field(name string) (ent.Value, bool) {
 		return m.Latitude()
 	case governmentpolicy.FieldLongitude:
 		return m.Longitude()
+	case governmentpolicy.FieldCondition:
+		return m.Condition()
 	}
 	return nil, false
 }
@@ -672,6 +715,8 @@ func (m *GovernmentPolicyMutation) OldField(ctx context.Context, name string) (e
 		return m.OldLatitude(ctx)
 	case governmentpolicy.FieldLongitude:
 		return m.OldLongitude(ctx)
+	case governmentpolicy.FieldCondition:
+		return m.OldCondition(ctx)
 	}
 	return nil, fmt.Errorf("unknown GovernmentPolicy field %s", name)
 }
@@ -736,6 +781,13 @@ func (m *GovernmentPolicyMutation) SetField(name string, value ent.Value) error 
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetLongitude(v)
+		return nil
+	case governmentpolicy.FieldCondition:
+		v, ok := value.(domain.PolicyCondition)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCondition(v)
 		return nil
 	}
 	return fmt.Errorf("unknown GovernmentPolicy field %s", name)
@@ -848,6 +900,9 @@ func (m *GovernmentPolicyMutation) ResetField(name string) error {
 		return nil
 	case governmentpolicy.FieldLongitude:
 		m.ResetLongitude()
+		return nil
+	case governmentpolicy.FieldCondition:
+		m.ResetCondition()
 		return nil
 	}
 	return fmt.Errorf("unknown GovernmentPolicy field %s", name)
