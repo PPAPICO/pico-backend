@@ -17,13 +17,13 @@ import (
 // @Success      200  {object}  domain.PolicyResponse
 // @Failure      401  {object}  domain.ErrorResponse  "인증되지 않은 사용자"
 // @Failure      500  {object}  domain.ErrorResponse  "서버 오류"
-// @Router       /policy/protected [get]
+// @Router       /policy/protected/region [get]
 func GetPoliciesInMyRegion(policyService domain.PolicyUseCase, profileService domain.ProfileUseCase) fiber.Handler {
 	return func(c fiber.Ctx) error {
 		ctx := c.RequestCtx()
 		userID := c.Locals("id").(*domain.ID)
 
-		profile, err := profileService.GetProfileByID(ctx, userID)
+		profile, err := profileService.GetByID(ctx, userID)
 		if err != nil {
 			return RespondError(c, err)
 		}
@@ -45,5 +45,28 @@ func GetPoliciesInMyRegion(policyService domain.PolicyUseCase, profileService do
 		})
 
 		return c.Status(http.StatusOK).JSON(policyResponses)
+	}
+}
+
+// GetAllPolicies
+// @Summary      정책 조회
+// @Description  정책 리스트 반환
+// @Tags         Policy
+// @Security     BearerAuth
+// @Produce      json
+// @Success      200  {object}  domain.PolicyResponse
+// @Failure      401  {object}  domain.ErrorResponse  "인증되지 않은 사용자"
+// @Failure      500  {object}  domain.ErrorResponse  "서버 오류"
+// @Router       /policy [get]
+func GetAllPolicies(policyService domain.PolicyUseCase) fiber.Handler {
+	return func(c fiber.Ctx) error {
+		ctx := c.RequestCtx()
+
+		policies, err := policyService.List(ctx)
+		if err != nil {
+			return RespondError(c, err)
+		}
+
+		return c.Status(http.StatusOK).JSON(policies)
 	}
 }

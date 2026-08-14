@@ -24,28 +24,24 @@ definitions:
     - GenderOther
   domain.Interest:
     enum:
-    - CULTURE
-    - WELFARE
-    - ENVIRONMENT
     - EMPLOYMENT
-    - EDUCATION
     - HOUSING
-    - STARTUP
-    - ECONOMY
-    - HEALTHCARE
-    - TRANSPORTATION
+    - EDUCATION
+    - WELFARE
+    - PREGNANCY
+    - CULTURE
+    - ENVIRONMENT
+    - PARTICIPATION
     type: string
     x-enum-varnames:
-    - InterestCulture
-    - InterestWelfare
-    - InterestEnvironment
     - InterestEmployment
-    - InterestEducation
     - InterestHousing
-    - InterestStartup
-    - InterestEconomy
-    - InterestHealthcare
-    - InterestTransportation
+    - InterestEducation
+    - InterestWelfare
+    - InterestPregnancy
+    - InterestCulture
+    - InterestEnvironment
+    - InterestParticipation
   domain.LoginRequest:
     properties:
       email:
@@ -174,7 +170,7 @@ definitions:
     - password
     - region
     type: object
-host: localhost:8000
+host: localhost:8080
 info:
   contact: {}
   description: PICO Backend API
@@ -215,7 +211,30 @@ paths:
       summary: 로그인
       tags:
       - Auth
-  /policy/protected:
+  /policy:
+    get:
+      description: 정책 리스트 반환
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.PolicyResponse'
+        "401":
+          description: 인증되지 않은 사용자
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: 서버 오류
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 정책 조회
+      tags:
+      - Policy
+  /policy/protected/region:
     get:
       description: 현재 로그인한 사용자의 지역에 해당하는 정책 리스트 반환
       produces:
@@ -263,6 +282,32 @@ paths:
       security:
       - BearerAuth: []
       summary: 내 프로필 조회
+      tags:
+      - Profile
+    put:
+      description: 현재 로그인한 사용자의 정보를 수정합니다.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Profile'
+        "401":
+          description: 인증되지 않은 사용자
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "404":
+          description: 프로필을 찾을 수 없음
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: 서버 오류
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 내 정보 수정
       tags:
       - Profile
   /refresh:

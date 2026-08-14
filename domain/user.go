@@ -34,20 +34,19 @@ const (
 type Interest string
 
 const (
-	InterestCulture        Interest = "CULTURE"
-	InterestWelfare        Interest = "WELFARE"
-	InterestEnvironment    Interest = "ENVIRONMENT"
-	InterestEmployment     Interest = "EMPLOYMENT"
-	InterestEducation      Interest = "EDUCATION"
-	InterestHousing        Interest = "HOUSING"
-	InterestStartup        Interest = "STARTUP"
-	InterestEconomy        Interest = "ECONOMY"
-	InterestHealthcare     Interest = "HEALTHCARE"
-	InterestTransportation Interest = "TRANSPORTATION"
+	InterestEmployment    Interest = "EMPLOYMENT"
+	InterestHousing       Interest = "HOUSING"
+	InterestEducation     Interest = "EDUCATION"
+	InterestWelfare       Interest = "WELFARE"
+	InterestPregnancy     Interest = "PREGNANCY"
+	InterestCulture       Interest = "CULTURE"
+	InterestEnvironment   Interest = "ENVIRONMENT"
+	InterestParticipation Interest = "PARTICIPATION"
 )
 
 type UserRepository interface {
 	Create(c context.Context, user *User) (*User, error)
+	Update(c context.Context, user *User) (*User, error)
 	FindAll(c context.Context) ([]*User, error)
 	FindByEmail(c context.Context, email string) (*User, error)
 	FindByID(c context.Context, id *ID) (*User, error)

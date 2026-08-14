@@ -19,6 +19,7 @@ var (
 		{Name: "address", Type: field.TypeString},
 		{Name: "latitude", Type: field.TypeFloat64},
 		{Name: "longitude", Type: field.TypeFloat64},
+		{Name: "condition", Type: field.TypeJSON},
 	}
 	// GovernmentPoliciesTable holds the schema information for the "government_policies" table.
 	GovernmentPoliciesTable = &schema.Table{
@@ -30,6 +31,8 @@ var (
 	PolicyMatchesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
 		{Name: "match", Type: field.TypeEnum, Enums: []string{"POSSIBLE", "UNCERTAIN", "IMPOSSIBLE"}},
+		{Name: "probability", Type: field.TypeInt, Nullable: true},
+		{Name: "comment", Type: field.TypeString, Nullable: true},
 		{Name: "government_policy_matches", Type: field.TypeUUID},
 		{Name: "user_policy_matches", Type: field.TypeUUID},
 	}
@@ -41,13 +44,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "policy_matches_government_policies_matches",
-				Columns:    []*schema.Column{PolicyMatchesColumns[2]},
+				Columns:    []*schema.Column{PolicyMatchesColumns[4]},
 				RefColumns: []*schema.Column{GovernmentPoliciesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "policy_matches_users_policy_matches",
-				Columns:    []*schema.Column{PolicyMatchesColumns[3]},
+				Columns:    []*schema.Column{PolicyMatchesColumns[5]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},

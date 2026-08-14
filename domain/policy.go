@@ -17,13 +17,16 @@ type Policy struct {
 	Address     string
 	Latitude    float64
 	Longitude   float64
+	Condition   PolicyCondition
 }
 
 type PolicyMatch struct {
-	ID       ID
-	PolicyID ID
-	UserID   ID
-	Status   Match
+	ID          ID
+	PolicyID    ID
+	UserID      ID
+	Status      Match
+	Probability *int
+	Comment     *string
 }
 
 type PolicyResponse struct {
@@ -61,9 +64,9 @@ func (p *Policy) ToResponse(match *PolicyMatch) *PolicyResponse {
 type Match int
 
 const (
-	MatchPOSSIBLE   Match = iota
-	MatchUNCERTAIN  Match = iota
-	MatchIMPOSSIBLE Match = iota
+	MatchPOSSIBLE Match = iota
+	MatchUNCERTAIN
+	MatchIMPOSSIBLE
 )
 
 type XMLHeader struct {
@@ -149,7 +152,7 @@ type PolicyMatchRepository interface {
 	FindAllByUserID(c context.Context, userID *ID) ([]*PolicyMatch, error)
 	FindAllByUserIDAndStatus(c context.Context, userID *ID, status Match) ([]*PolicyMatch, error)
 	Create(c context.Context, policyMatch *PolicyMatch) (*PolicyMatch, error)
-	Update(c context.Context, id *ID, status Match) (*PolicyMatch, error)
+	Update(c context.Context, id *ID, status Match, probability *int, comment *string) (*PolicyMatch, error)
 }
 
 type PolicyUseCase interface {
@@ -157,4 +160,6 @@ type PolicyUseCase interface {
 	ListByRegionCodeAndActive(c context.Context, regionCode int) ([]*Policy, error)
 	GetFromApi(c context.Context) ([]*Policy, error)
 	ListMatchesByUserID(c context.Context, userID *ID) ([]*PolicyMatch, error)
+	List(c context.Context) ([]*Policy, error)
+	SavePolicyMatches(c context.Context, user *User, policies []*Policy) ([]*PolicyMatch, error)
 }

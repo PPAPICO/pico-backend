@@ -6,6 +6,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
+	"github.com/janghanul090801/pico-backend/domain"
 )
 
 const (
@@ -29,6 +30,8 @@ const (
 	FieldLatitude = "latitude"
 	// FieldLongitude holds the string denoting the longitude field in the database.
 	FieldLongitude = "longitude"
+	// FieldCondition holds the string denoting the condition field in the database.
+	FieldCondition = "condition"
 	// EdgeMatches holds the string denoting the matches edge name in mutations.
 	EdgeMatches = "matches"
 	// Table holds the table name of the governmentpolicy in the database.
@@ -53,6 +56,7 @@ var Columns = []string{
 	FieldAddress,
 	FieldLatitude,
 	FieldLongitude,
+	FieldCondition,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -68,6 +72,8 @@ func ValidColumn(column string) bool {
 var (
 	// TitleValidator is a validator for the "title" field. It is called by the builders before save.
 	TitleValidator func(string) error
+	// DefaultCondition holds the default value on creation for the "condition" field.
+	DefaultCondition domain.PolicyCondition
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )

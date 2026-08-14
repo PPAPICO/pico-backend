@@ -37,6 +37,7 @@ func toDomainPolicy(p *ent.GovernmentPolicy) *domain.Policy {
 		Address:     p.Address,
 		Latitude:    p.Latitude,
 		Longitude:   p.Longitude,
+		Condition:   p.Condition,
 	}
 }
 

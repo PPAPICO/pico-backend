@@ -21,7 +21,7 @@ func (_m *ProfileUseCase) GetProfileByID(c context.Context, userID *uuid.UUID) (
 	ret := _m.Called(c, userID)
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetProfileByID")
+		panic("no return value specified for GetByID")
 	}
 
 	var r0 *domain.Profile

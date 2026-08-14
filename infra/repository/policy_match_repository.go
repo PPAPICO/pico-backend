@@ -55,15 +55,22 @@ func (r *policyMatchRepository) Create(c context.Context, policyMatch *domain.Po
 	p, err := r.client.PolicyMatch.Create().
 		SetPolicyID(policyMatch.PolicyID).
 		SetUserID(policyMatch.UserID).
-		SetMatch(domainMatchToEntMatch(policyMatch.Status)).Save(c)
+		SetMatch(domainMatchToEntMatch(policyMatch.Status)).
+		SetNillableProbability(policyMatch.Probability).
+		SetNillableComment(policyMatch.Comment).
+		Save(c)
 	if err != nil {
 		return nil, err
 	}
 	return toDomainPolicyMatch(p), nil
 }
 
-func (r *policyMatchRepository) Update(c context.Context, id *domain.ID, status domain.Match) (*domain.PolicyMatch, error) {
-	p, err := r.client.PolicyMatch.UpdateOneID(*id).SetMatch(domainMatchToEntMatch(status)).Save(c)
+func (r *policyMatchRepository) Update(c context.Context, id *domain.ID, status domain.Match, probability *int, comment *string) (*domain.PolicyMatch, error) {
+	p, err := r.client.PolicyMatch.UpdateOneID(*id).
+		SetMatch(domainMatchToEntMatch(status)).
+		SetNillableProbability(probability).
+		SetNillableComment(comment).
+		Save(c)
 	if err != nil {
 		return nil, err
 	}

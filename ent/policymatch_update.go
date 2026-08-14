@@ -44,6 +44,53 @@ func (_u *PolicyMatchUpdate) SetNillableMatch(v *policymatch.Match) *PolicyMatch
 	return _u
 }
 
+// SetProbability sets the "probability" field.
+func (_u *PolicyMatchUpdate) SetProbability(v int) *PolicyMatchUpdate {
+	_u.mutation.ResetProbability()
+	_u.mutation.SetProbability(v)
+	return _u
+}
+
+// SetNillableProbability sets the "probability" field if the given value is not nil.
+func (_u *PolicyMatchUpdate) SetNillableProbability(v *int) *PolicyMatchUpdate {
+	if v != nil {
+		_u.SetProbability(*v)
+	}
+	return _u
+}
+
+// AddProbability adds value to the "probability" field.
+func (_u *PolicyMatchUpdate) AddProbability(v int) *PolicyMatchUpdate {
+	_u.mutation.AddProbability(v)
+	return _u
+}
+
+// ClearProbability clears the value of the "probability" field.
+func (_u *PolicyMatchUpdate) ClearProbability() *PolicyMatchUpdate {
+	_u.mutation.ClearProbability()
+	return _u
+}
+
+// SetComment sets the "comment" field.
+func (_u *PolicyMatchUpdate) SetComment(v string) *PolicyMatchUpdate {
+	_u.mutation.SetComment(v)
+	return _u
+}
+
+// SetNillableComment sets the "comment" field if the given value is not nil.
+func (_u *PolicyMatchUpdate) SetNillableComment(v *string) *PolicyMatchUpdate {
+	if v != nil {
+		_u.SetComment(*v)
+	}
+	return _u
+}
+
+// ClearComment clears the value of the "comment" field.
+func (_u *PolicyMatchUpdate) ClearComment() *PolicyMatchUpdate {
+	_u.mutation.ClearComment()
+	return _u
+}
+
 // SetPolicyID sets the "policy" edge to the GovernmentPolicy entity by ID.
 func (_u *PolicyMatchUpdate) SetPolicyID(id uuid.UUID) *PolicyMatchUpdate {
 	_u.mutation.SetPolicyID(id)
@@ -141,6 +188,21 @@ func (_u *PolicyMatchUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	if value, ok := _u.mutation.Match(); ok {
 		_spec.SetField(policymatch.FieldMatch, field.TypeEnum, value)
 	}
+	if value, ok := _u.mutation.Probability(); ok {
+		_spec.SetField(policymatch.FieldProbability, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedProbability(); ok {
+		_spec.AddField(policymatch.FieldProbability, field.TypeInt, value)
+	}
+	if _u.mutation.ProbabilityCleared() {
+		_spec.ClearField(policymatch.FieldProbability, field.TypeInt)
+	}
+	if value, ok := _u.mutation.Comment(); ok {
+		_spec.SetField(policymatch.FieldComment, field.TypeString, value)
+	}
+	if _u.mutation.CommentCleared() {
+		_spec.ClearField(policymatch.FieldComment, field.TypeString)
+	}
 	if _u.mutation.PolicyCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -230,6 +292,53 @@ func (_u *PolicyMatchUpdateOne) SetNillableMatch(v *policymatch.Match) *PolicyMa
 	if v != nil {
 		_u.SetMatch(*v)
 	}
+	return _u
+}
+
+// SetProbability sets the "probability" field.
+func (_u *PolicyMatchUpdateOne) SetProbability(v int) *PolicyMatchUpdateOne {
+	_u.mutation.ResetProbability()
+	_u.mutation.SetProbability(v)
+	return _u
+}
+
+// SetNillableProbability sets the "probability" field if the given value is not nil.
+func (_u *PolicyMatchUpdateOne) SetNillableProbability(v *int) *PolicyMatchUpdateOne {
+	if v != nil {
+		_u.SetProbability(*v)
+	}
+	return _u
+}
+
+// AddProbability adds value to the "probability" field.
+func (_u *PolicyMatchUpdateOne) AddProbability(v int) *PolicyMatchUpdateOne {
+	_u.mutation.AddProbability(v)
+	return _u
+}
+
+// ClearProbability clears the value of the "probability" field.
+func (_u *PolicyMatchUpdateOne) ClearProbability() *PolicyMatchUpdateOne {
+	_u.mutation.ClearProbability()
+	return _u
+}
+
+// SetComment sets the "comment" field.
+func (_u *PolicyMatchUpdateOne) SetComment(v string) *PolicyMatchUpdateOne {
+	_u.mutation.SetComment(v)
+	return _u
+}
+
+// SetNillableComment sets the "comment" field if the given value is not nil.
+func (_u *PolicyMatchUpdateOne) SetNillableComment(v *string) *PolicyMatchUpdateOne {
+	if v != nil {
+		_u.SetComment(*v)
+	}
+	return _u
+}
+
+// ClearComment clears the value of the "comment" field.
+func (_u *PolicyMatchUpdateOne) ClearComment() *PolicyMatchUpdateOne {
+	_u.mutation.ClearComment()
 	return _u
 }
 
@@ -359,6 +468,21 @@ func (_u *PolicyMatchUpdateOne) sqlSave(ctx context.Context) (_node *PolicyMatch
 	}
 	if value, ok := _u.mutation.Match(); ok {
 		_spec.SetField(policymatch.FieldMatch, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.Probability(); ok {
+		_spec.SetField(policymatch.FieldProbability, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedProbability(); ok {
+		_spec.AddField(policymatch.FieldProbability, field.TypeInt, value)
+	}
+	if _u.mutation.ProbabilityCleared() {
+		_spec.ClearField(policymatch.FieldProbability, field.TypeInt)
+	}
+	if value, ok := _u.mutation.Comment(); ok {
+		_spec.SetField(policymatch.FieldComment, field.TypeString, value)
+	}
+	if _u.mutation.CommentCleared() {
+		_spec.ClearField(policymatch.FieldComment, field.TypeString)
 	}
 	if _u.mutation.PolicyCleared() {
 		edge := &sqlgraph.EdgeSpec{

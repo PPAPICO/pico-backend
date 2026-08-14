@@ -28,6 +28,34 @@ func (_c *PolicyMatchCreate) SetMatch(v policymatch.Match) *PolicyMatchCreate {
 	return _c
 }
 
+// SetProbability sets the "probability" field.
+func (_c *PolicyMatchCreate) SetProbability(v int) *PolicyMatchCreate {
+	_c.mutation.SetProbability(v)
+	return _c
+}
+
+// SetNillableProbability sets the "probability" field if the given value is not nil.
+func (_c *PolicyMatchCreate) SetNillableProbability(v *int) *PolicyMatchCreate {
+	if v != nil {
+		_c.SetProbability(*v)
+	}
+	return _c
+}
+
+// SetComment sets the "comment" field.
+func (_c *PolicyMatchCreate) SetComment(v string) *PolicyMatchCreate {
+	_c.mutation.SetComment(v)
+	return _c
+}
+
+// SetNillableComment sets the "comment" field if the given value is not nil.
+func (_c *PolicyMatchCreate) SetNillableComment(v *string) *PolicyMatchCreate {
+	if v != nil {
+		_c.SetComment(*v)
+	}
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *PolicyMatchCreate) SetID(v uuid.UUID) *PolicyMatchCreate {
 	_c.mutation.SetID(v)
@@ -159,6 +187,14 @@ func (_c *PolicyMatchCreate) createSpec() (*PolicyMatch, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Match(); ok {
 		_spec.SetField(policymatch.FieldMatch, field.TypeEnum, value)
 		_node.Match = value
+	}
+	if value, ok := _c.mutation.Probability(); ok {
+		_spec.SetField(policymatch.FieldProbability, field.TypeInt, value)
+		_node.Probability = &value
+	}
+	if value, ok := _c.mutation.Comment(); ok {
+		_spec.SetField(policymatch.FieldComment, field.TypeString, value)
+		_node.Comment = &value
 	}
 	if nodes := _c.mutation.PolicyIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -10,6 +11,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
+	"github.com/janghanul090801/pico-backend/domain"
 	"github.com/janghanul090801/pico-backend/ent/governmentpolicy"
 )
 
@@ -34,6 +36,8 @@ type GovernmentPolicy struct {
 	Latitude float64 `json:"latitude,omitempty"`
 	// Longitude holds the value of the "longitude" field.
 	Longitude float64 `json:"longitude,omitempty"`
+	// Condition holds the value of the "condition" field.
+	Condition domain.PolicyCondition `json:"condition,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the GovernmentPolicyQuery when eager-loading is set.
 	Edges        GovernmentPolicyEdges `json:"edges"`
@@ -63,6 +67,8 @@ func (*GovernmentPolicy) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case governmentpolicy.FieldCondition:
+			values[i] = new([]byte)
 		case governmentpolicy.FieldLatitude, governmentpolicy.FieldLongitude:
 			values[i] = new(sql.NullFloat64)
 		case governmentpolicy.FieldRegionCode:
@@ -142,6 +148,14 @@ func (_m *GovernmentPolicy) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Longitude = value.Float64
 			}
+		case governmentpolicy.FieldCondition:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field condition", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.Condition); err != nil {
+					return fmt.Errorf("unmarshal field condition: %w", err)
+				}
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -206,6 +220,9 @@ func (_m *GovernmentPolicy) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("longitude=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Longitude))
+	builder.WriteString(", ")
+	builder.WriteString("condition=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Condition))
 	builder.WriteByte(')')
 	return builder.String()
 }

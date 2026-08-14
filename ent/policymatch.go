@@ -21,6 +21,10 @@ type PolicyMatch struct {
 	ID uuid.UUID `json:"id,omitempty"`
 	// Match holds the value of the "match" field.
 	Match policymatch.Match `json:"match,omitempty"`
+	// Probability holds the value of the "probability" field.
+	Probability *int `json:"probability,omitempty"`
+	// Comment holds the value of the "comment" field.
+	Comment *string `json:"comment,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PolicyMatchQuery when eager-loading is set.
 	Edges                     PolicyMatchEdges `json:"edges"`
@@ -67,7 +71,9 @@ func (*PolicyMatch) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case policymatch.FieldMatch:
+		case policymatch.FieldProbability:
+			values[i] = new(sql.NullInt64)
+		case policymatch.FieldMatch, policymatch.FieldComment:
 			values[i] = new(sql.NullString)
 		case policymatch.FieldID:
 			values[i] = new(uuid.UUID)
@@ -101,6 +107,20 @@ func (_m *PolicyMatch) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field match", values[i])
 			} else if value.Valid {
 				_m.Match = policymatch.Match(value.String)
+			}
+		case policymatch.FieldProbability:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field probability", values[i])
+			} else if value.Valid {
+				_m.Probability = new(int)
+				*_m.Probability = int(value.Int64)
+			}
+		case policymatch.FieldComment:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field comment", values[i])
+			} else if value.Valid {
+				_m.Comment = new(string)
+				*_m.Comment = value.String
 			}
 		case policymatch.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
@@ -164,6 +184,16 @@ func (_m *PolicyMatch) String() string {
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("match=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Match))
+	builder.WriteString(", ")
+	if v := _m.Probability; v != nil {
+		builder.WriteString("probability=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.Comment; v != nil {
+		builder.WriteString("comment=")
+		builder.WriteString(*v)
+	}
 	builder.WriteByte(')')
 	return builder.String()
 }

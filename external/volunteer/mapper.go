@@ -42,5 +42,6 @@ func toPolicy(item DetailItem) *domain.Policy {
 		),
 		Latitude:  parser.ParseFloat(item.AreaLalo1),
 		Longitude: parser.ParseFloat(item.AreaLalo2),
+		Condition: normalizeCondition(item),
 	}
 }

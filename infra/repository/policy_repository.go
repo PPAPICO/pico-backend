@@ -78,6 +78,7 @@ func (r *policyRepository) Create(c context.Context, policy *domain.Policy) (*do
 		SetAddress(policy.Address).
 		SetLatitude(policy.Latitude).
 		SetLongitude(policy.Longitude).
+		SetCondition(policy.Condition).
 		Save(c)
 
 	if err != nil {

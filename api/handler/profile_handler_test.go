@@ -37,7 +37,7 @@ func TestFetch(t *testing.T) {
 
 		mockProfileUseCase := new(mocks.ProfileUseCase)
 
-		mockProfileUseCase.On("GetProfileByID", mock.Anything, &userID).Return(mockProfile, nil)
+		mockProfileUseCase.On("GetByID", mock.Anything, &userID).Return(mockProfile, nil)
 
 		app := fiber.New()
 
@@ -70,7 +70,7 @@ func TestFetch(t *testing.T) {
 
 		customErr := errors.New("unexpected")
 
-		mockProfileUseCase.On("GetProfileByID", mock.Anything, &userID).Return(nil, customErr)
+		mockProfileUseCase.On("GetByID", mock.Anything, &userID).Return(nil, customErr)
 
 		app := fiber.New()
 

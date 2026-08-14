@@ -26,3 +26,9 @@ func Find[T any](iterable []T, predicate func(T) bool) *T {
 	}
 	return nil
 }
+
+func ForEach[T any](iterable []T, f func(T)) {
+	for _, item := range iterable {
+		f(item)
+	}
+}

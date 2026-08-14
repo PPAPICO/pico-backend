@@ -17,6 +17,10 @@ const (
 	FieldID = "id"
 	// FieldMatch holds the string denoting the match field in the database.
 	FieldMatch = "match"
+	// FieldProbability holds the string denoting the probability field in the database.
+	FieldProbability = "probability"
+	// FieldComment holds the string denoting the comment field in the database.
+	FieldComment = "comment"
 	// EdgePolicy holds the string denoting the policy edge name in mutations.
 	EdgePolicy = "policy"
 	// EdgeUser holds the string denoting the user edge name in mutations.
@@ -43,6 +47,8 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldMatch,
+	FieldProbability,
+	FieldComment,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "policy_matches"
@@ -107,6 +113,16 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 // ByMatch orders the results by the match field.
 func ByMatch(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldMatch, opts...).ToFunc()
+}
+
+// ByProbability orders the results by the probability field.
+func ByProbability(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldProbability, opts...).ToFunc()
+}
+
+// ByComment orders the results by the comment field.
+func ByComment(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldComment, opts...).ToFunc()
 }
 
 // ByPolicyField orders the results by policy field.

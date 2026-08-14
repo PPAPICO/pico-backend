@@ -41,6 +41,25 @@ func (r *userRepository) Create(c context.Context, u *domain.User) (*domain.User
 	return toDomainUser(userEnt), nil
 }
 
+func (r *userRepository) Update(c context.Context, u *domain.User) (*domain.User, error) {
+	user, err := r.client.User.UpdateOneID(u.ID).
+		SetName(u.Name).
+		SetAge(u.Age).
+		SetRegionCode(u.RegionCode).
+		SetGender(user.Gender(u.Gender)).
+		SetIsStudent(u.IsStudent).
+		SetIsYouth(u.IsYouth).
+		SetInterests(interestsToStrings(u.Interests)).
+		SetIsDisabled(u.IsDisabled).
+		SetIsForeign(u.IsForeign).
+		SetIsPregnant(u.IsPregnant).
+		SetIsBusiness(u.IsBusiness).Save(c)
+	if err != nil {
+		return nil, err
+	}
+	return toDomainUser(user), nil
+}
+
 func (r *userRepository) FindAll(c context.Context) ([]*domain.User, error) {
 	users, err := r.client.User.Query().All(c)
 	if err != nil {
@@ -57,7 +76,6 @@ func (r *userRepository) FindByEmail(c context.Context, email string) (*domain.U
 	if err != nil {
 		return nil, err
 	}
-
 	return toDomainUser(u), nil
 }
 

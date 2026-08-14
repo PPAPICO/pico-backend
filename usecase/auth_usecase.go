@@ -14,12 +14,14 @@ import (
 
 type authUseCase struct {
 	userRepository domain.UserRepository
+	policyUseCase  domain.PolicyUseCase
 	contextTimeout time.Duration
 }
 
-func NewAuthUseCase(userRepository domain.UserRepository, timeout time.Duration) domain.AuthUseCase {
+func NewAuthUseCase(userRepository domain.UserRepository, policyUseCase domain.PolicyUseCase, timeout time.Duration) domain.AuthUseCase {
 	return &authUseCase{
 		userRepository: userRepository,
+		policyUseCase:  policyUseCase,
 		contextTimeout: timeout,
 	}
 }
@@ -30,7 +32,7 @@ func (u *authUseCase) Register(c context.Context, name, email, password string, 
 
 	_, err := u.userRepository.FindByEmail(ctx, email)
 	if err == nil {
-		return nil, domain.NewBadRequestError(err)
+		return nil, domain.NewBadRequestError(errors.New("email already taken"))
 	}
 
 	encrypted, err := bcrypt.GenerateFromPassword(
@@ -56,6 +58,15 @@ func (u *authUseCase) Register(c context.Context, name, email, password string, 
 		IsDisabled: isDisabled,
 		Interests:  interest,
 	})
+	if err != nil {
+		return nil, domain.NewInternalServerError(err)
+	}
+
+	policies, err := u.policyUseCase.List(ctx)
+	if err != nil {
+		return nil, domain.NewInternalServerError(err)
+	}
+	_, err = u.policyUseCase.SavePolicyMatches(ctx, user, policies)
 	if err != nil {
 		return nil, domain.NewInternalServerError(err)
 	}

@@ -67,7 +67,44 @@ const docTemplate = `{
                 }
             }
         },
-        "/policy/protected": {
+        "/policy": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "정책 리스트 반환",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Policy"
+                ],
+                "summary": "정책 조회",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.PolicyResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "인증되지 않은 사용자",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "서버 오류",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/policy/protected/region": {
             "get": {
                 "security": [
                     {
@@ -119,6 +156,47 @@ const docTemplate = `{
                     "Profile"
                 ],
                 "summary": "내 프로필 조회",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Profile"
+                        }
+                    },
+                    "401": {
+                        "description": "인증되지 않은 사용자",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "프로필을 찾을 수 없음",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "서버 오류",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "현재 로그인한 사용자의 정보를 수정합니다.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "내 정보 수정",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -288,28 +366,24 @@ const docTemplate = `{
         "domain.Interest": {
             "type": "string",
             "enum": [
-                "CULTURE",
-                "WELFARE",
-                "ENVIRONMENT",
                 "EMPLOYMENT",
-                "EDUCATION",
                 "HOUSING",
-                "STARTUP",
-                "ECONOMY",
-                "HEALTHCARE",
-                "TRANSPORTATION"
+                "EDUCATION",
+                "WELFARE",
+                "PREGNANCY",
+                "CULTURE",
+                "ENVIRONMENT",
+                "PARTICIPATION"
             ],
             "x-enum-varnames": [
-                "InterestCulture",
-                "InterestWelfare",
-                "InterestEnvironment",
                 "InterestEmployment",
-                "InterestEducation",
                 "InterestHousing",
-                "InterestStartup",
-                "InterestEconomy",
-                "InterestHealthcare",
-                "InterestTransportation"
+                "InterestEducation",
+                "InterestWelfare",
+                "InterestPregnancy",
+                "InterestCulture",
+                "InterestEnvironment",
+                "InterestParticipation"
             ]
         },
         "domain.LoginRequest": {
@@ -504,7 +578,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:8000",
+	Host:             "localhost:8080",
 	BasePath:         "/api",
 	Schemes:          []string{},
 	Title:            "PICO Backend API",

@@ -35,6 +35,7 @@ func toPolicy(item Item) *domain.Policy {
 		Address:     parser.RegionCodeToName(regionCodeInt),
 		Latitude:    0,
 		Longitude:   0,
+		Condition:   normalizeCondition(item),
 	}
 }
 

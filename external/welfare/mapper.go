@@ -52,5 +52,6 @@ func toPolicy(item DetailItem) *domain.Policy {
 		Address:     address,
 		Latitude:    0,
 		Longitude:   0,
+		Condition:   normalizeCondition(item),
 	}
 }
