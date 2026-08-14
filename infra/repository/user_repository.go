@@ -57,7 +57,6 @@ func (r *userRepository) FindByEmail(c context.Context, email string) (*domain.U
 	if err != nil {
 		return nil, err
 	}
-
 	return toDomainUser(u), nil
 }
 

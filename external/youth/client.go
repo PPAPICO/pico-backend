@@ -11,14 +11,16 @@ import (
 )
 
 type Client struct {
-	httpClient *httpclient.Client
-	apiKey     string
+	httpClient       *httpclient.Client
+	policyRepository domain.PolicyRepository
+	apiKey           string
 }
 
-func NewClient(httpClient *httpclient.Client, apiKey string) *Client {
+func NewClient(httpClient *httpclient.Client, policyRepository domain.PolicyRepository, apiKey string) *Client {
 	return &Client{
-		httpClient: httpClient,
-		apiKey:     apiKey,
+		httpClient:       httpClient,
+		policyRepository: policyRepository,
+		apiKey:           apiKey,
 	}
 }
 
@@ -48,6 +50,10 @@ func (c *Client) Fetch(ctx context.Context) ([]*domain.Policy, error) {
 	for _, item := range items {
 		title := strings.TrimSpace(item.PlcyNm)
 		if title == "" {
+			continue
+		}
+		exist, _ := c.policyRepository.FindByTitle(ctx, title)
+		if exist != nil {
 			continue
 		}
 

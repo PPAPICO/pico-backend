@@ -20,11 +20,11 @@ func NewProfileUseCase(userRepository domain.UserRepository, timeout time.Durati
 	}
 }
 
-func (pu *profileUseCase) GetProfileByID(c context.Context, userID *domain.ID) (*domain.Profile, error) {
-	ctx, cancel := context.WithTimeout(c, pu.contextTimeout)
+func (u *profileUseCase) GetProfileByID(c context.Context, userID *domain.ID) (*domain.Profile, error) {
+	ctx, cancel := context.WithTimeout(c, u.contextTimeout)
 	defer cancel()
 
-	user, err := pu.userRepository.FindByID(ctx, userID)
+	user, err := u.userRepository.FindByID(ctx, userID)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return nil, domain.NewNotFoundError(err)

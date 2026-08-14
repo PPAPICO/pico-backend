@@ -54,6 +54,16 @@ func IDLTE(id uuid.UUID) predicate.PolicyMatch {
 	return predicate.PolicyMatch(sql.FieldLTE(FieldID, id))
 }
 
+// Probability applies equality check predicate on the "probability" field. It's identical to ProbabilityEQ.
+func Probability(v int) predicate.PolicyMatch {
+	return predicate.PolicyMatch(sql.FieldEQ(FieldProbability, v))
+}
+
+// Comment applies equality check predicate on the "comment" field. It's identical to CommentEQ.
+func Comment(v string) predicate.PolicyMatch {
+	return predicate.PolicyMatch(sql.FieldEQ(FieldComment, v))
+}
+
 // MatchEQ applies the EQ predicate on the "match" field.
 func MatchEQ(v Match) predicate.PolicyMatch {
 	return predicate.PolicyMatch(sql.FieldEQ(FieldMatch, v))
@@ -72,6 +82,131 @@ func MatchIn(vs ...Match) predicate.PolicyMatch {
 // MatchNotIn applies the NotIn predicate on the "match" field.
 func MatchNotIn(vs ...Match) predicate.PolicyMatch {
 	return predicate.PolicyMatch(sql.FieldNotIn(FieldMatch, vs...))
+}
+
+// ProbabilityEQ applies the EQ predicate on the "probability" field.
+func ProbabilityEQ(v int) predicate.PolicyMatch {
+	return predicate.PolicyMatch(sql.FieldEQ(FieldProbability, v))
+}
+
+// ProbabilityNEQ applies the NEQ predicate on the "probability" field.
+func ProbabilityNEQ(v int) predicate.PolicyMatch {
+	return predicate.PolicyMatch(sql.FieldNEQ(FieldProbability, v))
+}
+
+// ProbabilityIn applies the In predicate on the "probability" field.
+func ProbabilityIn(vs ...int) predicate.PolicyMatch {
+	return predicate.PolicyMatch(sql.FieldIn(FieldProbability, vs...))
+}
+
+// ProbabilityNotIn applies the NotIn predicate on the "probability" field.
+func ProbabilityNotIn(vs ...int) predicate.PolicyMatch {
+	return predicate.PolicyMatch(sql.FieldNotIn(FieldProbability, vs...))
+}
+
+// ProbabilityGT applies the GT predicate on the "probability" field.
+func ProbabilityGT(v int) predicate.PolicyMatch {
+	return predicate.PolicyMatch(sql.FieldGT(FieldProbability, v))
+}
+
+// ProbabilityGTE applies the GTE predicate on the "probability" field.
+func ProbabilityGTE(v int) predicate.PolicyMatch {
+	return predicate.PolicyMatch(sql.FieldGTE(FieldProbability, v))
+}
+
+// ProbabilityLT applies the LT predicate on the "probability" field.
+func ProbabilityLT(v int) predicate.PolicyMatch {
+	return predicate.PolicyMatch(sql.FieldLT(FieldProbability, v))
+}
+
+// ProbabilityLTE applies the LTE predicate on the "probability" field.
+func ProbabilityLTE(v int) predicate.PolicyMatch {
+	return predicate.PolicyMatch(sql.FieldLTE(FieldProbability, v))
+}
+
+// ProbabilityIsNil applies the IsNil predicate on the "probability" field.
+func ProbabilityIsNil() predicate.PolicyMatch {
+	return predicate.PolicyMatch(sql.FieldIsNull(FieldProbability))
+}
+
+// ProbabilityNotNil applies the NotNil predicate on the "probability" field.
+func ProbabilityNotNil() predicate.PolicyMatch {
+	return predicate.PolicyMatch(sql.FieldNotNull(FieldProbability))
+}
+
+// CommentEQ applies the EQ predicate on the "comment" field.
+func CommentEQ(v string) predicate.PolicyMatch {
+	return predicate.PolicyMatch(sql.FieldEQ(FieldComment, v))
+}
+
+// CommentNEQ applies the NEQ predicate on the "comment" field.
+func CommentNEQ(v string) predicate.PolicyMatch {
+	return predicate.PolicyMatch(sql.FieldNEQ(FieldComment, v))
+}
+
+// CommentIn applies the In predicate on the "comment" field.
+func CommentIn(vs ...string) predicate.PolicyMatch {
+	return predicate.PolicyMatch(sql.FieldIn(FieldComment, vs...))
+}
+
+// CommentNotIn applies the NotIn predicate on the "comment" field.
+func CommentNotIn(vs ...string) predicate.PolicyMatch {
+	return predicate.PolicyMatch(sql.FieldNotIn(FieldComment, vs...))
+}
+
+// CommentGT applies the GT predicate on the "comment" field.
+func CommentGT(v string) predicate.PolicyMatch {
+	return predicate.PolicyMatch(sql.FieldGT(FieldComment, v))
+}
+
+// CommentGTE applies the GTE predicate on the "comment" field.
+func CommentGTE(v string) predicate.PolicyMatch {
+	return predicate.PolicyMatch(sql.FieldGTE(FieldComment, v))
+}
+
+// CommentLT applies the LT predicate on the "comment" field.
+func CommentLT(v string) predicate.PolicyMatch {
+	return predicate.PolicyMatch(sql.FieldLT(FieldComment, v))
+}
+
+// CommentLTE applies the LTE predicate on the "comment" field.
+func CommentLTE(v string) predicate.PolicyMatch {
+	return predicate.PolicyMatch(sql.FieldLTE(FieldComment, v))
+}
+
+// CommentContains applies the Contains predicate on the "comment" field.
+func CommentContains(v string) predicate.PolicyMatch {
+	return predicate.PolicyMatch(sql.FieldContains(FieldComment, v))
+}
+
+// CommentHasPrefix applies the HasPrefix predicate on the "comment" field.
+func CommentHasPrefix(v string) predicate.PolicyMatch {
+	return predicate.PolicyMatch(sql.FieldHasPrefix(FieldComment, v))
+}
+
+// CommentHasSuffix applies the HasSuffix predicate on the "comment" field.
+func CommentHasSuffix(v string) predicate.PolicyMatch {
+	return predicate.PolicyMatch(sql.FieldHasSuffix(FieldComment, v))
+}
+
+// CommentIsNil applies the IsNil predicate on the "comment" field.
+func CommentIsNil() predicate.PolicyMatch {
+	return predicate.PolicyMatch(sql.FieldIsNull(FieldComment))
+}
+
+// CommentNotNil applies the NotNil predicate on the "comment" field.
+func CommentNotNil() predicate.PolicyMatch {
+	return predicate.PolicyMatch(sql.FieldNotNull(FieldComment))
+}
+
+// CommentEqualFold applies the EqualFold predicate on the "comment" field.
+func CommentEqualFold(v string) predicate.PolicyMatch {
+	return predicate.PolicyMatch(sql.FieldEqualFold(FieldComment, v))
+}
+
+// CommentContainsFold applies the ContainsFold predicate on the "comment" field.
+func CommentContainsFold(v string) predicate.PolicyMatch {
+	return predicate.PolicyMatch(sql.FieldContainsFold(FieldComment, v))
 }
 
 // HasPolicy applies the HasEdge predicate on the "policy" edge.

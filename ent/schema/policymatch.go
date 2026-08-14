@@ -24,6 +24,12 @@ func (PolicyMatch) Fields() []ent.Field {
 				"UNCERTAIN",
 				"IMPOSSIBLE",
 			),
+		field.Int("probability").
+			Nillable().
+			Optional(),
+		field.String("comment").
+			Nillable().
+			Optional(),
 	}
 }
 

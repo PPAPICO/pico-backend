@@ -35,7 +35,7 @@ import (
 // @title          PICO Backend API
 // @version        1.0
 // @description    PICO Backend API
-// @host			localhost:8000
+// @host			localhost:8080
 // @BasePath		/api
 func main() {
 	config.NewEnv()
@@ -91,15 +91,16 @@ func main() {
 	policyMatchRepository := repository.NewPolicyMatchRepository(client)
 
 	// external client
-	youthClient := youth.NewClient(httpClient, config.E.YouthApiKey)
+	youthClient := youth.NewClient(httpClient, policyRepository, config.E.YouthApiKey)
 	welfareClient := welfare.NewClient(httpClient, policyRepository, config.E.WelfareApiKey)
 	volunteerClient := volunteer.NewClient(httpClient, policyRepository, config.E.VolunteerApiKey)
 	kakaoMapClient := kakaomap.NewClient(httpClient, config.E.KakaoMapApiKey)
 
 	// usecase
 	profileUseCase := usecase.NewProfileUseCase(userRepository, timeout)
-	authUseCase := usecase.NewAuthUseCase(userRepository, timeout)
-	policyUseCase := usecase.NewPolicyUseCase(policyRepository, policyMatchRepository, youthClient, welfareClient, volunteerClient, kakaoMapClient, timeout)
+	matcher := usecase.NewPolicyMatcher()
+	policyUseCase := usecase.NewPolicyUseCase(policyRepository, policyMatchRepository, userRepository, youthClient, welfareClient, volunteerClient, kakaoMapClient, matcher, timeout)
+	authUseCase := usecase.NewAuthUseCase(userRepository, policyUseCase, timeout)
 
 	// router
 	route.NewLoginRouter(api.Group("/login"), authUseCase)
@@ -108,7 +109,7 @@ func main() {
 	route.NewSignupRouter(api.Group("/signup"), authUseCase)
 	route.NewPolicyRouter(api.Group("/policy"), policyUseCase, profileUseCase)
 
-	policyJob := cron.NewPolicyJob(policyUseCase)
+	policyJob := cron.NewPolicyJob(policyUseCase, userRepository)
 	scheduler := cron.NewScheduler(policyJob)
 
 	scheduler.Start()

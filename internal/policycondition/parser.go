@@ -41,12 +41,18 @@ var (
 	rangeAgeRegex = regexp.MustCompile(
 		`(?:만\s*)?(\d+)\s*세?\s*(?:~|-|부터)\s*(?:만\s*)?(\d+)\s*세?`,
 	)
+
+	timeRangeRegex = regexp.MustCompile(
+		`\b\d{1,2}:\d{2}\s*[-~]\s*\d{1,2}:\d{2}\b`,
+	)
 )
 
 func (p *Parser) parseAge(
 	text string,
 	condition *domain.PolicyCondition,
 ) {
+	text = timeRangeRegex.ReplaceAllString(text, "")
+
 	if matches := rangeAgeRegex.FindStringSubmatch(text); len(matches) == 3 {
 		minAge, err1 := strconv.Atoi(matches[1])
 		maxAge, err2 := strconv.Atoi(matches[2])
@@ -100,13 +106,13 @@ func (p *Parser) parseKeywords(
 		condition.RequirePregnant = new(true)
 	}
 
-	if containsAny(text,
-		"장애인",
-		"등록 장애인",
-		"등록장애인",
-	) {
-		condition.RequireDisabled = new(true)
-	}
+	//if containsAny(text,
+	//	"장애인",
+	//	"등록 장애인",
+	//	"등록장애인",
+	//) {
+	//	condition.RequireDisabled = new(true)
+	//}
 
 	if containsAny(text,
 		"외국인",

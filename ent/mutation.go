@@ -995,18 +995,21 @@ func (m *GovernmentPolicyMutation) ResetEdge(name string) error {
 // PolicyMatchMutation represents an operation that mutates the PolicyMatch nodes in the graph.
 type PolicyMatchMutation struct {
 	config
-	op            Op
-	typ           string
-	id            *uuid.UUID
-	match         *policymatch.Match
-	clearedFields map[string]struct{}
-	policy        *uuid.UUID
-	clearedpolicy bool
-	user          *uuid.UUID
-	cleareduser   bool
-	done          bool
-	oldValue      func(context.Context) (*PolicyMatch, error)
-	predicates    []predicate.PolicyMatch
+	op             Op
+	typ            string
+	id             *uuid.UUID
+	match          *policymatch.Match
+	probability    *int
+	addprobability *int
+	comment        *string
+	clearedFields  map[string]struct{}
+	policy         *uuid.UUID
+	clearedpolicy  bool
+	user           *uuid.UUID
+	cleareduser    bool
+	done           bool
+	oldValue       func(context.Context) (*PolicyMatch, error)
+	predicates     []predicate.PolicyMatch
 }
 
 var _ ent.Mutation = (*PolicyMatchMutation)(nil)
@@ -1149,6 +1152,125 @@ func (m *PolicyMatchMutation) ResetMatch() {
 	m.match = nil
 }
 
+// SetProbability sets the "probability" field.
+func (m *PolicyMatchMutation) SetProbability(i int) {
+	m.probability = &i
+	m.addprobability = nil
+}
+
+// Probability returns the value of the "probability" field in the mutation.
+func (m *PolicyMatchMutation) Probability() (r int, exists bool) {
+	v := m.probability
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldProbability returns the old "probability" field's value of the PolicyMatch entity.
+// If the PolicyMatch object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PolicyMatchMutation) OldProbability(ctx context.Context) (v *int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldProbability is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldProbability requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldProbability: %w", err)
+	}
+	return oldValue.Probability, nil
+}
+
+// AddProbability adds i to the "probability" field.
+func (m *PolicyMatchMutation) AddProbability(i int) {
+	if m.addprobability != nil {
+		*m.addprobability += i
+	} else {
+		m.addprobability = &i
+	}
+}
+
+// AddedProbability returns the value that was added to the "probability" field in this mutation.
+func (m *PolicyMatchMutation) AddedProbability() (r int, exists bool) {
+	v := m.addprobability
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearProbability clears the value of the "probability" field.
+func (m *PolicyMatchMutation) ClearProbability() {
+	m.probability = nil
+	m.addprobability = nil
+	m.clearedFields[policymatch.FieldProbability] = struct{}{}
+}
+
+// ProbabilityCleared returns if the "probability" field was cleared in this mutation.
+func (m *PolicyMatchMutation) ProbabilityCleared() bool {
+	_, ok := m.clearedFields[policymatch.FieldProbability]
+	return ok
+}
+
+// ResetProbability resets all changes to the "probability" field.
+func (m *PolicyMatchMutation) ResetProbability() {
+	m.probability = nil
+	m.addprobability = nil
+	delete(m.clearedFields, policymatch.FieldProbability)
+}
+
+// SetComment sets the "comment" field.
+func (m *PolicyMatchMutation) SetComment(s string) {
+	m.comment = &s
+}
+
+// Comment returns the value of the "comment" field in the mutation.
+func (m *PolicyMatchMutation) Comment() (r string, exists bool) {
+	v := m.comment
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldComment returns the old "comment" field's value of the PolicyMatch entity.
+// If the PolicyMatch object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PolicyMatchMutation) OldComment(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldComment is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldComment requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldComment: %w", err)
+	}
+	return oldValue.Comment, nil
+}
+
+// ClearComment clears the value of the "comment" field.
+func (m *PolicyMatchMutation) ClearComment() {
+	m.comment = nil
+	m.clearedFields[policymatch.FieldComment] = struct{}{}
+}
+
+// CommentCleared returns if the "comment" field was cleared in this mutation.
+func (m *PolicyMatchMutation) CommentCleared() bool {
+	_, ok := m.clearedFields[policymatch.FieldComment]
+	return ok
+}
+
+// ResetComment resets all changes to the "comment" field.
+func (m *PolicyMatchMutation) ResetComment() {
+	m.comment = nil
+	delete(m.clearedFields, policymatch.FieldComment)
+}
+
 // SetPolicyID sets the "policy" edge to the GovernmentPolicy entity by id.
 func (m *PolicyMatchMutation) SetPolicyID(id uuid.UUID) {
 	m.policy = &id
@@ -1261,9 +1383,15 @@ func (m *PolicyMatchMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PolicyMatchMutation) Fields() []string {
-	fields := make([]string, 0, 1)
+	fields := make([]string, 0, 3)
 	if m.match != nil {
 		fields = append(fields, policymatch.FieldMatch)
+	}
+	if m.probability != nil {
+		fields = append(fields, policymatch.FieldProbability)
+	}
+	if m.comment != nil {
+		fields = append(fields, policymatch.FieldComment)
 	}
 	return fields
 }
@@ -1275,6 +1403,10 @@ func (m *PolicyMatchMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case policymatch.FieldMatch:
 		return m.Match()
+	case policymatch.FieldProbability:
+		return m.Probability()
+	case policymatch.FieldComment:
+		return m.Comment()
 	}
 	return nil, false
 }
@@ -1286,6 +1418,10 @@ func (m *PolicyMatchMutation) OldField(ctx context.Context, name string) (ent.Va
 	switch name {
 	case policymatch.FieldMatch:
 		return m.OldMatch(ctx)
+	case policymatch.FieldProbability:
+		return m.OldProbability(ctx)
+	case policymatch.FieldComment:
+		return m.OldComment(ctx)
 	}
 	return nil, fmt.Errorf("unknown PolicyMatch field %s", name)
 }
@@ -1302,6 +1438,20 @@ func (m *PolicyMatchMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetMatch(v)
 		return nil
+	case policymatch.FieldProbability:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetProbability(v)
+		return nil
+	case policymatch.FieldComment:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetComment(v)
+		return nil
 	}
 	return fmt.Errorf("unknown PolicyMatch field %s", name)
 }
@@ -1309,13 +1459,21 @@ func (m *PolicyMatchMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *PolicyMatchMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	if m.addprobability != nil {
+		fields = append(fields, policymatch.FieldProbability)
+	}
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *PolicyMatchMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case policymatch.FieldProbability:
+		return m.AddedProbability()
+	}
 	return nil, false
 }
 
@@ -1324,6 +1482,13 @@ func (m *PolicyMatchMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *PolicyMatchMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case policymatch.FieldProbability:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddProbability(v)
+		return nil
 	}
 	return fmt.Errorf("unknown PolicyMatch numeric field %s", name)
 }
@@ -1331,7 +1496,14 @@ func (m *PolicyMatchMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *PolicyMatchMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(policymatch.FieldProbability) {
+		fields = append(fields, policymatch.FieldProbability)
+	}
+	if m.FieldCleared(policymatch.FieldComment) {
+		fields = append(fields, policymatch.FieldComment)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -1344,6 +1516,14 @@ func (m *PolicyMatchMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *PolicyMatchMutation) ClearField(name string) error {
+	switch name {
+	case policymatch.FieldProbability:
+		m.ClearProbability()
+		return nil
+	case policymatch.FieldComment:
+		m.ClearComment()
+		return nil
+	}
 	return fmt.Errorf("unknown PolicyMatch nullable field %s", name)
 }
 
@@ -1353,6 +1533,12 @@ func (m *PolicyMatchMutation) ResetField(name string) error {
 	switch name {
 	case policymatch.FieldMatch:
 		m.ResetMatch()
+		return nil
+	case policymatch.FieldProbability:
+		m.ResetProbability()
+		return nil
+	case policymatch.FieldComment:
+		m.ResetComment()
 		return nil
 	}
 	return fmt.Errorf("unknown PolicyMatch field %s", name)

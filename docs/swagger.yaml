@@ -24,28 +24,24 @@ definitions:
     - GenderOther
   domain.Interest:
     enum:
-    - CULTURE
-    - WELFARE
-    - ENVIRONMENT
     - EMPLOYMENT
-    - EDUCATION
     - HOUSING
-    - STARTUP
-    - ECONOMY
-    - HEALTHCARE
-    - TRANSPORTATION
+    - EDUCATION
+    - WELFARE
+    - PREGNANCY
+    - CULTURE
+    - ENVIRONMENT
+    - PARTICIPATION
     type: string
     x-enum-varnames:
-    - InterestCulture
-    - InterestWelfare
-    - InterestEnvironment
     - InterestEmployment
-    - InterestEducation
     - InterestHousing
-    - InterestStartup
-    - InterestEconomy
-    - InterestHealthcare
-    - InterestTransportation
+    - InterestEducation
+    - InterestWelfare
+    - InterestPregnancy
+    - InterestCulture
+    - InterestEnvironment
+    - InterestParticipation
   domain.LoginRequest:
     properties:
       email:
@@ -174,7 +170,7 @@ definitions:
     - password
     - region
     type: object
-host: localhost:8000
+host: localhost:8080
 info:
   contact: {}
   description: PICO Backend API

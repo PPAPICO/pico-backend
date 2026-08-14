@@ -17,6 +17,7 @@ import (
 type policyUseCase struct {
 	policyRepository      domain.PolicyRepository
 	policyMatchRepository domain.PolicyMatchRepository
+	userRepository        domain.UserRepository
 	youthClient           *youth.Client
 	welfareClient         *welfare.Client
 	volunteerClient       *volunteer.Client
@@ -25,10 +26,21 @@ type policyUseCase struct {
 	contextTimeout        time.Duration
 }
 
-func NewPolicyUseCase(policyRepository domain.PolicyRepository, policyMatchRepository domain.PolicyMatchRepository, youthClient *youth.Client, welfareClient *welfare.Client, volunteerClient *volunteer.Client, kakaoMapClient *kakaomap.Client, matcher *PolicyMatcher, contextTimeout time.Duration) domain.PolicyUseCase {
+func NewPolicyUseCase(
+	policyRepository domain.PolicyRepository,
+	policyMatchRepository domain.PolicyMatchRepository,
+	userRepository domain.UserRepository,
+	youthClient *youth.Client,
+	welfareClient *welfare.Client,
+	volunteerClient *volunteer.Client,
+	kakaoMapClient *kakaomap.Client,
+	matcher *PolicyMatcher,
+	contextTimeout time.Duration,
+) domain.PolicyUseCase {
 	return &policyUseCase{
 		policyRepository:      policyRepository,
 		policyMatchRepository: policyMatchRepository,
+		userRepository:        userRepository,
 		youthClient:           youthClient,
 		welfareClient:         welfareClient,
 		volunteerClient:       volunteerClient,
@@ -131,6 +143,31 @@ func (u *policyUseCase) List(c context.Context) ([]*domain.Policy, error) {
 	defer cancel()
 
 	return u.policyRepository.FindAll(ctx)
+}
+
+func (u *policyUseCase) SavePolicyMatches(c context.Context, user *domain.User, policies []*domain.Policy) ([]*domain.PolicyMatch, error) {
+	ctx, cancel := context.WithTimeout(c, u.contextTimeout*100)
+	defer cancel()
+
+	var match *domain.PolicyMatch
+	var err error
+	matches := make([]*domain.PolicyMatch, len(policies))
+
+	for i, policy := range policies {
+		status := u.matcher.Match(user, policy)
+		// TODO: ai api 연동하기
+		match = &domain.PolicyMatch{
+			PolicyID: policy.ID,
+			UserID:   user.ID,
+			Status:   status,
+		}
+		matches[i], err = u.policyMatchRepository.Create(ctx, match)
+		if err != nil {
+			return nil, domain.NewInternalServerError(err)
+		}
+	}
+
+	return matches, nil
 }
 
 //// FetchMaternityPolicies fetches maternity & childcare support status (도/시 출산장려/양육비 지원현황)

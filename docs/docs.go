@@ -288,28 +288,24 @@ const docTemplate = `{
         "domain.Interest": {
             "type": "string",
             "enum": [
-                "CULTURE",
-                "WELFARE",
-                "ENVIRONMENT",
                 "EMPLOYMENT",
-                "EDUCATION",
                 "HOUSING",
-                "STARTUP",
-                "ECONOMY",
-                "HEALTHCARE",
-                "TRANSPORTATION"
+                "EDUCATION",
+                "WELFARE",
+                "PREGNANCY",
+                "CULTURE",
+                "ENVIRONMENT",
+                "PARTICIPATION"
             ],
             "x-enum-varnames": [
-                "InterestCulture",
-                "InterestWelfare",
-                "InterestEnvironment",
                 "InterestEmployment",
-                "InterestEducation",
                 "InterestHousing",
-                "InterestStartup",
-                "InterestEconomy",
-                "InterestHealthcare",
-                "InterestTransportation"
+                "InterestEducation",
+                "InterestWelfare",
+                "InterestPregnancy",
+                "InterestCulture",
+                "InterestEnvironment",
+                "InterestParticipation"
             ]
         },
         "domain.LoginRequest": {
@@ -504,7 +500,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:8000",
+	Host:             "localhost:8080",
 	BasePath:         "/api",
 	Schemes:          []string{},
 	Title:            "PICO Backend API",
