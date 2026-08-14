@@ -67,7 +67,44 @@ const docTemplate = `{
                 }
             }
         },
-        "/policy/protected": {
+        "/policy": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "정책 리스트 반환",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Policy"
+                ],
+                "summary": "정책 조회",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.PolicyResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "인증되지 않은 사용자",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "서버 오류",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/policy/protected/region": {
             "get": {
                 "security": [
                     {

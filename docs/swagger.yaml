@@ -211,7 +211,30 @@ paths:
       summary: 로그인
       tags:
       - Auth
-  /policy/protected:
+  /policy:
+    get:
+      description: 정책 리스트 반환
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.PolicyResponse'
+        "401":
+          description: 인증되지 않은 사용자
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: 서버 오류
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 정책 조회
+      tags:
+      - Policy
+  /policy/protected/region:
     get:
       description: 현재 로그인한 사용자의 지역에 해당하는 정책 리스트 반환
       produces:
