@@ -22,6 +22,22 @@ type Profile struct {
 	CreatedAt  time.Time  `json:"created_at"`
 }
 
+type ProfileUpdateRequest struct {
+	Name       string     `form:"name" binding:"required"`
+	Password   string     `form:"password" binding:"required"`
+	Age        int        `form:"age" binding:"required"`
+	RegionCode int        `form:"region" binding:"required"`
+	Gender     Gender     `form:"gender" binding:"required"`
+	IsStudent  bool       `form:"is_student" binding:"required"`
+	IsYouth    bool       `form:"is_youth" binding:"required"`
+	IsPregnant bool       `form:"is_pregnant" binding:"required"`
+	IsBusiness bool       `form:"is_business" binding:"required"`
+	IsDisabled bool       `json:"is_disabled" binding:"required"`
+	IsForeign  bool       `json:"is_foreign" binding:"required"`
+	Interests  []Interest `form:"interests" binding:"required"`
+}
+
 type ProfileUseCase interface {
-	GetProfileByID(c context.Context, userID *ID) (*Profile, error)
+	GetByID(c context.Context, userID *ID) (*Profile, error)
+	Update(c context.Context, ID *ID, params *ProfileUpdateRequest) (*Profile, error)
 }

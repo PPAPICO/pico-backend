@@ -23,7 +23,39 @@ func FetchProfile(service domain.ProfileUseCase) fiber.Handler {
 		ctx := c.RequestCtx()
 		userID := c.Locals("id").(*domain.ID)
 
-		profile, err := service.GetProfileByID(ctx, userID)
+		profile, err := service.GetByID(ctx, userID)
+		if err != nil {
+			return RespondError(c, err)
+		}
+
+		return c.Status(http.StatusOK).JSON(profile)
+	}
+}
+
+// UpdateProfile
+// @Summary      내 정보 수정
+// @Description  현재 로그인한 사용자의 정보를 수정합니다.
+// @Tags         Profile
+// @Security     BearerAuth
+// @Produce      json
+// @Success      200  {object}  domain.Profile
+// @Failure      401  {object}  domain.ErrorResponse  "인증되지 않은 사용자"
+// @Failure      404  {object}  domain.ErrorResponse  "프로필을 찾을 수 없음"
+// @Failure      500  {object}  domain.ErrorResponse  "서버 오류"
+// @Router       /profile/protected [put]
+func UpdateProfile(service domain.ProfileUseCase) fiber.Handler {
+	return func(c fiber.Ctx) error {
+		ctx := c.RequestCtx()
+		userID := c.Locals("id").(*domain.ID)
+
+		var request domain.ProfileUpdateRequest
+
+		err := c.Bind().Body(&request)
+		if err != nil {
+			return c.Status(http.StatusBadRequest).JSON(domain.ErrorResponse{Message: err.Error()})
+		}
+
+		profile, err := service.Update(ctx, userID, &request)
 		if err != nil {
 			return RespondError(c, err)
 		}
