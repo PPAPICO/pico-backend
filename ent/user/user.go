@@ -46,6 +46,8 @@ const (
 	FieldCreatedAt = "created_at"
 	// EdgePolicyMatches holds the string denoting the policy_matches edge name in mutations.
 	EdgePolicyMatches = "policy_matches"
+	// EdgeNotifications holds the string denoting the notifications edge name in mutations.
+	EdgeNotifications = "notifications"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// PolicyMatchesTable is the table that holds the policy_matches relation/edge.
@@ -55,6 +57,13 @@ const (
 	PolicyMatchesInverseTable = "policy_matches"
 	// PolicyMatchesColumn is the table column denoting the policy_matches relation/edge.
 	PolicyMatchesColumn = "user_policy_matches"
+	// NotificationsTable is the table that holds the notifications relation/edge.
+	NotificationsTable = "notifications"
+	// NotificationsInverseTable is the table name for the Notification entity.
+	// It exists in this package in order to avoid circular dependency with the "notification" package.
+	NotificationsInverseTable = "notifications"
+	// NotificationsColumn is the table column denoting the notifications relation/edge.
+	NotificationsColumn = "user_notifications"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -221,10 +230,31 @@ func ByPolicyMatches(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newPolicyMatchesStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByNotificationsCount orders the results by notifications count.
+func ByNotificationsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newNotificationsStep(), opts...)
+	}
+}
+
+// ByNotifications orders the results by notifications terms.
+func ByNotifications(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newNotificationsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newPolicyMatchesStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(PolicyMatchesInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, PolicyMatchesTable, PolicyMatchesColumn),
+	)
+}
+func newNotificationsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(NotificationsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, NotificationsTable, NotificationsColumn),
 	)
 }

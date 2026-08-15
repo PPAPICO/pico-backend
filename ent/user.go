@@ -57,9 +57,11 @@ type User struct {
 type UserEdges struct {
 	// PolicyMatches holds the value of the policy_matches edge.
 	PolicyMatches []*PolicyMatch `json:"policy_matches,omitempty"`
+	// Notifications holds the value of the notifications edge.
+	Notifications []*Notification `json:"notifications,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
 // PolicyMatchesOrErr returns the PolicyMatches value or an error if the edge
@@ -69,6 +71,15 @@ func (e UserEdges) PolicyMatchesOrErr() ([]*PolicyMatch, error) {
 		return e.PolicyMatches, nil
 	}
 	return nil, &NotLoadedError{edge: "policy_matches"}
+}
+
+// NotificationsOrErr returns the Notifications value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) NotificationsOrErr() ([]*Notification, error) {
+	if e.loadedTypes[1] {
+		return e.Notifications, nil
+	}
+	return nil, &NotLoadedError{edge: "notifications"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -211,6 +222,11 @@ func (_m *User) Value(name string) (ent.Value, error) {
 // QueryPolicyMatches queries the "policy_matches" edge of the User entity.
 func (_m *User) QueryPolicyMatches() *PolicyMatchQuery {
 	return NewUserClient(_m.config).QueryPolicyMatches(_m)
+}
+
+// QueryNotifications queries the "notifications" edge of the User entity.
+func (_m *User) QueryNotifications() *NotificationQuery {
+	return NewUserClient(_m.config).QueryNotifications(_m)
 }
 
 // Update returns a builder for updating this User.

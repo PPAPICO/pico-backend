@@ -14,6 +14,8 @@ type Tx struct {
 	config
 	// GovernmentPolicy is the client for interacting with the GovernmentPolicy builders.
 	GovernmentPolicy *GovernmentPolicyClient
+	// Notification is the client for interacting with the Notification builders.
+	Notification *NotificationClient
 	// PolicyMatch is the client for interacting with the PolicyMatch builders.
 	PolicyMatch *PolicyMatchClient
 	// User is the client for interacting with the User builders.
@@ -150,6 +152,7 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.GovernmentPolicy = NewGovernmentPolicyClient(tx.config)
+	tx.Notification = NewNotificationClient(tx.config)
 	tx.PolicyMatch = NewPolicyMatchClient(tx.config)
 	tx.User = NewUserClient(tx.config)
 }

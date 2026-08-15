@@ -50,6 +50,18 @@ func toDomainPolicyMatch(pm *ent.PolicyMatch) *domain.PolicyMatch {
 	}
 }
 
+func toDomainNotification(n *ent.Notification) *domain.Notification {
+	return &domain.Notification{
+		ID:         n.ID,
+		ReceiverID: n.Edges.Receiver.ID,
+		Type:       domain.NotificationType(n.Type),
+		Message:    n.Message,
+		Metadata:   n.Metadata,
+		IsRead:     n.IsRead,
+		CreatedAt:  n.CreatedAt,
+	}
+}
+
 func interestsToStrings(interests []domain.Interest) []string {
 	result := make([]string, len(interests))
 	for i, v := range interests {

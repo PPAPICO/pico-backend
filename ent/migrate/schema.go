@@ -27,6 +27,30 @@ var (
 		Columns:    GovernmentPoliciesColumns,
 		PrimaryKey: []*schema.Column{GovernmentPoliciesColumns[0]},
 	}
+	// NotificationsColumns holds the columns for the "notifications" table.
+	NotificationsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "type", Type: field.TypeInt},
+		{Name: "message", Type: field.TypeString},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
+		{Name: "is_read", Type: field.TypeBool, Default: false},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "user_notifications", Type: field.TypeUUID},
+	}
+	// NotificationsTable holds the schema information for the "notifications" table.
+	NotificationsTable = &schema.Table{
+		Name:       "notifications",
+		Columns:    NotificationsColumns,
+		PrimaryKey: []*schema.Column{NotificationsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "notifications_users_notifications",
+				Columns:    []*schema.Column{NotificationsColumns[6]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+	}
 	// PolicyMatchesColumns holds the columns for the "policy_matches" table.
 	PolicyMatchesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
@@ -83,12 +107,14 @@ var (
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		GovernmentPoliciesTable,
+		NotificationsTable,
 		PolicyMatchesTable,
 		UsersTable,
 	}
 )
 
 func init() {
+	NotificationsTable.ForeignKeys[0].RefTable = UsersTable
 	PolicyMatchesTable.ForeignKeys[0].RefTable = GovernmentPoliciesTable
 	PolicyMatchesTable.ForeignKeys[1].RefTable = UsersTable
 }

@@ -9,6 +9,9 @@ import (
 // GovernmentPolicy is the predicate function for governmentpolicy builders.
 type GovernmentPolicy func(*sql.Selector)
 
+// Notification is the predicate function for notification builders.
+type Notification func(*sql.Selector)
+
 // PolicyMatch is the predicate function for policymatch builders.
 type PolicyMatch func(*sql.Selector)
 
