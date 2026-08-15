@@ -62,6 +62,38 @@ definitions:
     - MatchPOSSIBLE
     - MatchUNCERTAIN
     - MatchIMPOSSIBLE
+  domain.Notification:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      is_read:
+        type: boolean
+      message:
+        type: string
+      metadata:
+        type: object
+      receiver_id:
+        type: string
+      type:
+        $ref: '#/definitions/domain.NotificationType'
+    type: object
+  domain.NotificationCountResponse:
+    properties:
+      count:
+        type: integer
+    type: object
+  domain.NotificationType:
+    enum:
+    - 0
+    - 1
+    - 2
+    type: integer
+    x-enum-varnames:
+    - NotificationTypeSTAR
+    - NotificationTypeINTEREST
+    - NotificationTypeTIME
   domain.PolicyResponse:
     properties:
       address:
@@ -211,6 +243,109 @@ paths:
       summary: 로그인
       tags:
       - Auth
+  /notifications/protected:
+    get:
+      consumes:
+      - application/json
+      description: 현재 로그인한 사용자의 모든 알림을 조회합니다.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 알림 목록
+          schema:
+            items:
+              $ref: '#/definitions/domain.Notification'
+            type: array
+        "401":
+          description: 인증 실패
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 서버 내부 오류
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 현재 사용자의 모든 알림 조회
+      tags:
+      - 알림
+  /notifications/protected/{id}:
+    patch:
+      consumes:
+      - application/json
+      description: 알림 ID를 이용하여 해당 알림을 읽음 상태로 변경합니다.
+      parameters:
+      - description: 알림 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 성공 응답
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: '잘못된 요청 (예: ID 변환 실패)'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: 인증 실패
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 서버 내부 오류
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 특정 알림 읽음 처리
+      tags:
+      - 알림
+  /notifications/protected/unread-count:
+    get:
+      consumes:
+      - application/json
+      description: 현재 로그인한 사용자의 읽지 않은 알림 총 개수를 조회합니다.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 읽지 않은 알림 개수
+          schema:
+            $ref: '#/definitions/domain.NotificationCountResponse'
+        "401":
+          description: 인증 실패
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 서버 내부 오류
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 읽지 않은 알림 개수 조회
+      tags:
+      - 알림
   /policy:
     get:
       description: 정책 리스트 반환

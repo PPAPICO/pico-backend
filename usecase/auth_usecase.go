@@ -3,7 +3,6 @@ package usecase
 import (
 	"context"
 	"errors"
-	"net/http"
 	"time"
 
 	"github.com/janghanul090801/pico-backend/config"
@@ -107,10 +106,7 @@ func (u *authUseCase) CreateAccessAndRefreshToken(c context.Context, user *domai
 func (u *authUseCase) ExtractUserFromRefreshToken(c context.Context, requestToken string) (*domain.User, error) {
 	id, err := token.ExtractIDFromToken(requestToken, config.E.RefreshTokenSecret)
 	if err != nil {
-		return nil, domain.Error{
-			StatusCode: http.StatusBadRequest,
-			Err:        err,
-		}
+		return nil, domain.NewBadRequestError(err)
 	}
 
 	user, err := u.userRepository.FindByID(c, id)

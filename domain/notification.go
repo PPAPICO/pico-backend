@@ -15,6 +15,10 @@ type Notification struct {
 	CreatedAt  time.Time        `json:"created_at"`
 }
 
+type NotificationCountResponse struct {
+	Count int `json:"count"`
+}
+
 type NotificationType int
 
 const (

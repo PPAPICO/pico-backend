@@ -89,6 +89,7 @@ func main() {
 	userRepository := repository.NewUserRepository(client)
 	policyRepository := repository.NewPolicyRepository(client)
 	policyMatchRepository := repository.NewPolicyMatchRepository(client)
+	notificationRepository := repository.NewNotificationRepository(client)
 
 	// external client
 	youthClient := youth.NewClient(httpClient, policyRepository, config.E.YouthApiKey)
@@ -101,6 +102,7 @@ func main() {
 	matcher := usecase.NewPolicyMatcher()
 	policyUseCase := usecase.NewPolicyUseCase(policyRepository, policyMatchRepository, userRepository, youthClient, welfareClient, volunteerClient, kakaoMapClient, matcher, timeout)
 	authUseCase := usecase.NewAuthUseCase(userRepository, policyUseCase, timeout)
+	notificationUseCase := usecase.NewNotificationUseCase(notificationRepository, timeout)
 
 	// router
 	route.NewLoginRouter(api.Group("/login"), authUseCase)
@@ -108,6 +110,7 @@ func main() {
 	route.NewRefreshTokenRouter(api.Group("/refresh"), authUseCase)
 	route.NewSignupRouter(api.Group("/signup"), authUseCase)
 	route.NewPolicyRouter(api.Group("/policy"), policyUseCase, profileUseCase)
+	route.NewNotificationRoute(api.Group("/notification"), notificationUseCase)
 
 	policyJob := cron.NewPolicyJob(policyUseCase, userRepository)
 	scheduler := cron.NewScheduler(policyJob)
