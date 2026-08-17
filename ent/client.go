@@ -16,7 +16,9 @@ import (
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/janghanul090801/pico-backend/ent/favorite"
 	"github.com/janghanul090801/pico-backend/ent/governmentpolicy"
+	"github.com/janghanul090801/pico-backend/ent/notification"
 	"github.com/janghanul090801/pico-backend/ent/policymatch"
 	"github.com/janghanul090801/pico-backend/ent/user"
 )
@@ -26,8 +28,12 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
+	// Favorite is the client for interacting with the Favorite builders.
+	Favorite *FavoriteClient
 	// GovernmentPolicy is the client for interacting with the GovernmentPolicy builders.
 	GovernmentPolicy *GovernmentPolicyClient
+	// Notification is the client for interacting with the Notification builders.
+	Notification *NotificationClient
 	// PolicyMatch is the client for interacting with the PolicyMatch builders.
 	PolicyMatch *PolicyMatchClient
 	// User is the client for interacting with the User builders.
@@ -43,7 +49,9 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
+	c.Favorite = NewFavoriteClient(c.config)
 	c.GovernmentPolicy = NewGovernmentPolicyClient(c.config)
+	c.Notification = NewNotificationClient(c.config)
 	c.PolicyMatch = NewPolicyMatchClient(c.config)
 	c.User = NewUserClient(c.config)
 }
@@ -138,7 +146,9 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	return &Tx{
 		ctx:              ctx,
 		config:           cfg,
+		Favorite:         NewFavoriteClient(cfg),
 		GovernmentPolicy: NewGovernmentPolicyClient(cfg),
+		Notification:     NewNotificationClient(cfg),
 		PolicyMatch:      NewPolicyMatchClient(cfg),
 		User:             NewUserClient(cfg),
 	}, nil
@@ -160,7 +170,9 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	return &Tx{
 		ctx:              ctx,
 		config:           cfg,
+		Favorite:         NewFavoriteClient(cfg),
 		GovernmentPolicy: NewGovernmentPolicyClient(cfg),
+		Notification:     NewNotificationClient(cfg),
 		PolicyMatch:      NewPolicyMatchClient(cfg),
 		User:             NewUserClient(cfg),
 	}, nil
@@ -169,7 +181,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		GovernmentPolicy.
+//		Favorite.
 //		Query().
 //		Count(ctx)
 func (c *Client) Debug() *Client {
@@ -191,7 +203,9 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
+	c.Favorite.Use(hooks...)
 	c.GovernmentPolicy.Use(hooks...)
+	c.Notification.Use(hooks...)
 	c.PolicyMatch.Use(hooks...)
 	c.User.Use(hooks...)
 }
@@ -199,7 +213,9 @@ func (c *Client) Use(hooks ...Hook) {
 // Intercept adds the query interceptors to all the entity clients.
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
+	c.Favorite.Intercept(interceptors...)
 	c.GovernmentPolicy.Intercept(interceptors...)
+	c.Notification.Intercept(interceptors...)
 	c.PolicyMatch.Intercept(interceptors...)
 	c.User.Intercept(interceptors...)
 }
@@ -207,14 +223,183 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 // Mutate implements the ent.Mutator interface.
 func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
+	case *FavoriteMutation:
+		return c.Favorite.mutate(ctx, m)
 	case *GovernmentPolicyMutation:
 		return c.GovernmentPolicy.mutate(ctx, m)
+	case *NotificationMutation:
+		return c.Notification.mutate(ctx, m)
 	case *PolicyMatchMutation:
 		return c.PolicyMatch.mutate(ctx, m)
 	case *UserMutation:
 		return c.User.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
+	}
+}
+
+// FavoriteClient is a client for the Favorite schema.
+type FavoriteClient struct {
+	config
+}
+
+// NewFavoriteClient returns a client for the Favorite from the given config.
+func NewFavoriteClient(c config) *FavoriteClient {
+	return &FavoriteClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `favorite.Hooks(f(g(h())))`.
+func (c *FavoriteClient) Use(hooks ...Hook) {
+	c.hooks.Favorite = append(c.hooks.Favorite, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `favorite.Intercept(f(g(h())))`.
+func (c *FavoriteClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Favorite = append(c.inters.Favorite, interceptors...)
+}
+
+// Create returns a builder for creating a Favorite entity.
+func (c *FavoriteClient) Create() *FavoriteCreate {
+	mutation := newFavoriteMutation(c.config, OpCreate)
+	return &FavoriteCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Favorite entities.
+func (c *FavoriteClient) CreateBulk(builders ...*FavoriteCreate) *FavoriteCreateBulk {
+	return &FavoriteCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *FavoriteClient) MapCreateBulk(slice any, setFunc func(*FavoriteCreate, int)) *FavoriteCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &FavoriteCreateBulk{err: fmt.Errorf("calling to FavoriteClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*FavoriteCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &FavoriteCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Favorite.
+func (c *FavoriteClient) Update() *FavoriteUpdate {
+	mutation := newFavoriteMutation(c.config, OpUpdate)
+	return &FavoriteUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *FavoriteClient) UpdateOne(_m *Favorite) *FavoriteUpdateOne {
+	mutation := newFavoriteMutation(c.config, OpUpdateOne, withFavorite(_m))
+	return &FavoriteUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *FavoriteClient) UpdateOneID(id uuid.UUID) *FavoriteUpdateOne {
+	mutation := newFavoriteMutation(c.config, OpUpdateOne, withFavoriteID(id))
+	return &FavoriteUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Favorite.
+func (c *FavoriteClient) Delete() *FavoriteDelete {
+	mutation := newFavoriteMutation(c.config, OpDelete)
+	return &FavoriteDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *FavoriteClient) DeleteOne(_m *Favorite) *FavoriteDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *FavoriteClient) DeleteOneID(id uuid.UUID) *FavoriteDeleteOne {
+	builder := c.Delete().Where(favorite.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &FavoriteDeleteOne{builder}
+}
+
+// Query returns a query builder for Favorite.
+func (c *FavoriteClient) Query() *FavoriteQuery {
+	return &FavoriteQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeFavorite},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Favorite entity by its id.
+func (c *FavoriteClient) Get(ctx context.Context, id uuid.UUID) (*Favorite, error) {
+	return c.Query().Where(favorite.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *FavoriteClient) GetX(ctx context.Context, id uuid.UUID) *Favorite {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryUser queries the user edge of a Favorite.
+func (c *FavoriteClient) QueryUser(_m *Favorite) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(favorite.Table, favorite.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, favorite.UserTable, favorite.UserColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryPolicy queries the policy edge of a Favorite.
+func (c *FavoriteClient) QueryPolicy(_m *Favorite) *GovernmentPolicyQuery {
+	query := (&GovernmentPolicyClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(favorite.Table, favorite.FieldID, id),
+			sqlgraph.To(governmentpolicy.Table, governmentpolicy.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, favorite.PolicyTable, favorite.PolicyColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *FavoriteClient) Hooks() []Hook {
+	return c.hooks.Favorite
+}
+
+// Interceptors returns the client interceptors.
+func (c *FavoriteClient) Interceptors() []Interceptor {
+	return c.inters.Favorite
+}
+
+func (c *FavoriteClient) mutate(ctx context.Context, m *FavoriteMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&FavoriteCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&FavoriteUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&FavoriteUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&FavoriteDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Favorite mutation op: %q", m.Op())
 	}
 }
 
@@ -342,6 +527,22 @@ func (c *GovernmentPolicyClient) QueryMatches(_m *GovernmentPolicy) *PolicyMatch
 	return query
 }
 
+// QueryFavorites queries the favorites edge of a GovernmentPolicy.
+func (c *GovernmentPolicyClient) QueryFavorites(_m *GovernmentPolicy) *FavoriteQuery {
+	query := (&FavoriteClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(governmentpolicy.Table, governmentpolicy.FieldID, id),
+			sqlgraph.To(favorite.Table, favorite.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, governmentpolicy.FavoritesTable, governmentpolicy.FavoritesColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *GovernmentPolicyClient) Hooks() []Hook {
 	return c.hooks.GovernmentPolicy
@@ -364,6 +565,155 @@ func (c *GovernmentPolicyClient) mutate(ctx context.Context, m *GovernmentPolicy
 		return (&GovernmentPolicyDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown GovernmentPolicy mutation op: %q", m.Op())
+	}
+}
+
+// NotificationClient is a client for the Notification schema.
+type NotificationClient struct {
+	config
+}
+
+// NewNotificationClient returns a client for the Notification from the given config.
+func NewNotificationClient(c config) *NotificationClient {
+	return &NotificationClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `notification.Hooks(f(g(h())))`.
+func (c *NotificationClient) Use(hooks ...Hook) {
+	c.hooks.Notification = append(c.hooks.Notification, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `notification.Intercept(f(g(h())))`.
+func (c *NotificationClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Notification = append(c.inters.Notification, interceptors...)
+}
+
+// Create returns a builder for creating a Notification entity.
+func (c *NotificationClient) Create() *NotificationCreate {
+	mutation := newNotificationMutation(c.config, OpCreate)
+	return &NotificationCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Notification entities.
+func (c *NotificationClient) CreateBulk(builders ...*NotificationCreate) *NotificationCreateBulk {
+	return &NotificationCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *NotificationClient) MapCreateBulk(slice any, setFunc func(*NotificationCreate, int)) *NotificationCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &NotificationCreateBulk{err: fmt.Errorf("calling to NotificationClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*NotificationCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &NotificationCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Notification.
+func (c *NotificationClient) Update() *NotificationUpdate {
+	mutation := newNotificationMutation(c.config, OpUpdate)
+	return &NotificationUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *NotificationClient) UpdateOne(_m *Notification) *NotificationUpdateOne {
+	mutation := newNotificationMutation(c.config, OpUpdateOne, withNotification(_m))
+	return &NotificationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *NotificationClient) UpdateOneID(id uuid.UUID) *NotificationUpdateOne {
+	mutation := newNotificationMutation(c.config, OpUpdateOne, withNotificationID(id))
+	return &NotificationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Notification.
+func (c *NotificationClient) Delete() *NotificationDelete {
+	mutation := newNotificationMutation(c.config, OpDelete)
+	return &NotificationDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *NotificationClient) DeleteOne(_m *Notification) *NotificationDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *NotificationClient) DeleteOneID(id uuid.UUID) *NotificationDeleteOne {
+	builder := c.Delete().Where(notification.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &NotificationDeleteOne{builder}
+}
+
+// Query returns a query builder for Notification.
+func (c *NotificationClient) Query() *NotificationQuery {
+	return &NotificationQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeNotification},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Notification entity by its id.
+func (c *NotificationClient) Get(ctx context.Context, id uuid.UUID) (*Notification, error) {
+	return c.Query().Where(notification.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *NotificationClient) GetX(ctx context.Context, id uuid.UUID) *Notification {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryReceiver queries the receiver edge of a Notification.
+func (c *NotificationClient) QueryReceiver(_m *Notification) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(notification.Table, notification.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, notification.ReceiverTable, notification.ReceiverColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *NotificationClient) Hooks() []Hook {
+	return c.hooks.Notification
+}
+
+// Interceptors returns the client interceptors.
+func (c *NotificationClient) Interceptors() []Interceptor {
+	return c.inters.Notification
+}
+
+func (c *NotificationClient) mutate(ctx context.Context, m *NotificationMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&NotificationCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&NotificationUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&NotificationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&NotificationDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Notification mutation op: %q", m.Op())
 	}
 }
 
@@ -656,6 +1006,38 @@ func (c *UserClient) QueryPolicyMatches(_m *User) *PolicyMatchQuery {
 	return query
 }
 
+// QueryNotifications queries the notifications edge of a User.
+func (c *UserClient) QueryNotifications(_m *User) *NotificationQuery {
+	query := (&NotificationClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(notification.Table, notification.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.NotificationsTable, user.NotificationsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryFavorites queries the favorites edge of a User.
+func (c *UserClient) QueryFavorites(_m *User) *FavoriteQuery {
+	query := (&FavoriteClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(favorite.Table, favorite.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.FavoritesTable, user.FavoritesColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *UserClient) Hooks() []Hook {
 	return c.hooks.User
@@ -684,9 +1066,9 @@ func (c *UserClient) mutate(ctx context.Context, m *UserMutation) (Value, error)
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		GovernmentPolicy, PolicyMatch, User []ent.Hook
+		Favorite, GovernmentPolicy, Notification, PolicyMatch, User []ent.Hook
 	}
 	inters struct {
-		GovernmentPolicy, PolicyMatch, User []ent.Interceptor
+		Favorite, GovernmentPolicy, Notification, PolicyMatch, User []ent.Interceptor
 	}
 )

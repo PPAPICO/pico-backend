@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"github.com/janghanul090801/pico-backend/domain"
+	"github.com/janghanul090801/pico-backend/ent/favorite"
 	"github.com/janghanul090801/pico-backend/ent/governmentpolicy"
 	"github.com/janghanul090801/pico-backend/ent/policymatch"
 )
@@ -112,6 +113,21 @@ func (_c *GovernmentPolicyCreate) AddMatches(v ...*PolicyMatch) *GovernmentPolic
 		ids[i] = v[i].ID
 	}
 	return _c.AddMatchIDs(ids...)
+}
+
+// AddFavoriteIDs adds the "favorites" edge to the Favorite entity by IDs.
+func (_c *GovernmentPolicyCreate) AddFavoriteIDs(ids ...uuid.UUID) *GovernmentPolicyCreate {
+	_c.mutation.AddFavoriteIDs(ids...)
+	return _c
+}
+
+// AddFavorites adds the "favorites" edges to the Favorite entity.
+func (_c *GovernmentPolicyCreate) AddFavorites(v ...*Favorite) *GovernmentPolicyCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddFavoriteIDs(ids...)
 }
 
 // Mutation returns the GovernmentPolicyMutation object of the builder.
@@ -273,6 +289,22 @@ func (_c *GovernmentPolicyCreate) createSpec() (*GovernmentPolicy, *sqlgraph.Cre
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(policymatch.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.FavoritesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   governmentpolicy.FavoritesTable,
+			Columns: []string{governmentpolicy.FavoritesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(favorite.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

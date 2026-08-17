@@ -48,9 +48,11 @@ type GovernmentPolicy struct {
 type GovernmentPolicyEdges struct {
 	// Matches holds the value of the matches edge.
 	Matches []*PolicyMatch `json:"matches,omitempty"`
+	// Favorites holds the value of the favorites edge.
+	Favorites []*Favorite `json:"favorites,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
 // MatchesOrErr returns the Matches value or an error if the edge
@@ -60,6 +62,15 @@ func (e GovernmentPolicyEdges) MatchesOrErr() ([]*PolicyMatch, error) {
 		return e.Matches, nil
 	}
 	return nil, &NotLoadedError{edge: "matches"}
+}
+
+// FavoritesOrErr returns the Favorites value or an error if the edge
+// was not loaded in eager-loading.
+func (e GovernmentPolicyEdges) FavoritesOrErr() ([]*Favorite, error) {
+	if e.loadedTypes[1] {
+		return e.Favorites, nil
+	}
+	return nil, &NotLoadedError{edge: "favorites"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -172,6 +183,11 @@ func (_m *GovernmentPolicy) Value(name string) (ent.Value, error) {
 // QueryMatches queries the "matches" edge of the GovernmentPolicy entity.
 func (_m *GovernmentPolicy) QueryMatches() *PolicyMatchQuery {
 	return NewGovernmentPolicyClient(_m.config).QueryMatches(_m)
+}
+
+// QueryFavorites queries the "favorites" edge of the GovernmentPolicy entity.
+func (_m *GovernmentPolicy) QueryFavorites() *FavoriteQuery {
+	return NewGovernmentPolicyClient(_m.config).QueryFavorites(_m)
 }
 
 // Update returns a builder for updating this GovernmentPolicy.

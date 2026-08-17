@@ -12,6 +12,17 @@ definitions:
       message:
         type: string
     type: object
+  domain.Favorite:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      policy_id:
+        type: string
+      user_id:
+        type: string
+    type: object
   domain.Gender:
     enum:
     - MALE
@@ -62,6 +73,96 @@ definitions:
     - MatchPOSSIBLE
     - MatchUNCERTAIN
     - MatchIMPOSSIBLE
+  domain.Notification:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      is_read:
+        type: boolean
+      message:
+        type: string
+      metadata:
+        type: object
+      receiver_id:
+        type: string
+      type:
+        $ref: '#/definitions/domain.NotificationType'
+    type: object
+  domain.NotificationCountResponse:
+    properties:
+      count:
+        type: integer
+    type: object
+  domain.NotificationType:
+    enum:
+    - 0
+    - 1
+    - 2
+    type: integer
+    x-enum-varnames:
+    - NotificationTypeSTAR
+    - NotificationTypeINTEREST
+    - NotificationTypeTIME
+  domain.Policy:
+    properties:
+      address:
+        type: string
+      condition:
+        $ref: '#/definitions/domain.PolicyCondition'
+      description:
+        type: string
+      endDate:
+        type: string
+      id:
+        type: string
+      latitude:
+        format: float64
+        type: number
+      longitude:
+        format: float64
+        type: number
+      regionCode:
+        type: integer
+      startDate:
+        type: string
+      title:
+        type: string
+    type: object
+  domain.PolicyCondition:
+    properties:
+      gender:
+        $ref: '#/definitions/domain.Gender'
+      interests:
+        items:
+          $ref: '#/definitions/domain.Interest'
+        type: array
+      max_age:
+        type: integer
+      min_age:
+        type: integer
+      region_codes:
+        items:
+          type: integer
+        type: array
+      require_business:
+        type: boolean
+      require_disabled:
+        type: boolean
+      require_foreign:
+        type: boolean
+      require_pregnant:
+        type: boolean
+      require_student:
+        type: boolean
+      require_youth:
+        type: boolean
+      unparsed_conditions:
+        items:
+          type: string
+        type: array
+    type: object
   domain.PolicyResponse:
     properties:
       address:
@@ -211,6 +312,109 @@ paths:
       summary: 로그인
       tags:
       - Auth
+  /notification/protected:
+    get:
+      consumes:
+      - application/json
+      description: 현재 로그인한 사용자의 모든 알림을 조회합니다.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 알림 목록
+          schema:
+            items:
+              $ref: '#/definitions/domain.Notification'
+            type: array
+        "401":
+          description: 인증 실패
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 서버 내부 오류
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 현재 사용자의 모든 알림 조회
+      tags:
+      - 알림
+  /notification/protected/{id}:
+    patch:
+      consumes:
+      - application/json
+      description: 알림 ID를 이용하여 해당 알림을 읽음 상태로 변경합니다.
+      parameters:
+      - description: 알림 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 성공 응답
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: '잘못된 요청 (예: ID 변환 실패)'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: 인증 실패
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 서버 내부 오류
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 특정 알림 읽음 처리
+      tags:
+      - 알림
+  /notification/protected/unread-count:
+    get:
+      consumes:
+      - application/json
+      description: 현재 로그인한 사용자의 읽지 않은 알림 총 개수를 조회합니다.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 읽지 않은 알림 개수
+          schema:
+            $ref: '#/definitions/domain.NotificationCountResponse'
+        "401":
+          description: 인증 실패
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 서버 내부 오류
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 읽지 않은 알림 개수 조회
+      tags:
+      - 알림
   /policy:
     get:
       description: 정책 리스트 반환
@@ -232,6 +436,98 @@ paths:
       security:
       - BearerAuth: []
       summary: 정책 조회
+      tags:
+      - Policy
+  /policy/protected/favorite/{id}:
+    delete:
+      description: 특정 정책을 즐겨찾기에서 제거합니다.
+      parameters:
+      - description: 정책 ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 정책 즐겨찾기 해제
+      tags:
+      - Policy
+    post:
+      description: 특정 정책을 즐겨찾기에 등록합니다.
+      parameters:
+      - description: 정책 ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Favorite'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 정책 즐겨찾기 등록
+      tags:
+      - Policy
+  /policy/protected/favorites:
+    get:
+      description: 로그인한 사용자의 즐겨찾기한 정책 목록을 조회합니다.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Policy'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 즐겨찾기 정책 목록 조회
       tags:
       - Policy
   /policy/protected/region:
@@ -378,4 +674,10 @@ paths:
       summary: 회원가입
       tags:
       - Auth
+securityDefinitions:
+  BearerAuth:
+    description: Enter your JWT token with the `Bearer ` prefix.
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

@@ -12,7 +12,9 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/janghanul090801/pico-backend/ent/favorite"
 	"github.com/janghanul090801/pico-backend/ent/governmentpolicy"
+	"github.com/janghanul090801/pico-backend/ent/notification"
 	"github.com/janghanul090801/pico-backend/ent/policymatch"
 	"github.com/janghanul090801/pico-backend/ent/user"
 )
@@ -75,7 +77,9 @@ var (
 func checkColumn(t, c string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
+			favorite.Table:         favorite.ValidColumn,
 			governmentpolicy.Table: governmentpolicy.ValidColumn,
+			notification.Table:     notification.ValidColumn,
 			policymatch.Table:      policymatch.ValidColumn,
 			user.Table:             user.ValidColumn,
 		})

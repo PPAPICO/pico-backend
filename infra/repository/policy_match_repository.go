@@ -25,7 +25,7 @@ func (r *policyMatchRepository) FindAllByUserID(c context.Context, userID *domai
 		policymatch.HasUserWith(
 			user.IDEQ(*userID),
 		),
-	).All(c)
+	).WithPolicy().WithUser().All(c)
 	if err != nil {
 		return nil, err
 	}
@@ -43,12 +43,23 @@ func (r *policyMatchRepository) FindAllByUserIDAndStatus(c context.Context, user
 			governmentpolicy.StartDateLTE(now),
 			governmentpolicy.EndDateGTE(now),
 		),
-	).All(c)
+	).WithPolicy().WithUser().All(c)
 
 	if err != nil {
 		return nil, err
 	}
 	return collections.Map(pms, toDomainPolicyMatch), nil
+}
+
+func (r *policyMatchRepository) FindByUserIDAndPolicyID(c context.Context, userID *domain.ID, policyID *domain.ID) (*domain.PolicyMatch, error) {
+	pm, err := r.client.PolicyMatch.Query().Where(
+		policymatch.HasUserWith(user.IDEQ(*userID)),
+		policymatch.HasPolicyWith(governmentpolicy.IDEQ(*policyID)),
+	).WithPolicy().WithUser().Only(c)
+	if err != nil {
+		return nil, err
+	}
+	return toDomainPolicyMatch(pm), nil
 }
 
 func (r *policyMatchRepository) Create(c context.Context, policyMatch *domain.PolicyMatch) (*domain.PolicyMatch, error) {
@@ -62,6 +73,12 @@ func (r *policyMatchRepository) Create(c context.Context, policyMatch *domain.Po
 	if err != nil {
 		return nil, err
 	}
+
+	p, err = r.client.PolicyMatch.Query().Where(policymatch.IDEQ(p.ID)).WithPolicy().WithUser().First(c)
+	if err != nil {
+		return nil, err
+	}
+
 	return toDomainPolicyMatch(p), nil
 }
 
@@ -71,6 +88,11 @@ func (r *policyMatchRepository) Update(c context.Context, id *domain.ID, status 
 		SetNillableProbability(probability).
 		SetNillableComment(comment).
 		Save(c)
+	if err != nil {
+		return nil, err
+	}
+
+	p, err = r.client.PolicyMatch.Query().Where(policymatch.IDEQ(*id)).WithPolicy().WithUser().First(c)
 	if err != nil {
 		return nil, err
 	}

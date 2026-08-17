@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"github.com/janghanul090801/pico-backend/domain"
+	"github.com/janghanul090801/pico-backend/ent/favorite"
 	"github.com/janghanul090801/pico-backend/ent/governmentpolicy"
 	"github.com/janghanul090801/pico-backend/ent/policymatch"
 	"github.com/janghanul090801/pico-backend/ent/predicate"
@@ -193,6 +194,21 @@ func (_u *GovernmentPolicyUpdate) AddMatches(v ...*PolicyMatch) *GovernmentPolic
 	return _u.AddMatchIDs(ids...)
 }
 
+// AddFavoriteIDs adds the "favorites" edge to the Favorite entity by IDs.
+func (_u *GovernmentPolicyUpdate) AddFavoriteIDs(ids ...uuid.UUID) *GovernmentPolicyUpdate {
+	_u.mutation.AddFavoriteIDs(ids...)
+	return _u
+}
+
+// AddFavorites adds the "favorites" edges to the Favorite entity.
+func (_u *GovernmentPolicyUpdate) AddFavorites(v ...*Favorite) *GovernmentPolicyUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddFavoriteIDs(ids...)
+}
+
 // Mutation returns the GovernmentPolicyMutation object of the builder.
 func (_u *GovernmentPolicyUpdate) Mutation() *GovernmentPolicyMutation {
 	return _u.mutation
@@ -217,6 +233,27 @@ func (_u *GovernmentPolicyUpdate) RemoveMatches(v ...*PolicyMatch) *GovernmentPo
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveMatchIDs(ids...)
+}
+
+// ClearFavorites clears all "favorites" edges to the Favorite entity.
+func (_u *GovernmentPolicyUpdate) ClearFavorites() *GovernmentPolicyUpdate {
+	_u.mutation.ClearFavorites()
+	return _u
+}
+
+// RemoveFavoriteIDs removes the "favorites" edge to Favorite entities by IDs.
+func (_u *GovernmentPolicyUpdate) RemoveFavoriteIDs(ids ...uuid.UUID) *GovernmentPolicyUpdate {
+	_u.mutation.RemoveFavoriteIDs(ids...)
+	return _u
+}
+
+// RemoveFavorites removes "favorites" edges to Favorite entities.
+func (_u *GovernmentPolicyUpdate) RemoveFavorites(v ...*Favorite) *GovernmentPolicyUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveFavoriteIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -342,6 +379,51 @@ func (_u *GovernmentPolicyUpdate) sqlSave(ctx context.Context) (_node int, err e
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(policymatch.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.FavoritesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   governmentpolicy.FavoritesTable,
+			Columns: []string{governmentpolicy.FavoritesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(favorite.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedFavoritesIDs(); len(nodes) > 0 && !_u.mutation.FavoritesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   governmentpolicy.FavoritesTable,
+			Columns: []string{governmentpolicy.FavoritesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(favorite.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.FavoritesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   governmentpolicy.FavoritesTable,
+			Columns: []string{governmentpolicy.FavoritesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(favorite.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -531,6 +613,21 @@ func (_u *GovernmentPolicyUpdateOne) AddMatches(v ...*PolicyMatch) *GovernmentPo
 	return _u.AddMatchIDs(ids...)
 }
 
+// AddFavoriteIDs adds the "favorites" edge to the Favorite entity by IDs.
+func (_u *GovernmentPolicyUpdateOne) AddFavoriteIDs(ids ...uuid.UUID) *GovernmentPolicyUpdateOne {
+	_u.mutation.AddFavoriteIDs(ids...)
+	return _u
+}
+
+// AddFavorites adds the "favorites" edges to the Favorite entity.
+func (_u *GovernmentPolicyUpdateOne) AddFavorites(v ...*Favorite) *GovernmentPolicyUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddFavoriteIDs(ids...)
+}
+
 // Mutation returns the GovernmentPolicyMutation object of the builder.
 func (_u *GovernmentPolicyUpdateOne) Mutation() *GovernmentPolicyMutation {
 	return _u.mutation
@@ -555,6 +652,27 @@ func (_u *GovernmentPolicyUpdateOne) RemoveMatches(v ...*PolicyMatch) *Governmen
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveMatchIDs(ids...)
+}
+
+// ClearFavorites clears all "favorites" edges to the Favorite entity.
+func (_u *GovernmentPolicyUpdateOne) ClearFavorites() *GovernmentPolicyUpdateOne {
+	_u.mutation.ClearFavorites()
+	return _u
+}
+
+// RemoveFavoriteIDs removes the "favorites" edge to Favorite entities by IDs.
+func (_u *GovernmentPolicyUpdateOne) RemoveFavoriteIDs(ids ...uuid.UUID) *GovernmentPolicyUpdateOne {
+	_u.mutation.RemoveFavoriteIDs(ids...)
+	return _u
+}
+
+// RemoveFavorites removes "favorites" edges to Favorite entities.
+func (_u *GovernmentPolicyUpdateOne) RemoveFavorites(v ...*Favorite) *GovernmentPolicyUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveFavoriteIDs(ids...)
 }
 
 // Where appends a list predicates to the GovernmentPolicyUpdate builder.
@@ -710,6 +828,51 @@ func (_u *GovernmentPolicyUpdateOne) sqlSave(ctx context.Context) (_node *Govern
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(policymatch.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.FavoritesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   governmentpolicy.FavoritesTable,
+			Columns: []string{governmentpolicy.FavoritesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(favorite.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedFavoritesIDs(); len(nodes) > 0 && !_u.mutation.FavoritesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   governmentpolicy.FavoritesTable,
+			Columns: []string{governmentpolicy.FavoritesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(favorite.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.FavoritesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   governmentpolicy.FavoritesTable,
+			Columns: []string{governmentpolicy.FavoritesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(favorite.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

@@ -2,11 +2,16 @@ package usecase
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"log"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/janghanul090801/pico-backend/domain"
 	"github.com/janghanul090801/pico-backend/ent"
+	"github.com/janghanul090801/pico-backend/external/ai"
 	"github.com/janghanul090801/pico-backend/external/kakaomap"
 	"github.com/janghanul090801/pico-backend/external/volunteer"
 	"github.com/janghanul090801/pico-backend/external/welfare"
@@ -22,6 +27,7 @@ type policyUseCase struct {
 	welfareClient         *welfare.Client
 	volunteerClient       *volunteer.Client
 	kakaoMapClient        *kakaomap.Client
+	aiClient              *ai.Client
 	matcher               *PolicyMatcher
 	contextTimeout        time.Duration
 }
@@ -34,6 +40,7 @@ func NewPolicyUseCase(
 	welfareClient *welfare.Client,
 	volunteerClient *volunteer.Client,
 	kakaoMapClient *kakaomap.Client,
+	aiClient *ai.Client,
 	matcher *PolicyMatcher,
 	contextTimeout time.Duration,
 ) domain.PolicyUseCase {
@@ -45,6 +52,7 @@ func NewPolicyUseCase(
 		welfareClient:         welfareClient,
 		volunteerClient:       volunteerClient,
 		kakaoMapClient:        kakaoMapClient,
+		aiClient:              aiClient,
 		matcher:               matcher,
 		contextTimeout:        contextTimeout,
 	}
@@ -86,7 +94,6 @@ func (u *policyUseCase) ListMatchesByUserID(c context.Context, userID *domain.ID
 	return matches, nil
 }
 
-// GetFromApi fetches policies from external APIs, filters for Seoul/National targets, and saves them to DB
 func (u *policyUseCase) GetFromApi(c context.Context) ([]*domain.Policy, error) {
 	ctx, cancel := context.WithTimeout(c, u.contextTimeout*50)
 	defer cancel()
@@ -127,6 +134,8 @@ func (u *policyUseCase) GetFromApi(c context.Context) ([]*domain.Policy, error) 
 		}
 		p.Latitude = lat
 		p.Longitude = long
+		interests, _ := u.getInterests(c, p)
+		p.Condition.Interests = interests
 		saved, err := u.policyRepository.Create(ctx, p)
 		if err != nil {
 			log.Printf("[PolicyUseCase] Failed to save policy '%s': %v", p.Title, err)
@@ -152,15 +161,17 @@ func (u *policyUseCase) SavePolicyMatches(c context.Context, user *domain.User, 
 	var match *domain.PolicyMatch
 	var err error
 	matches := make([]*domain.PolicyMatch, len(policies))
-
 	for i, policy := range policies {
 		status := u.matcher.Match(user, policy)
-		// TODO: ai api 연동하기
 		match = &domain.PolicyMatch{
 			PolicyID: policy.ID,
 			UserID:   user.ID,
 			Status:   status,
 		}
+		if status == domain.MatchUNCERTAIN {
+			match.Probability, match.Comment, _ = u.getProbabilityAndComment(c, user, policy)
+		}
+		// nilpointer
 		matches[i], err = u.policyMatchRepository.Create(ctx, match)
 		if err != nil {
 			return nil, domain.NewInternalServerError(err)
@@ -168,6 +179,119 @@ func (u *policyUseCase) SavePolicyMatches(c context.Context, user *domain.User, 
 	}
 
 	return matches, nil
+}
+
+func (u *policyUseCase) UpdatePolicyMatchesForUser(c context.Context, userID *domain.ID) ([]*domain.PolicyMatch, error) {
+	ctx, cancel := context.WithTimeout(c, u.contextTimeout*100)
+	defer cancel()
+
+	usr, err := u.userRepository.FindByID(ctx, userID)
+	if err != nil {
+		return nil, domain.NewInternalServerError(err)
+	}
+
+	policies, err := u.policyRepository.FindAll(ctx)
+	if err != nil {
+		return nil, domain.NewInternalServerError(err)
+	}
+
+	var updatedMatches []*domain.PolicyMatch
+	for _, policy := range policies {
+		status := u.matcher.Match(usr, policy)
+		var prob *int
+		var comm *string
+		if status == domain.MatchUNCERTAIN {
+			prob, comm, _ = u.getProbabilityAndComment(c, usr, policy)
+		}
+
+		existing, err := u.policyMatchRepository.FindByUserIDAndPolicyID(ctx, userID, &policy.ID)
+		if err != nil || existing == nil {
+			newMatch := &domain.PolicyMatch{
+				PolicyID:    policy.ID,
+				UserID:      usr.ID,
+				Status:      status,
+				Probability: prob,
+				Comment:     comm,
+			}
+			created, createErr := u.policyMatchRepository.Create(ctx, newMatch)
+			if createErr == nil {
+				updatedMatches = append(updatedMatches, created)
+			}
+		} else {
+			updated, updateErr := u.policyMatchRepository.Update(ctx, &existing.ID, status, prob, comm)
+			if updateErr == nil {
+				updatedMatches = append(updatedMatches, updated)
+			}
+		}
+	}
+
+	return updatedMatches, nil
+}
+
+func (u *policyUseCase) getProbabilityAndComment(c context.Context, user *domain.User, policy *domain.Policy) (*int, *string, error) {
+	data, err := json.MarshalIndent(user, "", "  ")
+	if err != nil {
+		return nil, nil, err
+	}
+
+	userInfo := string(data)
+	data, err = json.MarshalIndent(policy, "", "  ")
+	if err != nil {
+		return nil, nil, err
+	}
+
+	policyInfo := string(data)
+	res, err := u.aiClient.Chat(c, fmt.Sprintf(domain.MatchPrompt, userInfo, policyInfo))
+	if err != nil {
+		return nil, nil, err
+	}
+
+	resString := strings.Split(string(res), ",")
+
+	probability, err := strconv.Atoi(resString[0])
+	if err != nil {
+		return nil, nil, err
+	}
+
+	comment := resString[1]
+	return &probability, &comment, nil
+}
+
+func (u *policyUseCase) getInterests(c context.Context, policy *domain.Policy) ([]domain.Interest, error) {
+	data, err := json.MarshalIndent(policy, "", "  ")
+	if err != nil {
+		return nil, err
+	}
+
+	policyInfo := string(data)
+	res, err := u.aiClient.Chat(c, fmt.Sprintf(domain.InterestPrompt, policyInfo))
+	if err != nil {
+		return nil, err
+	}
+	return collections.Filter(collections.Map(strings.Split(string(res), ","), func(s string) domain.Interest {
+		return domain.Interest(s)
+	}), func(i domain.Interest) bool {
+		switch i {
+		case domain.InterestEmployment:
+			return true
+		case domain.InterestHousing:
+			return true
+		case domain.InterestEducation:
+			return true
+		case domain.InterestWelfare:
+			return true
+		case domain.InterestPregnancy:
+			return true
+		case domain.InterestCulture:
+			return true
+		case domain.InterestEnvironment:
+			return true
+		case domain.InterestParticipation:
+			return true
+		default:
+			return true
+		}
+	}), nil
 }
 
 //// FetchMaternityPolicies fetches maternity & childcare support status (도/시 출산장려/양육비 지원현황)

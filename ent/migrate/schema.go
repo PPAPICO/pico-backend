@@ -8,6 +8,33 @@ import (
 )
 
 var (
+	// FavoritesColumns holds the columns for the "favorites" table.
+	FavoritesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "government_policy_favorites", Type: field.TypeUUID},
+		{Name: "user_favorites", Type: field.TypeUUID},
+	}
+	// FavoritesTable holds the schema information for the "favorites" table.
+	FavoritesTable = &schema.Table{
+		Name:       "favorites",
+		Columns:    FavoritesColumns,
+		PrimaryKey: []*schema.Column{FavoritesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "favorites_government_policies_favorites",
+				Columns:    []*schema.Column{FavoritesColumns[2]},
+				RefColumns: []*schema.Column{GovernmentPoliciesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "favorites_users_favorites",
+				Columns:    []*schema.Column{FavoritesColumns[3]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+	}
 	// GovernmentPoliciesColumns holds the columns for the "government_policies" table.
 	GovernmentPoliciesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
@@ -26,6 +53,30 @@ var (
 		Name:       "government_policies",
 		Columns:    GovernmentPoliciesColumns,
 		PrimaryKey: []*schema.Column{GovernmentPoliciesColumns[0]},
+	}
+	// NotificationsColumns holds the columns for the "notifications" table.
+	NotificationsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "type", Type: field.TypeInt},
+		{Name: "message", Type: field.TypeString},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
+		{Name: "is_read", Type: field.TypeBool, Default: false},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "user_notifications", Type: field.TypeUUID},
+	}
+	// NotificationsTable holds the schema information for the "notifications" table.
+	NotificationsTable = &schema.Table{
+		Name:       "notifications",
+		Columns:    NotificationsColumns,
+		PrimaryKey: []*schema.Column{NotificationsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "notifications_users_notifications",
+				Columns:    []*schema.Column{NotificationsColumns[6]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
 	}
 	// PolicyMatchesColumns holds the columns for the "policy_matches" table.
 	PolicyMatchesColumns = []*schema.Column{
@@ -82,13 +133,18 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		FavoritesTable,
 		GovernmentPoliciesTable,
+		NotificationsTable,
 		PolicyMatchesTable,
 		UsersTable,
 	}
 )
 
 func init() {
+	FavoritesTable.ForeignKeys[0].RefTable = GovernmentPoliciesTable
+	FavoritesTable.ForeignKeys[1].RefTable = UsersTable
+	NotificationsTable.ForeignKeys[0].RefTable = UsersTable
 	PolicyMatchesTable.ForeignKeys[0].RefTable = GovernmentPoliciesTable
 	PolicyMatchesTable.ForeignKeys[1].RefTable = UsersTable
 }

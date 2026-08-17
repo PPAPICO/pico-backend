@@ -7,7 +7,9 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/janghanul090801/pico-backend/domain"
+	"github.com/janghanul090801/pico-backend/ent/favorite"
 	"github.com/janghanul090801/pico-backend/ent/governmentpolicy"
+	"github.com/janghanul090801/pico-backend/ent/notification"
 	"github.com/janghanul090801/pico-backend/ent/policymatch"
 	"github.com/janghanul090801/pico-backend/ent/schema"
 	"github.com/janghanul090801/pico-backend/ent/user"
@@ -17,6 +19,16 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	favoriteFields := schema.Favorite{}.Fields()
+	_ = favoriteFields
+	// favoriteDescCreatedAt is the schema descriptor for created_at field.
+	favoriteDescCreatedAt := favoriteFields[1].Descriptor()
+	// favorite.DefaultCreatedAt holds the default value on creation for the created_at field.
+	favorite.DefaultCreatedAt = favoriteDescCreatedAt.Default.(func() time.Time)
+	// favoriteDescID is the schema descriptor for id field.
+	favoriteDescID := favoriteFields[0].Descriptor()
+	// favorite.DefaultID holds the default value on creation for the id field.
+	favorite.DefaultID = favoriteDescID.Default.(func() uuid.UUID)
 	governmentpolicyFields := schema.GovernmentPolicy{}.Fields()
 	_ = governmentpolicyFields
 	// governmentpolicyDescTitle is the schema descriptor for title field.
@@ -31,6 +43,20 @@ func init() {
 	governmentpolicyDescID := governmentpolicyFields[0].Descriptor()
 	// governmentpolicy.DefaultID holds the default value on creation for the id field.
 	governmentpolicy.DefaultID = governmentpolicyDescID.Default.(func() uuid.UUID)
+	notificationFields := schema.Notification{}.Fields()
+	_ = notificationFields
+	// notificationDescIsRead is the schema descriptor for is_read field.
+	notificationDescIsRead := notificationFields[4].Descriptor()
+	// notification.DefaultIsRead holds the default value on creation for the is_read field.
+	notification.DefaultIsRead = notificationDescIsRead.Default.(bool)
+	// notificationDescCreatedAt is the schema descriptor for created_at field.
+	notificationDescCreatedAt := notificationFields[5].Descriptor()
+	// notification.DefaultCreatedAt holds the default value on creation for the created_at field.
+	notification.DefaultCreatedAt = notificationDescCreatedAt.Default.(func() time.Time)
+	// notificationDescID is the schema descriptor for id field.
+	notificationDescID := notificationFields[0].Descriptor()
+	// notification.DefaultID holds the default value on creation for the id field.
+	notification.DefaultID = notificationDescID.Default.(func() uuid.UUID)
 	policymatchFields := schema.PolicyMatch{}.Fields()
 	_ = policymatchFields
 	// policymatchDescID is the schema descriptor for id field.

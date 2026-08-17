@@ -35,13 +35,9 @@ func toPolicy(item DetailItem) *domain.Policy {
 		RegionCode:  parser.ParseRegionCode(item.SidoCd, item.GugunCd),
 		StartDate:   parser.ParseYYYYMMDD(item.ProgrmBgnde),
 		EndDate:     parser.ParseYYYYMMDD(item.ProgrmEndde),
-		Address: strings.TrimSpace(
-			item.AreaAddress1 + " " +
-				item.AreaAddress2 + " " +
-				item.AreaAddress3,
-		),
-		Latitude:  parser.ParseFloat(item.AreaLalo1),
-		Longitude: parser.ParseFloat(item.AreaLalo2),
-		Condition: normalizeCondition(item),
+		Address:     strings.TrimSpace(item.PostAdres),
+		Latitude:    parser.ParseFloat(item.AreaLalo1),
+		Longitude:   parser.ParseFloat(item.AreaLalo2),
+		Condition:   normalizeCondition(item),
 	}
 }

@@ -6,8 +6,14 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
+// Favorite is the predicate function for favorite builders.
+type Favorite func(*sql.Selector)
+
 // GovernmentPolicy is the predicate function for governmentpolicy builders.
 type GovernmentPolicy func(*sql.Selector)
+
+// Notification is the predicate function for notification builders.
+type Notification func(*sql.Selector)
 
 // PolicyMatch is the predicate function for policymatch builders.
 type PolicyMatch func(*sql.Selector)

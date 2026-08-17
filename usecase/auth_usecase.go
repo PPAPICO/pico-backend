@@ -3,7 +3,6 @@ package usecase
 import (
 	"context"
 	"errors"
-	"net/http"
 	"time"
 
 	"github.com/janghanul090801/pico-backend/config"
@@ -42,7 +41,6 @@ func (u *authUseCase) Register(c context.Context, name, email, password string, 
 	if err != nil {
 		return nil, domain.NewBadRequestError(err)
 	}
-
 	user, err := u.userRepository.Create(ctx, &domain.User{
 		Name:       name,
 		Email:      email,
@@ -61,7 +59,6 @@ func (u *authUseCase) Register(c context.Context, name, email, password string, 
 	if err != nil {
 		return nil, domain.NewInternalServerError(err)
 	}
-
 	policies, err := u.policyUseCase.List(ctx)
 	if err != nil {
 		return nil, domain.NewInternalServerError(err)
@@ -70,7 +67,6 @@ func (u *authUseCase) Register(c context.Context, name, email, password string, 
 	if err != nil {
 		return nil, domain.NewInternalServerError(err)
 	}
-
 	return user, nil
 }
 
@@ -107,10 +103,7 @@ func (u *authUseCase) CreateAccessAndRefreshToken(c context.Context, user *domai
 func (u *authUseCase) ExtractUserFromRefreshToken(c context.Context, requestToken string) (*domain.User, error) {
 	id, err := token.ExtractIDFromToken(requestToken, config.E.RefreshTokenSecret)
 	if err != nil {
-		return nil, domain.Error{
-			StatusCode: http.StatusBadRequest,
-			Err:        err,
-		}
+		return nil, domain.NewBadRequestError(err)
 	}
 
 	user, err := u.userRepository.FindByID(c, id)
