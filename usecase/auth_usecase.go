@@ -41,7 +41,6 @@ func (u *authUseCase) Register(c context.Context, name, email, password string, 
 	if err != nil {
 		return nil, domain.NewBadRequestError(err)
 	}
-
 	user, err := u.userRepository.Create(ctx, &domain.User{
 		Name:       name,
 		Email:      email,
@@ -60,7 +59,6 @@ func (u *authUseCase) Register(c context.Context, name, email, password string, 
 	if err != nil {
 		return nil, domain.NewInternalServerError(err)
 	}
-
 	policies, err := u.policyUseCase.List(ctx)
 	if err != nil {
 		return nil, domain.NewInternalServerError(err)
@@ -69,7 +67,6 @@ func (u *authUseCase) Register(c context.Context, name, email, password string, 
 	if err != nil {
 		return nil, domain.NewInternalServerError(err)
 	}
-
 	return user, nil
 }
 

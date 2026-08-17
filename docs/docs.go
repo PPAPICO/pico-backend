@@ -67,7 +67,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/notifications/protected": {
+        "/notification/protected": {
             "get": {
                 "security": [
                     {
@@ -116,7 +116,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/notifications/protected/unread-count": {
+        "/notification/protected/unread-count": {
             "get": {
                 "security": [
                     {
@@ -162,7 +162,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/notifications/protected/{id}": {
+        "/notification/protected/{id}": {
             "patch": {
                 "security": [
                     {
@@ -259,6 +259,151 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "서버 오류",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/policy/protected/favorite/{id}": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "특정 정책을 즐겨찾기에 등록합니다.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Policy"
+                ],
+                "summary": "정책 즐겨찾기 등록",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "정책 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Favorite"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "특정 정책을 즐겨찾기에서 제거합니다.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Policy"
+                ],
+                "summary": "정책 즐겨찾기 해제",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "정책 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/policy/protected/favorites": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "로그인한 사용자의 즐겨찾기한 정책 목록을 조회합니다.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Policy"
+                ],
+                "summary": "즐겨찾기 정책 목록 조회",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.Policy"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/domain.ErrorResponse"
                         }
@@ -512,6 +657,23 @@ const docTemplate = `{
                 }
             }
         },
+        "domain.Favorite": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "policy_id": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
         "domain.Gender": {
             "type": "string",
             "enum": [
@@ -622,6 +784,93 @@ const docTemplate = `{
                 "NotificationTypeINTEREST",
                 "NotificationTypeTIME"
             ]
+        },
+        "domain.Policy": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "condition": {
+                    "$ref": "#/definitions/domain.PolicyCondition"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "endDate": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "latitude": {
+                    "type": "number",
+                    "format": "float64"
+                },
+                "longitude": {
+                    "type": "number",
+                    "format": "float64"
+                },
+                "regionCode": {
+                    "type": "integer"
+                },
+                "startDate": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.PolicyCondition": {
+            "type": "object",
+            "properties": {
+                "gender": {
+                    "$ref": "#/definitions/domain.Gender"
+                },
+                "interests": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Interest"
+                    }
+                },
+                "max_age": {
+                    "type": "integer"
+                },
+                "min_age": {
+                    "type": "integer"
+                },
+                "region_codes": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "require_business": {
+                    "type": "boolean"
+                },
+                "require_disabled": {
+                    "type": "boolean"
+                },
+                "require_foreign": {
+                    "type": "boolean"
+                },
+                "require_pregnant": {
+                    "type": "boolean"
+                },
+                "require_student": {
+                    "type": "boolean"
+                },
+                "require_youth": {
+                    "type": "boolean"
+                },
+                "unparsed_conditions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
         },
         "domain.PolicyResponse": {
             "type": "object",
@@ -780,6 +1029,14 @@ const docTemplate = `{
                     "type": "integer"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Enter your JWT token with the ` + "`" + `Bearer ` + "`" + ` prefix.",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`

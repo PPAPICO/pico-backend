@@ -15,7 +15,7 @@ import (
 // @Failure 401 {object} map[string]string "인증 실패"
 // @Failure 500 {object} map[string]string "서버 내부 오류"
 // @Security BearerAuth
-// @Router /notifications/protected [get]
+// @Router /notification/protected [get]
 func GetNotifications(service domain.NotificationUseCase) fiber.Handler {
 	return func(c fiber.Ctx) error {
 		ctx := c.RequestCtx()
@@ -41,7 +41,7 @@ func GetNotifications(service domain.NotificationUseCase) fiber.Handler {
 // @Failure 401 {object} map[string]string "인증 실패"
 // @Failure 500 {object} map[string]string "서버 내부 오류"
 // @Security BearerAuth
-// @Router /notifications/protected/{id} [patch]
+// @Router /notification/protected/{id} [patch]
 func MarkNotificationAsRead(service domain.NotificationUseCase) fiber.Handler {
 	return func(c fiber.Ctx) error {
 		ctx := c.RequestCtx()
@@ -70,7 +70,7 @@ func MarkNotificationAsRead(service domain.NotificationUseCase) fiber.Handler {
 // @Failure 401 {object} map[string]string "인증 실패"
 // @Failure 500 {object} map[string]string "서버 내부 오류"
 // @Security BearerAuth
-// @Router /notifications/protected/unread-count [get]
+// @Router /notification/protected/unread-count [get]
 func GetUnreadNotificationsCount(service domain.NotificationUseCase) fiber.Handler {
 	return func(c fiber.Ctx) error {
 		ctx := c.RequestCtx()

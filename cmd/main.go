@@ -38,6 +38,10 @@ import (
 // @description    PICO Backend API
 // @host			localhost:8080
 // @BasePath		/api
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Enter your JWT token with the `Bearer ` prefix.
 func main() {
 	config.NewEnv()
 
@@ -61,8 +65,10 @@ func main() {
 		},
 	}))
 	app.Use(logger.New())
-	app.Use(recover.New())
 	app.Use(requestid.New())
+	app.Use(recover.New(recover.Config{
+		EnableStackTrace: true,
+	}))
 
 	api := app.Group("/api")
 

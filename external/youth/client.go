@@ -57,7 +57,11 @@ func (c *Client) Fetch(ctx context.Context) ([]*domain.Policy, error) {
 			continue
 		}
 
-		result = append(result, toPolicy(item))
+		p := toPolicy(item)
+		if p == nil {
+			continue
+		}
+		result = append(result, p)
 	}
 
 	return result, nil

@@ -181,5 +181,5 @@ func RegionCodeToName(regionCode int) string {
 		return "강동구"
 	}
 
-	return strconv.Itoa(regionCode)
+	return ""
 }

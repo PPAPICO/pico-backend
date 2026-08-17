@@ -161,7 +161,6 @@ func (u *policyUseCase) SavePolicyMatches(c context.Context, user *domain.User, 
 	var match *domain.PolicyMatch
 	var err error
 	matches := make([]*domain.PolicyMatch, len(policies))
-
 	for i, policy := range policies {
 		status := u.matcher.Match(user, policy)
 		match = &domain.PolicyMatch{
@@ -172,6 +171,7 @@ func (u *policyUseCase) SavePolicyMatches(c context.Context, user *domain.User, 
 		if status == domain.MatchUNCERTAIN {
 			match.Probability, match.Comment, _ = u.getProbabilityAndComment(c, user, policy)
 		}
+		// nilpointer
 		matches[i], err = u.policyMatchRepository.Create(ctx, match)
 		if err != nil {
 			return nil, domain.NewInternalServerError(err)

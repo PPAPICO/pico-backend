@@ -25,6 +25,10 @@ func toPolicy(item Item) *domain.Policy {
 	)
 
 	regionCodeInt, _ := strconv.Atoi(item.ZipCd)
+	address := parser.RegionCodeToName(regionCodeInt)
+	if address == "" {
+		return nil
+	}
 
 	return &domain.Policy{
 		Title:       title,
@@ -32,7 +36,7 @@ func toPolicy(item Item) *domain.Policy {
 		RegionCode:  parser.ParseRegionCode(item.ZipCd, ""),
 		StartDate:   startDate,
 		EndDate:     endDate,
-		Address:     parser.RegionCodeToName(regionCodeInt),
+		Address:     address,
 		Latitude:    0,
 		Longitude:   0,
 		Condition:   normalizeCondition(item),
