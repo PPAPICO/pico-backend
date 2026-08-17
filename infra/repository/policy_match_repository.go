@@ -51,6 +51,17 @@ func (r *policyMatchRepository) FindAllByUserIDAndStatus(c context.Context, user
 	return collections.Map(pms, toDomainPolicyMatch), nil
 }
 
+func (r *policyMatchRepository) FindByUserIDAndPolicyID(c context.Context, userID *domain.ID, policyID *domain.ID) (*domain.PolicyMatch, error) {
+	pm, err := r.client.PolicyMatch.Query().Where(
+		policymatch.HasUserWith(user.IDEQ(*userID)),
+		policymatch.HasPolicyWith(governmentpolicy.IDEQ(*policyID)),
+	).Only(c)
+	if err != nil {
+		return nil, err
+	}
+	return toDomainPolicyMatch(pm), nil
+}
+
 func (r *policyMatchRepository) Create(c context.Context, policyMatch *domain.PolicyMatch) (*domain.PolicyMatch, error) {
 	p, err := r.client.PolicyMatch.Create().
 		SetPolicyID(policyMatch.PolicyID).

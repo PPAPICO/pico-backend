@@ -11,14 +11,23 @@ import (
 )
 
 type profileUseCase struct {
-	userRepository domain.UserRepository
-	contextTimeout time.Duration
+	userRepository      domain.UserRepository
+	policyUseCase       domain.PolicyUseCase
+	notificationUseCase domain.NotificationUseCase
+	contextTimeout      time.Duration
 }
 
-func NewProfileUseCase(userRepository domain.UserRepository, timeout time.Duration) domain.ProfileUseCase {
+func NewProfileUseCase(
+	userRepository domain.UserRepository,
+	policyUseCase domain.PolicyUseCase,
+	notificationUseCase domain.NotificationUseCase,
+	timeout time.Duration,
+) domain.ProfileUseCase {
 	return &profileUseCase{
-		userRepository: userRepository,
-		contextTimeout: timeout,
+		userRepository:      userRepository,
+		policyUseCase:       policyUseCase,
+		notificationUseCase: notificationUseCase,
+		contextTimeout:      timeout,
 	}
 }
 
@@ -63,15 +72,8 @@ func (u *profileUseCase) Update(c context.Context, ID *domain.ID, params *domain
 		return nil, domain.NewInternalServerError(err)
 	}
 
-	encrypted, err := bcrypt.GenerateFromPassword(
-		[]byte(params.Password),
-		bcrypt.DefaultCost,
-	)
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(params.Password))
 	if err != nil {
-		return nil, domain.NewBadRequestError(err)
-	}
-
-	if string(encrypted) != user.Password {
 		return nil, domain.NewBadRequestError(errors.New("invalid password"))
 	}
 
@@ -90,6 +92,32 @@ func (u *profileUseCase) Update(c context.Context, ID *domain.ID, params *domain
 	})
 	if err != nil {
 		return nil, domain.NewInternalServerError(err)
+	}
+
+	if u.policyUseCase != nil {
+		oldMatches, _ := u.policyUseCase.ListMatchesByUserID(ctx, ID)
+		oldMap := make(map[domain.ID]domain.Match)
+		for _, m := range oldMatches {
+			oldMap[m.PolicyID] = m.Status
+		}
+
+		updatedMatches, err := u.policyUseCase.UpdatePolicyMatchesForUser(ctx, ID)
+		if err == nil && u.notificationUseCase != nil {
+			var changedCount int
+			for _, m := range updatedMatches {
+				if oldStatus, exists := oldMap[m.PolicyID]; exists && oldStatus != m.Status {
+					changedCount++
+				}
+			}
+			if changedCount > 0 {
+				_, _ = u.notificationUseCase.Create(ctx, &domain.Notification{
+					ReceiverID: *ID,
+					Type:       domain.NotificationTypeSTAR,
+					Message:    "사용자 정보 변경에 따라 정책 적합도 정보가 업데이트되었습니다.",
+					Metadata:   map[string]any{"changed_count": changedCount},
+				})
+			}
+		}
 	}
 
 	return &domain.Profile{

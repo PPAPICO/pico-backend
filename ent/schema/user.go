@@ -70,5 +70,6 @@ func (User) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("policy_matches", PolicyMatch.Type),
 		edge.To("notifications", Notification.Type),
+		edge.To("favorites", Favorite.Type),
 	}
 }

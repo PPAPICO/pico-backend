@@ -19,6 +19,7 @@ import (
 	"github.com/gofiber/fiber/v3/middleware/requestid"
 	"github.com/janghanul090801/pico-backend/api/route"
 	"github.com/janghanul090801/pico-backend/config"
+	"github.com/janghanul090801/pico-backend/external/ai"
 	"github.com/janghanul090801/pico-backend/external/kakaomap"
 	"github.com/janghanul090801/pico-backend/external/volunteer"
 	"github.com/janghanul090801/pico-backend/external/welfare"
@@ -90,6 +91,7 @@ func main() {
 	policyRepository := repository.NewPolicyRepository(client)
 	policyMatchRepository := repository.NewPolicyMatchRepository(client)
 	notificationRepository := repository.NewNotificationRepository(client)
+	favoriteRepository := repository.NewFavoriteRepository(client)
 
 	// external client
 	youthClient := youth.NewClient(httpClient, policyRepository, config.E.YouthApiKey)
@@ -97,22 +99,25 @@ func main() {
 	volunteerClient := volunteer.NewClient(httpClient, policyRepository, config.E.VolunteerApiKey)
 	kakaoMapClient := kakaomap.NewClient(httpClient, config.E.KakaoMapApiKey)
 
+	aiClient := ai.NewClient(&http.Client{Timeout: timeout}, config.E.AIApiKey)
+
 	// usecase
-	profileUseCase := usecase.NewProfileUseCase(userRepository, timeout)
 	matcher := usecase.NewPolicyMatcher()
-	policyUseCase := usecase.NewPolicyUseCase(policyRepository, policyMatchRepository, userRepository, youthClient, welfareClient, volunteerClient, kakaoMapClient, matcher, timeout)
-	authUseCase := usecase.NewAuthUseCase(userRepository, policyUseCase, timeout)
+	policyUseCase := usecase.NewPolicyUseCase(policyRepository, policyMatchRepository, userRepository, youthClient, welfareClient, volunteerClient, kakaoMapClient, aiClient, matcher, timeout)
 	notificationUseCase := usecase.NewNotificationUseCase(notificationRepository, timeout)
+	profileUseCase := usecase.NewProfileUseCase(userRepository, policyUseCase, notificationUseCase, timeout)
+	favoriteUseCase := usecase.NewFavoriteUseCase(favoriteRepository, policyRepository, timeout)
+	authUseCase := usecase.NewAuthUseCase(userRepository, policyUseCase, timeout)
 
 	// router
 	route.NewLoginRouter(api.Group("/login"), authUseCase)
 	route.NewProfileRouter(api.Group("/profile"), profileUseCase)
 	route.NewRefreshTokenRouter(api.Group("/refresh"), authUseCase)
 	route.NewSignupRouter(api.Group("/signup"), authUseCase)
-	route.NewPolicyRouter(api.Group("/policy"), policyUseCase, profileUseCase)
+	route.NewPolicyRouter(api.Group("/policy"), policyUseCase, profileUseCase, favoriteUseCase)
 	route.NewNotificationRoute(api.Group("/notification"), notificationUseCase)
 
-	policyJob := cron.NewPolicyJob(policyUseCase, userRepository)
+	policyJob := cron.NewPolicyJob(policyUseCase, userRepository, notificationUseCase, favoriteUseCase)
 	scheduler := cron.NewScheduler(policyJob)
 
 	scheduler.Start()

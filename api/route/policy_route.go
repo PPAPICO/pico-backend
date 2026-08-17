@@ -7,11 +7,14 @@ import (
 	"github.com/janghanul090801/pico-backend/domain"
 )
 
-func NewPolicyRouter(app fiber.Router, policyService domain.PolicyUseCase, profileService domain.ProfileUseCase) {
+func NewPolicyRouter(app fiber.Router, policyService domain.PolicyUseCase, profileService domain.ProfileUseCase, favoriteService domain.FavoriteUseCase) {
 	app.Get("/", handler.GetAllPolicies(policyService))
 
 	// protected
 	protected := app.Group("/protected")
 	protected.Use(middleware.JwtMiddleware)
 	protected.Get("/region", handler.GetPoliciesInMyRegion(policyService, profileService))
+	protected.Get("/favorites", handler.GetFavoritePolicies(favoriteService))
+	protected.Post("/favorite/:id", handler.AddFavoritePolicy(favoriteService))
+	protected.Delete("/favorite/:id", handler.RemoveFavoritePolicy(favoriteService))
 }

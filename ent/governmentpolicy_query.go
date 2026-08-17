@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
+	"github.com/janghanul090801/pico-backend/ent/favorite"
 	"github.com/janghanul090801/pico-backend/ent/governmentpolicy"
 	"github.com/janghanul090801/pico-backend/ent/policymatch"
 	"github.com/janghanul090801/pico-backend/ent/predicate"
@@ -21,11 +22,12 @@ import (
 // GovernmentPolicyQuery is the builder for querying GovernmentPolicy entities.
 type GovernmentPolicyQuery struct {
 	config
-	ctx         *QueryContext
-	order       []governmentpolicy.OrderOption
-	inters      []Interceptor
-	predicates  []predicate.GovernmentPolicy
-	withMatches *PolicyMatchQuery
+	ctx           *QueryContext
+	order         []governmentpolicy.OrderOption
+	inters        []Interceptor
+	predicates    []predicate.GovernmentPolicy
+	withMatches   *PolicyMatchQuery
+	withFavorites *FavoriteQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -77,6 +79,28 @@ func (_q *GovernmentPolicyQuery) QueryMatches() *PolicyMatchQuery {
 			sqlgraph.From(governmentpolicy.Table, governmentpolicy.FieldID, selector),
 			sqlgraph.To(policymatch.Table, policymatch.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, governmentpolicy.MatchesTable, governmentpolicy.MatchesColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryFavorites chains the current query on the "favorites" edge.
+func (_q *GovernmentPolicyQuery) QueryFavorites() *FavoriteQuery {
+	query := (&FavoriteClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(governmentpolicy.Table, governmentpolicy.FieldID, selector),
+			sqlgraph.To(favorite.Table, favorite.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, governmentpolicy.FavoritesTable, governmentpolicy.FavoritesColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -271,12 +295,13 @@ func (_q *GovernmentPolicyQuery) Clone() *GovernmentPolicyQuery {
 		return nil
 	}
 	return &GovernmentPolicyQuery{
-		config:      _q.config,
-		ctx:         _q.ctx.Clone(),
-		order:       append([]governmentpolicy.OrderOption{}, _q.order...),
-		inters:      append([]Interceptor{}, _q.inters...),
-		predicates:  append([]predicate.GovernmentPolicy{}, _q.predicates...),
-		withMatches: _q.withMatches.Clone(),
+		config:        _q.config,
+		ctx:           _q.ctx.Clone(),
+		order:         append([]governmentpolicy.OrderOption{}, _q.order...),
+		inters:        append([]Interceptor{}, _q.inters...),
+		predicates:    append([]predicate.GovernmentPolicy{}, _q.predicates...),
+		withMatches:   _q.withMatches.Clone(),
+		withFavorites: _q.withFavorites.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
@@ -291,6 +316,17 @@ func (_q *GovernmentPolicyQuery) WithMatches(opts ...func(*PolicyMatchQuery)) *G
 		opt(query)
 	}
 	_q.withMatches = query
+	return _q
+}
+
+// WithFavorites tells the query-builder to eager-load the nodes that are connected to
+// the "favorites" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *GovernmentPolicyQuery) WithFavorites(opts ...func(*FavoriteQuery)) *GovernmentPolicyQuery {
+	query := (&FavoriteClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withFavorites = query
 	return _q
 }
 
@@ -372,8 +408,9 @@ func (_q *GovernmentPolicyQuery) sqlAll(ctx context.Context, hooks ...queryHook)
 	var (
 		nodes       = []*GovernmentPolicy{}
 		_spec       = _q.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
 			_q.withMatches != nil,
+			_q.withFavorites != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -398,6 +435,13 @@ func (_q *GovernmentPolicyQuery) sqlAll(ctx context.Context, hooks ...queryHook)
 		if err := _q.loadMatches(ctx, query, nodes,
 			func(n *GovernmentPolicy) { n.Edges.Matches = []*PolicyMatch{} },
 			func(n *GovernmentPolicy, e *PolicyMatch) { n.Edges.Matches = append(n.Edges.Matches, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withFavorites; query != nil {
+		if err := _q.loadFavorites(ctx, query, nodes,
+			func(n *GovernmentPolicy) { n.Edges.Favorites = []*Favorite{} },
+			func(n *GovernmentPolicy, e *Favorite) { n.Edges.Favorites = append(n.Edges.Favorites, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -430,6 +474,37 @@ func (_q *GovernmentPolicyQuery) loadMatches(ctx context.Context, query *PolicyM
 		node, ok := nodeids[*fk]
 		if !ok {
 			return fmt.Errorf(`unexpected referenced foreign-key "government_policy_matches" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *GovernmentPolicyQuery) loadFavorites(ctx context.Context, query *FavoriteQuery, nodes []*GovernmentPolicy, init func(*GovernmentPolicy), assign func(*GovernmentPolicy, *Favorite)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*GovernmentPolicy)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.Favorite(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(governmentpolicy.FavoritesColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.government_policy_favorites
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "government_policy_favorites" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "government_policy_favorites" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}

@@ -43,5 +43,6 @@ func (GovernmentPolicy) Fields() []ent.Field {
 func (GovernmentPolicy) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("matches", PolicyMatch.Type),
+		edge.To("favorites", Favorite.Type),
 	}
 }

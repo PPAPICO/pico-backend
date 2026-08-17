@@ -62,6 +62,15 @@ func toDomainNotification(n *ent.Notification) *domain.Notification {
 	}
 }
 
+func toDomainFavorite(f *ent.Favorite) *domain.Favorite {
+	return &domain.Favorite{
+		ID:        f.ID,
+		UserID:    f.Edges.User.ID,
+		PolicyID:  f.Edges.Policy.ID,
+		CreatedAt: f.CreatedAt,
+	}
+}
+
 func interestsToStrings(interests []domain.Interest) []string {
 	result := make([]string, len(interests))
 	for i, v := range interests {
@@ -81,7 +90,7 @@ func stringsToInterests(values []string) []domain.Interest {
 func entMatchToDomainMatch(value policymatch.Match) domain.Match {
 	switch value {
 	case policymatch.MatchPOSSIBLE:
-		return domain.MatchIMPOSSIBLE
+		return domain.MatchPOSSIBLE
 	case policymatch.MatchUNCERTAIN:
 		return domain.MatchUNCERTAIN
 	default:

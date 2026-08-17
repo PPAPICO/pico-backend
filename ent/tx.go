@@ -12,6 +12,8 @@ import (
 // Tx is a transactional client that is created by calling Client.Tx().
 type Tx struct {
 	config
+	// Favorite is the client for interacting with the Favorite builders.
+	Favorite *FavoriteClient
 	// GovernmentPolicy is the client for interacting with the GovernmentPolicy builders.
 	GovernmentPolicy *GovernmentPolicyClient
 	// Notification is the client for interacting with the Notification builders.
@@ -151,6 +153,7 @@ func (tx *Tx) Client() *Client {
 }
 
 func (tx *Tx) init() {
+	tx.Favorite = NewFavoriteClient(tx.config)
 	tx.GovernmentPolicy = NewGovernmentPolicyClient(tx.config)
 	tx.Notification = NewNotificationClient(tx.config)
 	tx.PolicyMatch = NewPolicyMatchClient(tx.config)
@@ -164,7 +167,7 @@ func (tx *Tx) init() {
 // of them in order to commit or rollback the transaction.
 //
 // If a closed transaction is embedded in one of the generated entities, and the entity
-// applies a query, for example: GovernmentPolicy.QueryXXX(), the query will be executed
+// applies a query, for example: Favorite.QueryXXX(), the query will be executed
 // through the driver which created this transaction.
 //
 // Note that txDriver is not goroutine safe.

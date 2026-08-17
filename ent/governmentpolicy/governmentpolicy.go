@@ -34,6 +34,8 @@ const (
 	FieldCondition = "condition"
 	// EdgeMatches holds the string denoting the matches edge name in mutations.
 	EdgeMatches = "matches"
+	// EdgeFavorites holds the string denoting the favorites edge name in mutations.
+	EdgeFavorites = "favorites"
 	// Table holds the table name of the governmentpolicy in the database.
 	Table = "government_policies"
 	// MatchesTable is the table that holds the matches relation/edge.
@@ -43,6 +45,13 @@ const (
 	MatchesInverseTable = "policy_matches"
 	// MatchesColumn is the table column denoting the matches relation/edge.
 	MatchesColumn = "government_policy_matches"
+	// FavoritesTable is the table that holds the favorites relation/edge.
+	FavoritesTable = "favorites"
+	// FavoritesInverseTable is the table name for the Favorite entity.
+	// It exists in this package in order to avoid circular dependency with the "favorite" package.
+	FavoritesInverseTable = "favorites"
+	// FavoritesColumn is the table column denoting the favorites relation/edge.
+	FavoritesColumn = "government_policy_favorites"
 )
 
 // Columns holds all SQL columns for governmentpolicy fields.
@@ -139,10 +148,31 @@ func ByMatches(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newMatchesStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByFavoritesCount orders the results by favorites count.
+func ByFavoritesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newFavoritesStep(), opts...)
+	}
+}
+
+// ByFavorites orders the results by favorites terms.
+func ByFavorites(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newFavoritesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newMatchesStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(MatchesInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, MatchesTable, MatchesColumn),
+	)
+}
+func newFavoritesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(FavoritesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, FavoritesTable, FavoritesColumn),
 	)
 }

@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/janghanul090801/pico-backend/domain"
+	"github.com/janghanul090801/pico-backend/ent/favorite"
 	"github.com/janghanul090801/pico-backend/ent/governmentpolicy"
 	"github.com/janghanul090801/pico-backend/ent/notification"
 	"github.com/janghanul090801/pico-backend/ent/policymatch"
@@ -18,6 +19,16 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	favoriteFields := schema.Favorite{}.Fields()
+	_ = favoriteFields
+	// favoriteDescCreatedAt is the schema descriptor for created_at field.
+	favoriteDescCreatedAt := favoriteFields[1].Descriptor()
+	// favorite.DefaultCreatedAt holds the default value on creation for the created_at field.
+	favorite.DefaultCreatedAt = favoriteDescCreatedAt.Default.(func() time.Time)
+	// favoriteDescID is the schema descriptor for id field.
+	favoriteDescID := favoriteFields[0].Descriptor()
+	// favorite.DefaultID holds the default value on creation for the id field.
+	favorite.DefaultID = favoriteDescID.Default.(func() uuid.UUID)
 	governmentpolicyFields := schema.GovernmentPolicy{}.Fields()
 	_ = governmentpolicyFields
 	// governmentpolicyDescTitle is the schema descriptor for title field.
