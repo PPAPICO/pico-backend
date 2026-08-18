@@ -248,7 +248,10 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/domain.PolicyResponse"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.Policy"
+                            }
                         }
                     },
                     "401": {
@@ -392,7 +395,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/domain.Policy"
+                                "$ref": "#/definitions/domain.PolicyResponse"
                             }
                         }
                     },
@@ -430,7 +433,10 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/domain.PolicyResponse"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.PolicyResponse"
+                            }
                         }
                     },
                     "401": {

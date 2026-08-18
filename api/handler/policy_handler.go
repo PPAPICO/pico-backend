@@ -14,7 +14,7 @@ import (
 // @Tags         Policy
 // @Security     BearerAuth
 // @Produce      json
-// @Success      200  {object}  domain.PolicyResponse
+// @Success      200  {array}  domain.PolicyResponse
 // @Failure      401  {object}  domain.ErrorResponse  "인증되지 않은 사용자"
 // @Failure      500  {object}  domain.ErrorResponse  "서버 오류"
 // @Router       /policy/protected/region [get]
@@ -54,7 +54,7 @@ func GetPoliciesInMyRegion(policyService domain.PolicyUseCase, profileService do
 // @Tags         Policy
 // @Security     BearerAuth
 // @Produce      json
-// @Success      200  {object}  domain.PolicyResponse
+// @Success      200  {array}  domain.Policy
 // @Failure      401  {object}  domain.ErrorResponse  "인증되지 않은 사용자"
 // @Failure      500  {object}  domain.ErrorResponse  "서버 오류"
 // @Router       /policy [get]
@@ -137,11 +137,11 @@ func RemoveFavoritePolicy(favoriteUseCase domain.FavoriteUseCase) fiber.Handler 
 // @Tags         Policy
 // @Security     BearerAuth
 // @Produce      json
-// @Success      200  {array}   domain.Policy
+// @Success      200  {array}   domain.PolicyResponse
 // @Failure      401  {object}  domain.ErrorResponse
 // @Failure      500  {object}  domain.ErrorResponse
 // @Router       /policy/protected/favorites [get]
-func GetFavoritePolicies(favoriteUseCase domain.FavoriteUseCase) fiber.Handler {
+func GetFavoritePolicies(favoriteUseCase domain.FavoriteUseCase, policyService domain.PolicyUseCase) fiber.Handler {
 	return func(c fiber.Ctx) error {
 		ctx := c.RequestCtx()
 		userID := c.Locals("id").(*domain.ID)
@@ -151,6 +151,17 @@ func GetFavoritePolicies(favoriteUseCase domain.FavoriteUseCase) fiber.Handler {
 			return RespondError(c, err)
 		}
 
-		return c.Status(http.StatusOK).JSON(policies)
+		matches, err := policyService.ListMatchesByUserID(ctx, userID)
+		if err != nil {
+			return RespondError(c, err)
+		}
+
+		policyResponses := collections.Map(policies, func(p *domain.Policy) *domain.PolicyResponse {
+			return p.ToResponse(*collections.Find(matches, func(m *domain.PolicyMatch) bool {
+				return m.PolicyID == p.ID
+			}))
+		})
+
+		return c.Status(http.StatusOK).JSON(policyResponses)
 	}
 }
