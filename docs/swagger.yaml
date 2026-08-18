@@ -173,6 +173,10 @@ definitions:
         type: string
       id:
         type: string
+      interests:
+        items:
+          $ref: '#/definitions/domain.Interest'
+        type: array
       latitude:
         type: number
       longitude:

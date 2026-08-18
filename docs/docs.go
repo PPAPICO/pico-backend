@@ -893,6 +893,12 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
+                "interests": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Interest"
+                    }
+                },
                 "latitude": {
                     "type": "number"
                 },

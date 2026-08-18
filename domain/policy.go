@@ -30,16 +30,17 @@ type PolicyMatch struct {
 }
 
 type PolicyResponse struct {
-	ID          ID        `json:"id"`
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
-	RegionCode  int       `json:"region_code"`
-	StartDate   time.Time `json:"start_date"`
-	EndDate     time.Time `json:"end_date"`
-	Address     string    `json:"address"`
-	Latitude    float64   `json:"latitude"`
-	Longitude   float64   `json:"longitude"`
-	Status      Match     `json:"status"`
+	ID          ID         `json:"id"`
+	Title       string     `json:"title"`
+	Description string     `json:"description"`
+	RegionCode  int        `json:"region_code"`
+	StartDate   time.Time  `json:"start_date"`
+	EndDate     time.Time  `json:"end_date"`
+	Address     string     `json:"address"`
+	Latitude    float64    `json:"latitude"`
+	Longitude   float64    `json:"longitude"`
+	Status      Match      `json:"status"`
+	Interests   []Interest `json:"interests"`
 }
 
 func (p *Policy) ToResponse(match *PolicyMatch) *PolicyResponse {
@@ -58,6 +59,7 @@ func (p *Policy) ToResponse(match *PolicyMatch) *PolicyResponse {
 		Latitude:    p.Latitude,
 		Longitude:   p.Longitude,
 		Status:      status,
+		Interests:   p.Condition.Interests,
 	}
 }
 
