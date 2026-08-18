@@ -28,14 +28,32 @@ func buildDescription(item DetailItem) string {
 	)
 }
 
-func toPolicy(item DetailItem) *domain.Policy {
+func getAddress(item DetailItem) string {
+	addr := strings.TrimSpace(item.PostAdres)
+	if addr != "" {
+		return addr
+	}
+	parts := []string{}
+	if a1 := strings.TrimSpace(item.AreaAddress1); a1 != "" {
+		parts = append(parts, a1)
+	}
+	if a2 := strings.TrimSpace(item.AreaAddress2); a2 != "" {
+		parts = append(parts, a2)
+	}
+	if a3 := strings.TrimSpace(item.AreaAddress3); a3 != "" {
+		parts = append(parts, a3)
+	}
+	return strings.Join(parts, " ")
+}
+
+func ToPolicy(item DetailItem) *domain.Policy {
 	return &domain.Policy{
 		Title:       item.ProgrmSj,
 		Description: buildDescription(item),
 		RegionCode:  parser.ParseRegionCode(item.SidoCd, item.GugunCd),
 		StartDate:   parser.ParseYYYYMMDD(item.ProgrmBgnde),
 		EndDate:     parser.ParseYYYYMMDD(item.ProgrmEndde),
-		Address:     strings.TrimSpace(item.PostAdres),
+		Address:     getAddress(item),
 		Latitude:    parser.ParseFloat(item.AreaLalo1),
 		Longitude:   parser.ParseFloat(item.AreaLalo2),
 		Condition:   normalizeCondition(item),

@@ -138,5 +138,5 @@ func (c *Client) detail(
 		return nil, err
 	}
 
-	return toPolicy(resp.Body.Items.Item), nil
+	return ToPolicy(resp.Body.Items.Item), nil
 }

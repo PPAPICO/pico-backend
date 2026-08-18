@@ -48,4 +48,11 @@ func Merge(
 			src.Interests...,
 		)
 	}
+
+	if len(src.UnparsedConditions) > 0 {
+		dst.UnparsedConditions = append(
+			dst.UnparsedConditions,
+			src.UnparsedConditions...,
+		)
+	}
 }
