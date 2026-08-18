@@ -424,7 +424,9 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/domain.PolicyResponse'
+            items:
+              $ref: '#/definitions/domain.Policy'
+            type: array
         "401":
           description: 인증되지 않은 사용자
           schema:
@@ -515,7 +517,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/domain.Policy'
+              $ref: '#/definitions/domain.PolicyResponse'
             type: array
         "401":
           description: Unauthorized
@@ -539,7 +541,9 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/domain.PolicyResponse'
+            items:
+              $ref: '#/definitions/domain.PolicyResponse'
+            type: array
         "401":
           description: 인증되지 않은 사용자
           schema:

@@ -242,7 +242,10 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/domain.PolicyResponse"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.Policy"
+                            }
                         }
                     },
                     "401": {
@@ -386,7 +389,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/domain.Policy"
+                                "$ref": "#/definitions/domain.PolicyResponse"
                             }
                         }
                     },
@@ -424,7 +427,10 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/domain.PolicyResponse"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.PolicyResponse"
+                            }
                         }
                     },
                     "401": {
