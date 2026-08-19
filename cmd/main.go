@@ -104,8 +104,7 @@ func main() {
 	welfareClient := welfare.NewClient(httpClient, policyRepository, config.E.WelfareApiKey)
 	volunteerClient := volunteer.NewClient(httpClient, policyRepository, config.E.VolunteerApiKey)
 	kakaoMapClient := kakaomap.NewClient(httpClient, config.E.KakaoMapApiKey)
-
-	aiClient := ai.NewClient(&http.Client{Timeout: timeout}, config.E.AIApiKey)
+	aiClient := ai.NewClient(httpClient, config.E.AIApiKey)
 
 	// usecase
 	matcher := usecase.NewPolicyMatcher()

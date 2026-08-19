@@ -171,7 +171,6 @@ func (u *policyUseCase) SavePolicyMatches(c context.Context, user *domain.User, 
 		if status == domain.MatchUNCERTAIN {
 			match.Probability, match.Comment, _ = u.getProbabilityAndComment(c, user, policy)
 		}
-		// nilpointer
 		matches[i], err = u.policyMatchRepository.Create(ctx, match)
 		if err != nil {
 			return nil, domain.NewInternalServerError(err)
@@ -246,7 +245,7 @@ func (u *policyUseCase) getProbabilityAndComment(c context.Context, user *domain
 		return nil, nil, err
 	}
 
-	resString := strings.Split(string(res), ",")
+	resString := strings.Split(res, ",")
 
 	probability, err := strconv.Atoi(resString[0])
 	if err != nil {
@@ -266,9 +265,10 @@ func (u *policyUseCase) getInterests(c context.Context, policy *domain.Policy) (
 	policyInfo := string(data)
 	res, err := u.aiClient.Chat(c, fmt.Sprintf(domain.InterestPrompt, policyInfo))
 	if err != nil {
+		fmt.Printf("AI API ERROR: %v\n", err)
 		return nil, err
 	}
-	return collections.Filter(collections.Map(strings.Split(string(res), ","), func(s string) domain.Interest {
+	return collections.Filter(collections.Map(strings.Split(res, ","), func(s string) domain.Interest {
 		return domain.Interest(s)
 	}), func(i domain.Interest) bool {
 		switch i {
