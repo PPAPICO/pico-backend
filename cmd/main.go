@@ -73,7 +73,6 @@ func main() {
 	api := app.Group("/api")
 
 	app.Get("/swagger/*", swaggo.HandlerDefault)
-
 	app.Get("/docs/*", swaggo.HandlerDefault)
 
 	client, err := database.NewClient()
