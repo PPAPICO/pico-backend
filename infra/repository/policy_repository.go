@@ -57,7 +57,7 @@ func (r *policyRepository) FindAllByRegionCodeAndActive(c context.Context, regio
 	now := time.Now()
 
 	policies, err := r.client.GovernmentPolicy.Query().Where(
-		governmentpolicy.RegionCodeEQ(regionCode),
+		governmentpolicy.RegionCodeIn(0, 11000, regionCode),
 		governmentpolicy.StartDateLTE(now),
 		governmentpolicy.EndDateGTE(now),
 	).All(c)

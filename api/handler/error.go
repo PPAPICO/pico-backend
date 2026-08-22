@@ -11,7 +11,7 @@ import (
 func RespondError(c fiber.Ctx, err error) error {
 	status := http.StatusInternalServerError
 
-	if errInfo, ok := errors.AsType[domain.Error](err); ok {
+    if errInfo, ok := errors.AsType[*domain.Error](err); ok {
 		status = errInfo.StatusCode
 	}
 

@@ -59,14 +59,18 @@ func (u *authUseCase) Register(c context.Context, name, email, password string, 
 	if err != nil {
 		return nil, domain.NewInternalServerError(err)
 	}
-	policies, err := u.policyUseCase.List(ctx)
-	if err != nil {
-		return nil, domain.NewInternalServerError(err)
-	}
-	_, err = u.policyUseCase.SavePolicyMatches(ctx, user, policies)
-	if err != nil {
-		return nil, domain.NewInternalServerError(err)
-	}
+		
+	go func(u *authUseCase, createdUser *domain.User) {
+		bgCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancel()
+
+		policies, err := u.policyUseCase.List(bgCtx)
+		if err != nil {
+			return
+		}
+		_, _ = u.policyUseCase.SavePolicyMatches(bgCtx, createdUser, policies)
+	}(u, user)
+
 	return user, nil
 }
 
