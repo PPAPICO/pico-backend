@@ -163,6 +163,71 @@ const docTemplate = `{
             }
         },
         "/notification/protected/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "알림 ID를 이용하여 해당 알림을 삭제합니다.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "알림"
+                ],
+                "summary": "특정 알림 삭제",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "알림 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "성공 응답",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "잘못된 요청 (예: ID 변환 실패)",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "인증 실패",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "서버 내부 오류",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
             "patch": {
                 "security": [
                     {
@@ -251,6 +316,46 @@ const docTemplate = `{
                             "type": "array",
                             "items": {
                                 "$ref": "#/definitions/domain.Policy"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "인증되지 않은 사용자",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "서버 오류",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/policy/protected": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "정책 리스트 반환",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Policy"
+                ],
+                "summary": "정책 조회",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.PolicyResponse"
                             }
                         }
                     },
@@ -407,6 +512,40 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/policy/protected/reclassify": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "카테고리(interests) 분류가 안 된 기존 정책들을 AI로 다시 분류합니다.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Policy"
+                ],
+                "summary": "기존 정책 카테고리 재분류 (관리자용)",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "서버 오류",
                         "schema": {
                             "$ref": "#/definitions/domain.ErrorResponse"
                         }
@@ -870,6 +1009,10 @@ const docTemplate = `{
                 "require_youth": {
                     "type": "boolean"
                 },
+                "source_url": {
+                    "description": "외부 API(온통청년/복지로)가 제공하는 신청/원문 페이지 URL.\nent 스키마 변경 없이 JSON 컬럼(condition)에 함께 저장하기 위해 여기 추가함.",
+                    "type": "string"
+                },
                 "unparsed_conditions": {
                     "type": "array",
                     "items": {
@@ -907,6 +1050,9 @@ const docTemplate = `{
                 },
                 "region_code": {
                     "type": "integer"
+                },
+                "source_url": {
+                    "type": "string"
                 },
                 "start_date": {
                     "type": "string"

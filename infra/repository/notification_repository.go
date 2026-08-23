@@ -30,9 +30,21 @@ func (r *notificationRepository) Create(
 		SetType(int(n.Type)).
 		SetMessage(n.Message).
 		SetMetadata(n.Metadata).
-		SetIsRead(n.IsRead).
+		SetIsRead(false).
 		Save(ctx)
 
+	if err != nil {
+		return nil, err
+	}
+
+	// Create() 직후의 결과에는 Edges.Receiver(관계)가 채워지지 않아서
+	// toDomainNotification에서 n.Edges.Receiver.ID 접근 시 panic 났었음.
+	// 저장 후 다시 조회하면서 Receiver 관계를 명시적으로 불러옴(WithReceiver).
+	created, err = r.client.Notification.
+		Query().
+		Where(notification.IDEQ(created.ID)).
+		WithReceiver().
+		Only(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -51,6 +63,7 @@ func (r *notificationRepository) FindAllByReceiverID(
 				user.IDEQ(*receiverID),
 			),
 		).
+		WithReceiver().
 		Order(ent.Desc(notification.FieldCreatedAt)).
 		All(c)
 
@@ -62,7 +75,11 @@ func (r *notificationRepository) FindAllByReceiverID(
 }
 
 func (r *notificationRepository) FindByID(c context.Context, id *domain.ID) (*domain.Notification, error) {
-	n, err := r.client.Notification.Get(c, *id)
+	n, err := r.client.Notification.
+		Query().
+		Where(notification.IDEQ(*id)).
+		WithReceiver().
+		Only(c)
 	if err != nil {
 		return nil, err
 	}
@@ -102,4 +119,9 @@ func (r *notificationRepository) CountUnreadByReceiverID(
 			notification.IsReadEQ(false),
 		).
 		Count(c)
+}
+func (r *notificationRepository) Delete(c context.Context, id *domain.ID) error {
+	return r.client.Notification.
+		DeleteOneID(*id).
+		Exec(c)
 }

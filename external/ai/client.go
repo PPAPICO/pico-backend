@@ -25,7 +25,7 @@ func NewClient(httpClient *httpclient.Client, apiKey string) *Client {
 
 func (c *Client) Chat(ctx context.Context, message string) (string, error) {
 	reqBody := map[string]interface{}{
-		"model":      "claude-sonnet-5",
+		"model":      "claude-fable-5",
 		"max_tokens": 1024,
 		"messages": []map[string]string{
 			{

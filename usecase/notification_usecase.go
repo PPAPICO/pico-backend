@@ -79,3 +79,20 @@ func (u *notificationUseCase) CountUnreadByReceiverID(c context.Context, receive
 
 	return n, nil
 }
+func (u *notificationUseCase) Delete(c context.Context, id *domain.ID, receiverID *domain.ID) error {
+	ctx, cancel := context.WithTimeout(c, u.contextTimeout)
+	defer cancel()
+
+	n, err := u.notificationRepository.FindByID(ctx, id)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return domain.NewNotFoundError(err)
+		}
+		return domain.NewBadRequestError(err)
+	}
+	if n.ReceiverID != *receiverID {
+		return domain.NewForbiddenError(errors.New("forbidden"))
+	}
+
+	return u.notificationRepository.Delete(ctx, id)
+}

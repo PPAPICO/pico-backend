@@ -31,5 +31,12 @@ func normalizeCondition(item Item) domain.PolicyCondition {
 
 	policycondition.Merge(&condition, parsed)
 
+	// 신청 페이지 URL 저장 (없으면 참고 링크로 대체)
+	if item.AplyUrlAddr != "" {
+		condition.SourceURL = item.AplyUrlAddr
+	} else if item.RefUrlAddr1 != "" {
+		condition.SourceURL = item.RefUrlAddr1
+	}
+
 	return condition
 }

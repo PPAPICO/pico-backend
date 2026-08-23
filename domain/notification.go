@@ -33,6 +33,7 @@ type NotificationRepository interface {
 	FindByID(c context.Context, id *ID) (*Notification, error)
 	UpdateIsReadAsTrue(c context.Context, id *ID) error
 	CountUnreadByReceiverID(c context.Context, receiverID *ID) (int, error)
+	Delete(c context.Context, id *ID) error
 }
 
 type NotificationUseCase interface {
@@ -40,4 +41,5 @@ type NotificationUseCase interface {
 	ListByReceiverID(c context.Context, receiverID *ID) ([]*Notification, error)
 	MarkAsRead(c context.Context, id *ID, receiverID *ID) error
 	CountUnreadByReceiverID(c context.Context, receiverID *ID) (int, error)
+	Delete(c context.Context, id *ID, receiverID *ID) error
 }

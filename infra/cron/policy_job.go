@@ -101,11 +101,18 @@ func (j *PolicyJob) checkFavoriteDeadlines(ctx context.Context) {
 
 		for _, policy := range favPolicies {
 			if !policy.EndDate.IsZero() && policy.EndDate.After(now) && policy.EndDate.Before(threeDaysLater) {
-				daysLeft := int(policy.EndDate.Sub(now).Hours() / 24)
+				today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+				deadlineDate := time.Date(policy.EndDate.Year(), policy.EndDate.Month(), policy.EndDate.Day(), 0, 0, 0, 0, now.Location())
+				daysLeft := int(deadlineDate.Sub(today).Hours() / 24)
 				if daysLeft < 0 {
 					daysLeft = 0
 				}
-				msg := fmt.Sprintf("즐겨찾기한 정책 '%s'의 마감기한이 %d일 남았습니다.", policy.Title, daysLeft)
+				var msg string
+				if daysLeft == 0 {
+					msg = fmt.Sprintf("즐겨찾기한 정책 '%s'이(가) 오늘 마감입니다.", policy.Title)
+				} else {
+					msg = fmt.Sprintf("즐겨찾기한 정책 '%s'의 마감기한이 %d일 남았습니다.", policy.Title, daysLeft)
+				}
 				_, _ = j.notificationUseCase.Create(ctx, &domain.Notification{
 					ReceiverID: user.ID,
 					Type:       domain.NotificationTypeSTAR,

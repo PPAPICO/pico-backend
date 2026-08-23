@@ -363,3 +363,53 @@ func (u *policyUseCase) getInterests(c context.Context, policy *domain.Policy) (
 //
 //	return result, nil
 //}
+
+// ReclassifyAllPolicies 는 이미 저장된 정책들 중 카테고리(interests) 분류가 안 된 것들을
+// 다시 돌면서 AI로 재분류하는 일회성 관리자용 기능이다.
+// GetFromApi의 자동 분류는 "새로 가져온 정책"에만 적용되기 때문에,
+// 예전에 분류 없이 저장된 기존 데이터는 이 함수로 별도 재실행해야 한다.
+func (u *policyUseCase) ReclassifyAllPolicies(c context.Context) (int, error) {
+	policies, err := u.policyRepository.FindAll(c)
+	if err != nil {
+		return 0, domain.NewInternalServerError(err)
+	}
+
+	updated := 0
+	for i, p := range policies {
+		if len(p.Condition.Interests) > 0 {
+			continue // 이미 분류되어 있으면 건너뜀
+		}
+
+		// 144개를 연달아 바로 쏘면 AI API의 rate limit(429)에 걸림.
+		// 요청 사이에 약간의 텀을 줘서 속도를 늦춤.
+		if i > 0 {
+			time.Sleep(1500 * time.Millisecond)
+		}
+
+		ctx, cancel := context.WithTimeout(c, u.contextTimeout*10)
+		interests, err := u.getInterests(ctx, p)
+		cancel()
+		if err != nil {
+			log.Printf("[ReclassifyAllPolicies] policy id: %s, getInterests error: %v", p.ID, err)
+			continue
+		}
+		if len(interests) == 0 {
+			continue
+		}
+
+		newCondition := p.Condition
+		newCondition.Interests = interests
+
+		updateCtx, updateCancel := context.WithTimeout(c, u.contextTimeout)
+		err = u.policyRepository.UpdateCondition(updateCtx, &p.ID, newCondition)
+		updateCancel()
+		if err != nil {
+			log.Printf("[ReclassifyAllPolicies] policy id: %s, UpdateCondition error: %v", p.ID, err)
+			continue
+		}
+
+		updated++
+	}
+
+	return updated, nil
+}

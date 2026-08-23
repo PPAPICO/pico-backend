@@ -55,6 +55,7 @@ func (u *profileUseCase) GetByID(c context.Context, userID *domain.ID) (*domain.
 		IsPregnant: user.IsPregnant,
 		IsBusiness: user.IsBusiness,
 		IsForeign:  user.IsForeign,
+		IsDisabled: user.IsDisabled,
 		Interests:  user.Interests,
 		CreatedAt:  user.CreatedAt,
 	}, nil
@@ -88,6 +89,7 @@ func (u *profileUseCase) Update(c context.Context, ID *domain.ID, params *domain
 		IsPregnant: params.IsPregnant,
 		IsBusiness: params.IsBusiness,
 		IsForeign:  params.IsForeign,
+		IsDisabled: params.IsDisabled,
 		Interests:  params.Interests,
 	})
 	if err != nil {
@@ -110,12 +112,14 @@ func (u *profileUseCase) Update(c context.Context, ID *domain.ID, params *domain
 				}
 			}
 			if changedCount > 0 {
-				_, _ = u.notificationUseCase.Create(ctx, &domain.Notification{
+				ctx, cancel := context.WithTimeout(c, u.contextTimeout)
+				_, err = u.notificationUseCase.Create(ctx, &domain.Notification{
 					ReceiverID: *ID,
 					Type:       domain.NotificationTypeSTAR,
 					Message:    "사용자 정보 변경에 따라 정책 적합도 정보가 업데이트되었습니다.",
 					Metadata:   map[string]any{"changed_count": changedCount},
 				})
+				cancel()
 			}
 		}
 	}
@@ -132,6 +136,7 @@ func (u *profileUseCase) Update(c context.Context, ID *domain.ID, params *domain
 		IsPregnant: user.IsPregnant,
 		IsBusiness: user.IsBusiness,
 		IsForeign:  user.IsForeign,
+		IsDisabled: user.IsDisabled,
 		Interests:  user.Interests,
 		CreatedAt:  user.CreatedAt,
 	}, nil

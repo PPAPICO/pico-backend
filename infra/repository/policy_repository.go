@@ -56,8 +56,8 @@ func (r *policyRepository) FindAllByRegionCode(c context.Context, regionCode int
 func (r *policyRepository) FindAllByRegionCodeAndActive(c context.Context, regionCode int) ([]*domain.Policy, error) {
 	now := time.Now()
 
-	policies, err := r.client.GovernmentPolicy.Query().Where(
-		governmentpolicy.RegionCodeEQ(regionCode),
+		policies, err := r.client.GovernmentPolicy.Query().Where(
+		governmentpolicy.RegionCodeIn(0, 11000, regionCode),
 		governmentpolicy.StartDateLTE(now),
 		governmentpolicy.EndDateGTE(now),
 	).All(c)
@@ -89,4 +89,10 @@ func (r *policyRepository) Create(c context.Context, policy *domain.Policy) (*do
 
 func (r *policyRepository) Delete(c context.Context, id *domain.ID) error {
 	return r.client.GovernmentPolicy.DeleteOneID(*id).Exec(c)
+}
+func (r *policyRepository) UpdateCondition(c context.Context, id *domain.ID, condition domain.PolicyCondition) error {
+	return r.client.GovernmentPolicy.
+		UpdateOneID(*id).
+		SetCondition(condition).
+		Exec(c)
 }

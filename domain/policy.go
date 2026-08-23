@@ -41,6 +41,7 @@ type PolicyResponse struct {
 	Longitude   float64    `json:"longitude"`
 	Status      Match      `json:"status"`
 	Interests   []Interest `json:"interests"`
+	SourceURL   string     `json:"source_url"`
 }
 
 func (p *Policy) ToResponse(match *PolicyMatch) *PolicyResponse {
@@ -60,6 +61,7 @@ func (p *Policy) ToResponse(match *PolicyMatch) *PolicyResponse {
 		Longitude:   p.Longitude,
 		Status:      status,
 		Interests:   p.Condition.Interests,
+		SourceURL:   p.Condition.SourceURL,
 	}
 }
 
@@ -148,6 +150,7 @@ type PolicyRepository interface {
 	FindAllByRegionCodeAndActive(c context.Context, regionCode int) ([]*Policy, error)
 	Create(c context.Context, policy *Policy) (*Policy, error)
 	Delete(c context.Context, id *ID) error
+	UpdateCondition(c context.Context, id *ID, condition PolicyCondition) error
 }
 
 type PolicyMatchRepository interface {
@@ -166,6 +169,7 @@ type PolicyUseCase interface {
 	List(c context.Context) ([]*Policy, error)
 	SavePolicyMatches(c context.Context, user *User, policies []*Policy) ([]*PolicyMatch, error)
 	UpdatePolicyMatchesForUser(c context.Context, userID *ID) ([]*PolicyMatch, error)
+	ReclassifyAllPolicies(c context.Context) (int, error)
 }
 
 const MatchPrompt = "너는 사용자의 개인정보와 정책/봉사활동 정보를 비교하여, 해당 사용자가 해당 정책 또는 봉사활동의 대상자에 해당할 가능성을 판단하는 AI다.\n\n다음 두 가지 정보를 바탕으로 판단하라.\n\n[사용자 정보]\n%s\n\n[정책 또는 봉사활동 정보]\n%s\n\n판단 기준:\n\n1. 정책 또는 봉사활동의 지원 대상, 참여 조건, 자격 요건을 우선적으로 확인한다.\n2. 사용자의 나이, 성별, 지역, 국적, 소득, 직업, 학생 여부, 관심 분야 등 제공된 정보와 조건을 비교한다.\n3. 명시적인 자격 조건이 사용자 정보와 일치하면 높은 점수를 부여한다.\n4. 명시적인 자격 조건과 사용자 정보가 충돌하면 낮은 점수를 부여한다.\n5. 사용자 정보에 자격 판단에 필요한 정보가 없으면 해당 조건을 충족한다고 추측하지 말고 불확실성을 반영한다.\n6. 정책/봉사활동에 별도의 자격 제한이 없거나 대부분의 사람이 참여할 수 있는 경우에는 높은 점수를 부여할 수 있다.\n7. 제공된 정보만 사용하여 판단하며, 존재하지 않는 사용자 정보를 추측하거나 만들어내지 않는다.\n8. 확률은 0~99 사이의 정수 하나로 표현한다.\n9. 확률은 \"해당 사용자가 이 정책/봉사활동의 대상자 또는 참여 가능 대상일 가능성\"을 의미한다.\n10. 판단 근거는 핵심적인 이유를 한 문장으로 간결하게 작성한다.\n11. 반드시 아래 형식으로만 응답한다.\n\n출력 형식:\n{확률},{판단 근거}\n\n예시:\n85,사용자가 서울에 거주하고 만 19세 이상이라는 조건을 충족하므로 대상자일 가능성이 높습니다.\n42,지역 조건은 충족하지만 소득 조건을 판단할 사용자 정보가 없어 대상 여부가 불확실합니다.\n10,해당 정책은 만 65세 이상을 대상으로 하지만 사용자는 해당 연령 조건을 충족하지 않습니다.\n\n주의:\n\n* 확률은 반드시 0~99 사이의 정수여야 한다.\n* 확률 뒤에는 반드시 쉼표 하나만 사용한다.\n* 판단 근거에는 불필요한 설명이나 여러 문장을 넣지 않는다.\n* JSON, Markdown, 코드 블록, 접두사/접미사 등 다른 형식은 사용하지 않는다.\n* 최종 응답은 반드시 \"{정수},{한 문장}\" 형태여야 한다.\n"

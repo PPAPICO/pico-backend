@@ -71,6 +71,41 @@ func GetAllPolicies(policyService domain.PolicyUseCase) fiber.Handler {
 	}
 }
 
+// GetAllPoliciesWithMatch
+// @Summary      정책 조회
+// @Description  정책 리스트 반환
+// @Tags         Policy
+// @Security     BearerAuth
+// @Produce      json
+// @Success      200  {array}  domain.PolicyResponse
+// @Failure      401  {object}  domain.ErrorResponse  "인증되지 않은 사용자"
+// @Failure      500  {object}  domain.ErrorResponse  "서버 오류"
+// @Router       /policy/protected [get]
+func GetAllPoliciesWithMatch(policyService domain.PolicyUseCase) fiber.Handler {
+	return func(c fiber.Ctx) error {
+		ctx := c.RequestCtx()
+		userID := c.Locals("id").(*domain.ID)
+
+		policies, err := policyService.List(ctx)
+		if err != nil {
+			return RespondError(c, err)
+		}
+
+		matches, err := policyService.ListMatchesByUserID(ctx, userID)
+		if err != nil {
+			return RespondError(c, err)
+		}
+
+		policyResponses := collections.Map(policies, func(p *domain.Policy) *domain.PolicyResponse {
+			return p.ToResponse(*collections.Find(matches, func(m *domain.PolicyMatch) bool {
+				return m.PolicyID == p.ID
+			}))
+		})
+
+		return c.Status(http.StatusOK).JSON(policyResponses)
+	}
+}
+
 // AddFavoritePolicy
 // @Summary      정책 즐겨찾기 등록
 // @Description  특정 정책을 즐겨찾기에 등록합니다.
@@ -163,5 +198,27 @@ func GetFavoritePolicies(favoriteUseCase domain.FavoriteUseCase, policyService d
 		})
 
 		return c.Status(http.StatusOK).JSON(policyResponses)
+	}
+}
+
+// ReclassifyPolicies
+// @Summary      기존 정책 카테고리 재분류 (관리자용)
+// @Description  카테고리(interests) 분류가 안 된 기존 정책들을 AI로 다시 분류합니다.
+// @Tags         Policy
+// @Security     BearerAuth
+// @Produce      json
+// @Success      200  {object}  map[string]int
+// @Failure      500  {object}  domain.ErrorResponse  "서버 오류"
+// @Router       /policy/protected/reclassify [post]
+func ReclassifyPolicies(service domain.PolicyUseCase) fiber.Handler {
+	return func(c fiber.Ctx) error {
+		ctx := c.RequestCtx()
+
+		updated, err := service.ReclassifyAllPolicies(ctx)
+		if err != nil {
+			return RespondError(c, err)
+		}
+
+		return c.Status(http.StatusOK).JSON(fiber.Map{"updated": updated})
 	}
 }
