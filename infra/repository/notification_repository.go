@@ -30,7 +30,7 @@ func (r *notificationRepository) Create(
 		SetType(int(n.Type)).
 		SetMessage(n.Message).
 		SetMetadata(n.Metadata).
-		SetIsRead(n.IsRead).
+		SetIsRead(false).
 		Save(ctx)
 
 	if err != nil {
