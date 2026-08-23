@@ -55,6 +55,7 @@ func (u *profileUseCase) GetByID(c context.Context, userID *domain.ID) (*domain.
 		IsPregnant: user.IsPregnant,
 		IsBusiness: user.IsBusiness,
 		IsForeign:  user.IsForeign,
+		IsDisabled: user.IsDisabled,
 		Interests:  user.Interests,
 		CreatedAt:  user.CreatedAt,
 	}, nil
@@ -88,6 +89,7 @@ func (u *profileUseCase) Update(c context.Context, ID *domain.ID, params *domain
 		IsPregnant: params.IsPregnant,
 		IsBusiness: params.IsBusiness,
 		IsForeign:  params.IsForeign,
+		IsDisabled: params.IsDisabled,
 		Interests:  params.Interests,
 	})
 	if err != nil {
@@ -132,6 +134,7 @@ func (u *profileUseCase) Update(c context.Context, ID *domain.ID, params *domain
 		IsPregnant: user.IsPregnant,
 		IsBusiness: user.IsBusiness,
 		IsForeign:  user.IsForeign,
+		IsDisabled: user.IsDisabled,
 		Interests:  user.Interests,
 		CreatedAt:  user.CreatedAt,
 	}, nil

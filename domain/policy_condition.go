@@ -18,6 +18,10 @@ type PolicyCondition struct {
 	Interests []Interest `json:"interests,omitempty"`
 
 	UnparsedConditions []string `json:"unparsed_conditions,omitempty"`
+
+	// 외부 API(온통청년/복지로)가 제공하는 신청/원문 페이지 URL.
+	// ent 스키마 변경 없이 JSON 컬럼(condition)에 함께 저장하기 위해 여기 추가함.
+	SourceURL string `json:"source_url,omitempty"`
 }
 
 type ConditionResult int

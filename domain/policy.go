@@ -41,6 +41,7 @@ type PolicyResponse struct {
 	Longitude   float64    `json:"longitude"`
 	Status      Match      `json:"status"`
 	Interests   []Interest `json:"interests"`
+	SourceURL   string     `json:"source_url"`
 }
 
 func (p *Policy) ToResponse(match *PolicyMatch) *PolicyResponse {
@@ -60,6 +61,7 @@ func (p *Policy) ToResponse(match *PolicyMatch) *PolicyResponse {
 		Longitude:   p.Longitude,
 		Status:      status,
 		Interests:   p.Condition.Interests,
+		SourceURL:   p.Condition.SourceURL,
 	}
 }
 
