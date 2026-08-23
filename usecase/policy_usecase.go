@@ -363,7 +363,8 @@ func (u *policyUseCase) getInterests(c context.Context, policy *domain.Policy) (
 //
 //	return result, nil
 //}
-// ReclassifyAllPolicies는 이미 저장된 정책들 중 카테고리(interests) 분류가 안 된 것들을
+
+// ReclassifyAllPolicies 는 이미 저장된 정책들 중 카테고리(interests) 분류가 안 된 것들을
 // 다시 돌면서 AI로 재분류하는 일회성 관리자용 기능이다.
 // GetFromApi의 자동 분류는 "새로 가져온 정책"에만 적용되기 때문에,
 // 예전에 분류 없이 저장된 기존 데이터는 이 함수로 별도 재실행해야 한다.
