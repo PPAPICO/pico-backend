@@ -165,3 +165,24 @@ func GetFavoritePolicies(favoriteUseCase domain.FavoriteUseCase, policyService d
 		return c.Status(http.StatusOK).JSON(policyResponses)
 	}
 }
+// ReclassifyPolicies
+// @Summary      기존 정책 카테고리 재분류 (관리자용)
+// @Description  카테고리(interests) 분류가 안 된 기존 정책들을 AI로 다시 분류합니다.
+// @Tags         Policy
+// @Security     BearerAuth
+// @Produce      json
+// @Success      200  {object}  map[string]int
+// @Failure      500  {object}  domain.ErrorResponse  "서버 오류"
+// @Router       /policy/protected/reclassify [post]
+func ReclassifyPolicies(service domain.PolicyUseCase) fiber.Handler {
+	return func(c fiber.Ctx) error {
+		ctx := c.RequestCtx()
+
+		updated, err := service.ReclassifyAllPolicies(ctx)
+		if err != nil {
+			return RespondError(c, err)
+		}
+
+		return c.Status(http.StatusOK).JSON(fiber.Map{"updated": updated})
+	}
+}

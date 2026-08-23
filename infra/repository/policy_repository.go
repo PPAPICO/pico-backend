@@ -90,3 +90,9 @@ func (r *policyRepository) Create(c context.Context, policy *domain.Policy) (*do
 func (r *policyRepository) Delete(c context.Context, id *domain.ID) error {
 	return r.client.GovernmentPolicy.DeleteOneID(*id).Exec(c)
 }
+func (r *policyRepository) UpdateCondition(c context.Context, id *domain.ID, condition domain.PolicyCondition) error {
+	return r.client.GovernmentPolicy.
+		UpdateOneID(*id).
+		SetCondition(condition).
+		Exec(c)
+}

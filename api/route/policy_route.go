@@ -17,4 +17,5 @@ func NewPolicyRouter(app fiber.Router, policyService domain.PolicyUseCase, profi
 	protected.Get("/favorites", handler.GetFavoritePolicies(favoriteService, policyService))
 	protected.Post("/favorite/:id", handler.AddFavoritePolicy(favoriteService))
 	protected.Delete("/favorite/:id", handler.RemoveFavoritePolicy(favoriteService))
+	protected.Post("/reclassify", handler.ReclassifyPolicies(policyService))
 }

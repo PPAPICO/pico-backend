@@ -84,3 +84,33 @@ func GetUnreadNotificationsCount(service domain.NotificationUseCase) fiber.Handl
 		return c.Status(200).JSON(&domain.NotificationCountResponse{Count: count})
 	}
 }
+// DeleteNotification
+// @Summary 특정 알림 삭제
+// @Description 알림 ID를 이용하여 해당 알림을 삭제합니다.
+// @Tags 알림
+// @Accept  json
+// @Produce  json
+// @Param id path int true "알림 ID"
+// @Success 200 {object} map[string]string "성공 응답"
+// @Failure 400 {object} map[string]string "잘못된 요청 (예: ID 변환 실패)"
+// @Failure 401 {object} map[string]string "인증 실패"
+// @Failure 500 {object} map[string]string "서버 내부 오류"
+// @Security BearerAuth
+// @Router /notification/protected/{id} [delete]
+func DeleteNotification(service domain.NotificationUseCase) fiber.Handler {
+	return func(c fiber.Ctx) error {
+		ctx := c.RequestCtx()
+		userID := c.Locals("id").(*domain.ID)
+		notificationID, err := domain.StringToID(c.Params("id"))
+		if err != nil {
+			return RespondError(c, domain.NewBadRequestError(err))
+		}
+
+		err = service.Delete(ctx, &notificationID, userID)
+		if err != nil {
+			return RespondError(c, err)
+		}
+
+		return c.Status(200).JSON(fiber.Map{"status": "ok"})
+	}
+}

@@ -12,5 +12,6 @@ func NewNotificationRoute(app fiber.Router, service domain.NotificationUseCase) 
 	protected.Use(middleware.JwtMiddleware)
 	protected.Get("/", handler.GetNotifications(service))
 	protected.Patch("/:id", handler.MarkNotificationAsRead(service))
+	protected.Delete("/:id", handler.DeleteNotification(service))
 	protected.Get("/unread-count", handler.GetUnreadNotificationsCount(service))
 }
