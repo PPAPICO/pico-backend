@@ -334,6 +334,46 @@ const docTemplate = `{
                 }
             }
         },
+        "/policy/protected": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "정책 리스트 반환",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Policy"
+                ],
+                "summary": "정책 조회",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.PolicyResponse"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "인증되지 않은 사용자",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "서버 오류",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/policy/protected/favorite/{id}": {
             "post": {
                 "security": [
@@ -969,6 +1009,10 @@ const docTemplate = `{
                 "require_youth": {
                     "type": "boolean"
                 },
+                "source_url": {
+                    "description": "외부 API(온통청년/복지로)가 제공하는 신청/원문 페이지 URL.\nent 스키마 변경 없이 JSON 컬럼(condition)에 함께 저장하기 위해 여기 추가함.",
+                    "type": "string"
+                },
                 "unparsed_conditions": {
                     "type": "array",
                     "items": {
@@ -1006,6 +1050,9 @@ const docTemplate = `{
                 },
                 "region_code": {
                     "type": "integer"
+                },
+                "source_url": {
+                    "type": "string"
                 },
                 "start_date": {
                     "type": "string"

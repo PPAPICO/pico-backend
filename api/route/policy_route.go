@@ -13,6 +13,7 @@ func NewPolicyRouter(app fiber.Router, policyService domain.PolicyUseCase, profi
 	// protected
 	protected := app.Group("/protected")
 	protected.Use(middleware.JwtMiddleware)
+	protected.Get("/", handler.GetAllPoliciesWithMatch(policyService))
 	protected.Get("/region", handler.GetPoliciesInMyRegion(policyService, profileService))
 	protected.Get("/favorites", handler.GetFavoritePolicies(favoriteService, policyService))
 	protected.Post("/favorite/:id", handler.AddFavoritePolicy(favoriteService))
